@@ -5,10 +5,12 @@
  * Date: 5/18/2016
  * Time: 11:48 AM
  */
+define('FORCEHTTPS', true, true);
 require_once('includes/config.php');
 $Page = new Page('Payroll Interfaces', 'index.php');
 $Page->addJs('interfaces.js');
 $Page->setRequireAuth(true);
+
 $Interface = new PayrollManagement();
 $OtherTable = new OtherTable();
 $SunLife = new ADPToSunLife();

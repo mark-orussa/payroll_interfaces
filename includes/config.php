@@ -18,15 +18,15 @@ if( isset($_REQUEST['message']) ){
 * A web browser sees things differently. It expects http://domain name/folder or filename.
 */
 define('DOMAIN', 'pi.embassyllc.com', true);//The base domain of the website, without the http://. No trailing slash.
-define('LOCALDOMAIN', 'localhost');//The base domain of the local website, without the http://. No trailing slash. If your site is accessed by using http://localhost, then enter localhost here. The remainder of the domain will be entered below in LOCALHOMEDIRECTORY.
+define('LOCALDOMAIN', 'pi.embassyllc.dev');//The base domain of the local website, without the http://. No trailing slash. If your site is accessed by using http://localhost, then enter localhost here. The remainder of the domain will be entered below in LOCALHOMEDIRECTORY.
 
 //The home directory is the base home directory following the domain where the public facing site is found. Begin with a /
 define('PRODUCTIONHOMEDIRECTORY', '', true);// Starts with a forward slash /, otherwise empty.
-define('LOCALHOMEDIRECTORY', '/pi.embassyllc.com', true);// Starts with a forward slash /
+define('LOCALHOMEDIRECTORY', '', true);// Starts with a forward slash /
 
 //Begin with a / and follow with the entire path from the root of the server. For ServInt this would be /home/name_of_the_account/includes
 define('PRODUCTIONINCLUDEDIRECTORY', '/var/www/html/includes', true);// Use environment variables
-define('LOCALINCLUDEDIRECTORY', '/xampp/htdocs/pi.embassyllc.com/includes', true);// Use environment variables
+define('LOCALINCLUDEDIRECTORY', '/xampp/htdocs/pi.embassyllc.dev/includes', true);// Use environment variables
 
 define('LOCALIP', '192.168.11.27', true);//When using virtual machine software enter the ip address of the local machine.
 define('THENAMEOFTHESITE', 'pi.embassyllc.com', true);//This is shown at the top of each page. If your address is www.mysite.com, name it My Site.
@@ -95,11 +95,10 @@ if( (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERV
 	//Not using https://
 	define('HTTPS', false, true);
 }
-
-$virtualMachine = strstr($_SERVER['SERVER_NAME'], LOCALIP) === false ? false : true;
+$virtualMachine = stripos($_SERVER['SERVER_NAME'], LOCALIP) === false ? false : true;
 //Define the includes folder, starting directory, and other constants depending on local or production.
 if( !defined('LOCAL') ){
-	if( strstr('localhost', $_SERVER['SERVER_NAME']) == false && !$virtualMachine ){
+	if( stripos($_SERVER['SERVER_NAME'], 'pi') === false && !$virtualMachine ){
 		//Production server.
 		define('LOCAL', false, true);
 		if( PRODUCTIONHOMEDIRECTORY == '' ){

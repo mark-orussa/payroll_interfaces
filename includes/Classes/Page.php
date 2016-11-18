@@ -161,6 +161,7 @@ class Page {
 	public function buildLogin() {
 		$output = '<label for="password">Password: </label> <input name="password" type="password">
 <div>
+	<div class="g-recaptcha" data-sitekey="6LcCPgwUAAAAAIFRz9cJwRYtk7clMYiMODfCdGF2"></div>
 	<span class="makeButton" id="loginSubmit">Submit</span>
 	<div id="loginError" class="red"></div>
 </div>';
@@ -243,6 +244,7 @@ class Page {
 
 		// Javascript files
 		$head .= '<script type="text/javascript" src="' . LINKJS . '/jquery/jquery-1.12.3.min.js"></script>
+		<script src=\'https://www.google.com/recaptcha/api.js\'></script>
         ';//<script src="https://use.fonticons.com/f71366fc.js"></script>
 		if( $defaultIncludes ){
 			$head .= '<script type="text/javascript" src="' . LINKJS . '/functions.js?' . date('j') . '"></script>

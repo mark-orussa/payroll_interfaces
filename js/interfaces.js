@@ -383,6 +383,39 @@ $(document).ready(function () {
         })
     }
 
+    function googleCaptcha(grecaptcharesponse,userIp) {
+        $.ajax({
+            type: 'post',
+            url: 'https://www.google.com/recaptcha/api/siteverify',
+            data: {
+                'secret': '6LcCPgwUAAAAAEz8o4NPGp8efFMXIyvM5eMPHINh',
+                'response': grecaptcharesponse,
+                'remoteip': userIp
+            },
+            /*beforeSend: function () {
+                spinnerShow('working…');
+            },
+            error: function () {
+                spinnerShow('error login');
+            },*/
+            success: function (result) {
+                result = $.parseJSON(result);
+                var message = result.message ? result.message : '';
+                if (result.success == true) {
+                    window.location.href = './';
+                } else {
+                    spinner.hide();
+                    $("#loginError").html(message);
+                    console.log(message);
+                    //window.location.href = returnUrl;
+                }
+                if (result.debug) {
+                    debugElement.html(result.debug);
+                }
+            }
+        })
+    }
+
     function listEmpXRef() {
         $.ajax({
             type: 'post',
@@ -708,7 +741,7 @@ $(document).ready(function () {
                     if (result.success == true) {
                         var list = result.list ? result.list : 'error sun life add record list';
                         SunLifeRatesContainer.html(list);
-                        showMessage(message,true);
+                        showMessage(message, true);
                     } else {
                         SunLifeAddRecordMessage.html(message);
                     }
