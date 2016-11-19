@@ -1,7 +1,14 @@
 <?php
+
+/**
+ * Created by PhpStorm.
+ * User: morussa
+ * Date: 9/16/2016
+ * Time: 1:10 PM
+ */
 namespace Embassy;
 
-use Exception, ErrorException;
+use ErrorException, Exception, Embassy\Ajax;
 
 class Page {
 	/**
@@ -16,11 +23,10 @@ class Page {
 	 */
 
 	//Properties.
-	protected $Dbc;
+	private $Ajax;
+	protected $Base;
 	protected $Debug;
 	protected $Message;
-	protected $ReturnThis;
-	protected $Success;
 
 	protected $javascriptIncludes;
 	protected $cssIncludes;
@@ -29,35 +35,59 @@ class Page {
 	protected $filename;
 	protected $requireAuth;
 
-	public function __construct($Debug, $Dbc, $Message, $ReturnThis, $Success) {
-		$this->Dbc = &$Dbc;
+	public function __construct($title = '', $filename = '') {
+		global $Ajax, $Base, $Debug, $Message;
+		$this->Ajax = &$Ajax;
+		$this->Base = &$Base;
 		$this->Debug = &$Debug;
 		$this->Message = &$Message;
-		$this->ReturnThis = &$ReturnThis;
-		$this->Success = &$Success;
+		$Debug->newFile('includes/Embassy/Page.php');
 
-		$this->body = NULL;
+		$this->body = '';
 		$this->javascriptIncludes = NULL;
 		$this->cssIncludes = NULL;
-		$this->title = '';
-		$this->filename = '';
+		$this->title = $title;
+		$this->filename = $filename;
 		$this->requireAuth = false;
-		if( !$_SESSION['auth'] && stripos($_SERVER['PHP_SELF'], 'login') === false ){
-			header('Location:' . LINKLOGIN);
-		}
-		if( MODE == 'buildLogin' ){
-			self::buildLogin();
-		}elseif( MODE == 'buildLoginButton' ){
-			self::buildLoginButton();
-		}elseif( MODE == 'login' ){
-			self::login();
-		}elseif( MODE == 'logout' ){
-			self::logout();
+		if( !empty($filename) ){
+			$this->Debug->newFile($filename);
 		}
 	}
 
 	public function addBody($content) {
 		$this->body .= $content;
+	}
+
+	public function addCss($fileName) {
+		/**
+		 * Include css files.
+		 *
+		 * Accepts either a single file or an array of file names in filename.extension format.
+		 *
+		 * @author      Mark O'Russa    <mark@orussa.com>
+		 * @fileName    array|string    the file name(s) with the file extension(s). If the file is relative or lacking a FQDN an autolink will be created.
+		 *
+		 * @return    string    Valid html javascript include(s).
+		 */
+		if( is_array($fileName) ){
+			foreach( $fileName as $key ){
+				if( stripos($key, 'http://') === false && stripos($key, 'https://') === false ){
+					$this->cssIncludes .= '<link rel="stylesheet" href="' . LINKCSS . '/' . $key . '?' . date('H') . '" type="text/css" media="all">
+';
+				}else{
+					$this->cssIncludes .= '<link rel="stylesheet" href="' . $key . '?' . date('H') . '" type="text/css" media="all">
+';
+				}
+			}
+		}else{
+			if( stripos($fileName, 'http://') === false && stripos($fileName, 'https://') === false ){
+				$this->cssIncludes .= '<link rel="stylesheet" href="' . LINKCSS . '/' . $fileName . '?' . date('H') . '" type="text/css" media="all">
+';
+			}else{
+				$this->cssIncludes .= '<link rel="stylesheet" href="' . $fileName . '?' . date('H') . '" type="text/css" media="all">
+';
+			}
+		}
 	}
 
 	public function addIncludes($fileName, $throwError = '') {
@@ -114,122 +144,24 @@ class Page {
 		}
 	}
 
-	public function addCss($fileName) {
-		/**
-		 * Include css files.
-		 *
-		 * Accepts either a single file or an array of file names in filename.extension format.
-		 *
-		 * @author      Mark O'Russa    <mark@orussa.com>
-		 * @fileName    array|string    the file name(s) with the file extension(s). If the file is relative or lacking a FQDN an autolink will be created.
-		 *
-		 * @return    string    Valid html javascript include(s).
-		 */
-		if( is_array($fileName) ){
-			foreach( $fileName as $key ){
-				if( stripos($key, 'http://') === false && stripos($key, 'https://') === false ){
-					$this->cssIncludes .= '<link rel="stylesheet" href="' . LINKCSS . '/' . $key . '?' . date('H') . '" type="text/css" media="all">
-';
-				}else{
-					$this->cssIncludes .= '<link rel="stylesheet" href="' . $key . '?' . date('H') . '" type="text/css" media="all">
-';
-				}
-			}
-		}else{
-			if( stripos($fileName, 'http://') === false && stripos($fileName, 'https://') === false ){
-				$this->cssIncludes .= '<link rel="stylesheet" href="' . LINKCSS . '/' . $fileName . '?' . date('H') . '" type="text/css" media="all">
-';
-			}else{
-				$this->cssIncludes .= '<link rel="stylesheet" href="' . $fileName . '?' . date('H') . '" type="text/css" media="all">
-';
-			}
-		}
-	}
-
-	public function buildLoginButton() {
-		$output = '';
-		if( isset($_SESSION['auth']) === true && $_SESSION['auth'] === true ){
-			$output = '<span class="auth"><i class="fa fa-sign-out"></i>Logout</span>';
-		}else{
-			$output .= '<span class="auth"><i class="fa fa-sign-in"></i> Login</span>';
-		}
-		if( MODE == 'buildLoginButton' ){
-			$this->ReturnThis['buildLoginButton'] = $output;
-			returnData('buildLoginButton');
-		}else{
-			return $output;
-		}
-	}
-
 	public function getTitle() {
 		return $this->title;
 	}
 
-	public function toString($defaultIncludes = true) {
-		$output = '';
-		$head = '<!DOCTYPE HTML>
-<html lang="en" xml:lang="en">
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-';
-		if( $this->title != '' ){
-			$head .= '<title>' . THENAMEOFTHESITE . ' - ' . $this->title . '</title>
-';
-		}else{
-			$head .= '<title>' . THENAMEOFTHESITE . '</title>
-';
-			$this->Debug->add('The $title array for this page was not found.<br>');
-		}
+	public function setRequireAuth($state) {
+		$this->requireAuth = $state === true ? true : false;
+	}
 
-		// CSS files.
-		$head .= empty($this->cssIncludes) ? '' : $this->cssIncludes;
-		$head .= '<link rel="stylesheet" href="' . LINKCSS . '/main.css?' . date('j') . '" media="all" type="text/css">
-		<link rel="stylesheet" href="' . LINKCSS . '/font-awesome-4.6.3/css/font-awesome.min.css" type="text/css">';
-
-		// Javascript files
-		$head .= '<script type="text/javascript" src="' . LINKJS . '/jquery/jquery-1.12.3.min.js"></script>
-		<script src=\'https://www.google.com/recaptcha/api.js\'></script>
-        ';//<script src="https://use.fonticons.com/f71366fc.js"></script>
-		if( $defaultIncludes ){
-			$head .= '<script type="text/javascript" src="' . LINKJS . '/functions.js?' . date('j') . '"></script>
-';
+	public function setSSL($bool) {
+		if( HTTPS === false && $bool === true ){
+			// We are using http but want https.
+			$this->Debug->add('Trying to redirect to https.');
+			header('Location: https://' . DOMAIN . $_SERVER['REQUEST_URI']);
+		}elseif(HTTPS === true && $bool === false ){
+			// We are using http but want https.
+			$this->Debug->add('Trying to redirect to http.');
+			header('Location: http://' . DOMAIN . $_SERVER['REQUEST_URI']);
 		}
-		$head .= empty($this->javascriptIncludes) ? '' : $this->javascriptIncludes . '</head>';
-		//Build the output. Spinners and floaters are for AJAX operations.
-		$output .= $head . '<body>
-	<div id="cover"></div>
-	<div id="spinner">
-	<a data-ajax="false" href="' . AUTOLINK . '/' . $_SERVER['PHP_SELF'] . '"><img alt="" class="absolute" src="' . LINKIMAGES . '/spinner.png" style=""><p>Refresh</p></a>
-	</div>
-	<div class="red textCenter">
-		<noscript>(javascript required)</noscript>
-	</div>
-	<div id="floater" class="floater"></div>
-	<div id="message">';
-		$output .= empty($this->Message) ? '' : $this->Message;
-		$output .= '</div>';
-
-		// Auth section and content
-		if( $this->requireAuth === true ){
-			if( isset($_SESSION['auth']) && $_SESSION['auth'] === true ){
-				$output .= $this->body . '<div class="toggleButtonInline">Show Debug Information</div>
-	<div class="toggleMe">
-		' . $this->Debug->output() . '
-	</div>';
-			}else{
-				$output .= self::buildLogin() . '<div class="toggleButtonInline">Show Debug Information</div>
-	<div class="toggleMe">
-				' . $this->Debug->output() . '
-	</div>';
-			}
-		}else{
-			$output .= $this->body;
-		}
-		$output .= '
-					</body >
-</html > ';
-		return $output;
 	}
 
 	public function setTitleAndFilename($title, $filename) {
@@ -254,5 +186,57 @@ class Page {
 		 * @param string $filename The name of the file for debugging purposes.
 		 */
 		$this->filename = $filename;
+	}
+
+	public function toString($defaultIncludes = true) {
+		$output = '';
+		$head = '<!DOCTYPE HTML>
+<html lang="en" xml:lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+';
+		if( $this->title != '' ){
+			$head .= '<title>' . NAME_OF_THE_SITE . ' - ' . $this->title . '</title>
+';
+		}else{
+			$head .= '<title>' . NAME_OF_THE_SITE . '</title>
+';
+			$this->Debug->add('The $title array for this page was not found.<br>');
+		}
+
+		// CSS files.
+		$head .= empty($this->cssIncludes) ? '' : $this->cssIncludes;
+		$head .= '<link rel="stylesheet" href="' . LINKCSS . '/main.css?' . date('j') . '" media="all" type="text/css">';
+
+		// Javascript files
+		//$head .= '<script type="text/javascript" src="' . LINKJS . '/jquery/jquery-3.1.0.js"></script>';
+		//<script src="https://use.fonticons.com/f71366fc.js"></script>
+		if( $defaultIncludes ){
+			//$head .= '<script type="text/javascript" src="' . LINKJS . '/functions.js?' . date('j') . '"></script>';
+		}
+		$head .= empty($this->javascriptIncludes) ? '' : $this->javascriptIncludes . '</head>';
+
+		//Build the output. Spinners and floaters are for AJAX operations.
+		$output .= $head . '<body>
+	<div id="cover"></div>
+	<div id="spinner">
+	<a href="' . AUTOLINK . $_SERVER['PHP_SELF'] . '"><img alt="" class="absolute" src="' . LINKIMAGES . '/spinner.png" style=""><p>Refresh</p></a>
+	</div>
+	<div class="red textCenter">
+		<noscript>(javascript required)</noscript>
+	</div>
+	<div id="closeButtonRepository" style="display:none"><div class="generalCancel"><i class="fa fa-close"></i> Close</div></div>
+	<div id="floater" class="floater"></div>
+	<div id="message">';
+		if( !empty($this->Message) ){
+			$output .= $this->Message;
+		}
+
+		$output .= '</div>
+' . $this->body . '
+					</body >
+</html > ';
+		return $output;
 	}
 }

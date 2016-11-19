@@ -38,6 +38,7 @@ class Auth {
 	<fieldset id="login">
 		<label for="password">Password: </label> <input name="password" type="password">
 		<div id="loginError" class="red"></div>
+		<p>Check the box below to prove you\'re human.</p>
 		<div class="g-recaptcha" data-sitekey="' . $this->siteKey . '"></div>
 		<p><input type="submit" value="Submit" /></p>
 	</fieldset>
