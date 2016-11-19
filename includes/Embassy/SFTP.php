@@ -1,6 +1,6 @@
-<<<<<<< HEAD
 <?php
-
+namespace Embassy;
+use Exception;
 /**
  * Created by PhpStorm.
  * User: morussa

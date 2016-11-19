@@ -1,4 +1,7 @@
 <?php
+namespace Embassy;
+use PDOException;
+
 class CustomPDOException extends PDOException{
 	/**
 	 * Create custom PDO exceptions.

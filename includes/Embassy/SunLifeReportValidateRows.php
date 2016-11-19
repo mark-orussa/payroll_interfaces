@@ -1,5 +1,5 @@
 <?php
-
+namespace Embassy;
 /**
  * Created by PhpStorm.
  * User: morussa
@@ -7,8 +7,8 @@
  * Time: 4:55 PM
  */
 class SunLifeReportValidateRows {
-	protected $_Debug;
-	protected $_Message;
+	protected $Debug;
+	protected $Message;
 
 	public $_employee_id;
 	public $_first_name;
@@ -33,8 +33,8 @@ class SunLifeReportValidateRows {
 
 	public function __construct() {
 		global $Debug, $Message;
-		$this->_Debug = &$Debug;
-		$this->_Message = &$Message;
+		$this->Debug = &$Debug;
+		$this->Message = &$Message;
 	}
 
 	/**

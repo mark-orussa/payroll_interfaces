@@ -37,12 +37,12 @@ $light_green: #d1f2a5;
   }
 }
 
-  @mixin userSelect {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
+@mixin userSelect {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
 @mixin makeButton {
   @include borderRadius;
@@ -174,14 +174,26 @@ html, body, #cover {
   @include cursor;
 }
 
+fieldset {
+  border: 0;
+}
+
 #floaterContent {
   @include floaterContent;
 }
 
 form {
+  #login {
+    text-align: center;
+  }
+  .g-recaptcha {
+    width: 304px;
+    margin: 0 auto;
+  }
   margin-top: 1em;
   input[type=file], input[type=submit] {
     @include makeButton;
+    font-size: 1.1em;
   }
   label {
     font-weight: bold;

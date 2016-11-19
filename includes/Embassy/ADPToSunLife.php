@@ -1,4 +1,6 @@
 <?php
+namespace Embassy;
+use PDO, ErrorException, Exception, PDOException;
 
 /**
  * Created by PhpStorm.
@@ -29,13 +31,13 @@ class ADPToSunLife extends PayrollInterface {
 				self::sunLifeUpdate();
 			}
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -53,11 +55,11 @@ class ADPToSunLife extends PayrollInterface {
 		 */
 		date_default_timezone_set("America/Los_Angeles");
 		try{
-			$this->_databaseTable = $databaseTableName;
-			$this->_outgoingDirectory = $outgoingDirectory;
+			$this->databaseTable = $databaseTableName;
+			$this->outgoingDirectory = $outgoingDirectory;
 
 			//Truncate database. We do this first because a thrown error may prevent the database from being truncated later.
-			if( parent::truncateDatabase($this->_databaseTable) === false ){
+			if( parent::truncateDatabase($this->databaseTable) === false ){
 				throw new CustomException();
 			}
 
@@ -79,13 +81,13 @@ class ADPToSunLife extends PayrollInterface {
 			$headerArray = array('Employee ID', 'First Name', 'Last Name', 'Date of Birth', 'Age', 'Annual Salary', 'Employee Life Amount', 'Employee ADD Amount', 'Spouse Life Amount', 'Spouse ADD Amount', 'Child Life Amount', 'Child ADD Amount', 'STD', 'LTD', 'Employee Critical Illness', 'Spouse Critical Illness', 'Child Critical Illness', 'Employee Tobacco Status', 'Spouse Tobacco Status');
 			self::addToOutput('<div>Your browser has been promted to download a CSV file. Please check your downloads folder for a file called ' . $this->_outgoingFilename . '</div><div>This file has all of the information that Sun Life needs.</div>' . self::getInvalidData($headerArray) . self::getDuplicateEntries($headerArray) . $this->_outputTable);
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -126,7 +128,7 @@ class ADPToSunLife extends PayrollInterface {
 			 * The STD eligible volume is calculated in a unique manner. This is the formula:
 			 * Sum the annual salaries of employees with STD election (capped at $130,000 per employee), divide by 52, multiply by 0.600 (the weekly benefit percentage), then multiply by the 0.800 rate, and divide by 10. This relies on information not clearly defined in the Sun Life Self-Bill PDF document.
 			 */
-			$stdQuery = $this->_Dbc->query("SELECT
+			$stdQuery = $this->Dbc->query("SELECT
 	sun_life_rates.benefit AS 'benefit',
 	sun_life_rates.option AS 'option',
 	sun_life_rates.age_start AS 'age_start',
@@ -160,7 +162,7 @@ WHERE
 			 * For LTD, the maximum monthly benefit is $7,500. 7500 / .60 = 12500. This is the capped payroll amount per month. To make it easier to determine who is capped I would multiply by 12 to get a yearly salary cap of $150,000. There is a minimum of $100/month, which equates to a $2000 annual salary.
 			 * To get the eligible volume I would sum the annual salaries of employees with LTD election (capped at $150,000 per employee), divide by 12 to get the monthly sum, multiply by the LTD rate of 0.480, and then divide by 100. This follows the self-bill PDF document instructions.
 			*/
-			$ltdQuery = $this->_Dbc->query("SELECT
+			$ltdQuery = $this->Dbc->query("SELECT
  	sun_life_rates.benefit AS 'benefit',
 	sun_life_rates.option AS 'option',
 	sun_life_rates.age_start AS 'age_start',
@@ -190,7 +192,7 @@ WHERE
 			}
 
 			// Employee Voluntary ADD
-			$employeeAddQuery = $this->_Dbc->query("SELECT
+			$employeeAddQuery = $this->Dbc->query("SELECT
 	sun_life_rates.benefit AS 'benefit',
 	sun_life_rates.option AS 'option',
 	sun_life_rates.age_start AS 'age_start',
@@ -223,7 +225,7 @@ WHERE
 			}
 
 			// Spouse Voluntary ADD
-			$spouseAddQuery = $this->_Dbc->query("SELECT
+			$spouseAddQuery = $this->Dbc->query("SELECT
 	sun_life_rates.benefit AS 'benefit',
 	sun_life_rates.option AS 'option',
 	sun_life_rates.age_start AS 'age_start',
@@ -256,7 +258,7 @@ WHERE
 			}
 
 			// Child Voluntary ADD
-			$childAddQuery = $this->_Dbc->query("SELECT
+			$childAddQuery = $this->Dbc->query("SELECT
 	sun_life_rates.benefit AS 'benefit',
 	sun_life_rates.option AS 'option',
 	sun_life_rates.age_start AS 'age_start',
@@ -289,7 +291,7 @@ WHERE
 			}
 
 			// Child Voluntary Life
-			$childLifeQuery = $this->_Dbc->prepare("SELECT
+			$childLifeQuery = $this->Dbc->prepare("SELECT
 	sun_life_rates.benefit AS 'benefit',
 	sun_life_rates.option AS 'option',
 	sun_life_rates.age_start AS 'age_start',
@@ -322,7 +324,7 @@ WHERE
 			}
 
 			// Child Critical Illness
-			$childCriticalIllness = $this->_Dbc->prepare("SELECT
+			$childCriticalIllness = $this->Dbc->prepare("SELECT
 	sun_life_rates.benefit AS 'benefit',
 	sun_life_rates.option AS 'option',
 	sun_life_rates.age_start AS 'age_start',
@@ -359,7 +361,7 @@ WHERE
 				Employee Critical Illness,
 				Spouse Critical Illness.
 			*/
-			$ratesQuery = $this->_Dbc->query("SELECT
+			$ratesQuery = $this->Dbc->query("SELECT
 			benefit AS 'benefit',
 			`option` AS 'option',
 			age_start AS 'age_start',
@@ -535,11 +537,11 @@ WHERE
 					}
 				}
 			}
-			$this->_Debug->printArray($keepThis, '$keepThis');
+			$this->Debug->printArray($keepThis, '$keepThis');
 			$longQuery = 'SELECT ' . $employeeVoluntaryLifeQuery . ', ' . $spouseVoluntaryLifeQuery . ', ' . $employeeCriticalIllnessQuery . ', ' . $spouseCriticalIllnessQuery . ' FROM adp_to_sun_life LIMIT 1';
-//			$this->_Debug->add('$wholeQuery: ' . $longQuery);
+//			$this->Debug->add('$wholeQuery: ' . $longQuery);
 
-			$lifeAndCriticalIllnessQuery = $this->_Dbc->query($longQuery);
+			$lifeAndCriticalIllnessQuery = $this->Dbc->query($longQuery);
 			$lifeAndCriticalIllnessQuery->execute();
 			$foundRows = false;
 			// Add records to an output variable.
@@ -587,32 +589,31 @@ WHERE
 
 			// Build the serveFile code.
 			$this->_outgoingFilename = 'Embassy_Management_Sun_Life_Self_Reporting_' . $this->_dateOfReport . '.csv';
-			$this->_outputTable .= '<iframe class="hiddenFileDownload" id="' . $this->_outgoingFilename . '" src="./ServeFile.php?mode=serveFile&fileName=' . $this->_outgoingFilename . '&filePath=./' . $this->_outgoingDirectory . '/' . $this->_outgoingFilename . '"></iframe>';
+			$this->_outputTable .= '<iframe class="hiddenFileDownload" id="' . $this->_outgoingFilename . '" src="./ServeFile.php?mode=serveFile&fileName=' . $this->_outgoingFilename . '&filePath=./' . $this->outgoingDirectory . '/' . $this->_outgoingFilename . '"></iframe>';
 		}catch( CustomPDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
 	}
 
-	public static function manageRates() {
+	public static function manageRates($Dbc, $Debug) {
 		/**
 		 * Build the manage rates section.
 		 * @return  string  Returns html.
 		 */
-		global $Dbc, $Debug;
 		$output = '';
 		try{
 			$query = "SELECT
@@ -629,7 +630,7 @@ WHERE
 			$headerRow = '<tr><td>Delete</td><td>Benefit</td><td>Option</td><td>Age Start</td><td>Age End</td><td>Rate</td><td>Calculate</td><td></td></tr>';
 			$foundRows = false;
 			$trRows = '';
-			while( $row = $selectQuery->fetch(PDO::FETCH_ASSOC) ){
+			while( $row = $selectQuery->fetch($Dbc::FETCH_ASSOC) ){
 				$foundRows = true;
 				$trRows .= '<tr class="sunLifeEdit" data-id="' . $row['id'] . '">';
 				// Build the editable rows.
@@ -691,10 +692,10 @@ WHERE
 		 */
 		try{
 			// Open the File.
-			$handle = fopen($this->_fileInfo['directory'] . '/' . $this->_fileInfo['filename'], "r");
+			$handle = fopen($this->fileInfo['directory'] . '/' . $this->fileInfo['filename'], "r");
 			if( $handle !== FALSE ){
 				// The mysql query to store the data.
-				$insertStmt = $this->_Dbc->prepare("INSERT INTO $this->_databaseTable
+				$insertStmt = $this->Dbc->prepare("INSERT INTO $this->databaseTable
 SET
   employee_id = ?,
   first_name = ?,
@@ -730,7 +731,7 @@ SET
 						$validatedData = self::validateIncomingAdpToSunLifeCSVData($row);
 						if( $validatedData === false || array_key_exists('validationErrors', $validatedData) ){
 							// Handle rows that do not validate.
-							$this->_invalidDataArray[] = $validatedData;
+							$this->invalidDataArray[] = $validatedData;
 						}else{
 							// Insert the record to the database.
 							if( $insertStmt->execute($validatedData) ){
@@ -739,22 +740,22 @@ SET
 						}
 					}
 				}
-				$this->_Debug->add($rowCount . ' records were inserted.');
+				$this->Debug->add($rowCount . ' records were inserted.');
 			}else{
 				throw new CustomException('Could not read from the file.');
 			}
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -813,10 +814,10 @@ SET
 					$publicMessage .= '<div>' . $arrayOfMessages[0] . '</div>';
 					$debugMessage .= '<div>' . $arrayOfMessages[1] . '</div>';
 				}
-				$this->_Debug->add($debugMessage);
-				$this->_ReturnThis['message'] = $publicMessage;
+				$this->Debug->add($debugMessage);
+				$this->ReturnThis['message'] = $publicMessage;
 			}else{
-				$insertQuery = $this->_Dbc->prepare("INSERT INTO sun_life_rates SET
+				$insertQuery = $this->Dbc->prepare("INSERT INTO sun_life_rates SET
 	benefit = ?,
 	`option` = ?,
 	age_start = ?,
@@ -825,22 +826,22 @@ SET
 	calculate = ?");
 				$params = array($_POST['sunLifeNewBenefit'], $_POST['sunLifeNewOption'], $_POST['sunLifeNewAgeStart'], $_POST['sunLifeNewAgeEnd'], $_POST['sunLifeNewRate'], $_POST['sunLifeNewCalculate']);
 				$insertQuery->execute($params);
-				$this->_Success = true;
-				$this->_ReturnThis['list'] = self::manageRates();
-				$this->_ReturnThis['message'] = 'Added the record.';
+				$this->Success = true;
+				$this->ReturnThis['list'] = self::manageRates();
+				$this->ReturnThis['message'] = 'Added the record.';
 			}
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}finally{
 			if( MODE == 'sunLifeAddRecord' ){
@@ -861,23 +862,23 @@ SET
 			if( empty($_POST['rateId']) ){
 				throw new CustomException('', '$_POST[\'rateId\'] is empty.');
 			}
-			$deleteRateStmt = $this->_Dbc->prepare("DELETE FROM
+			$deleteRateStmt = $this->Dbc->prepare("DELETE FROM
 	sun_life_rates
 WHERE
 	id = ?
 LIMIT 1;");
 			$params = array($_POST['rateId']);
 			$deleteRateStmt->execute($params);
-			$this->_Success = true;
-			$this->_ReturnThis['list'] = self::manageRates();
-			$this->_ReturnThis['message'] = 'Deleted the rate.';
+			$this->Success = true;
+			$this->ReturnThis['list'] = self::manageRates();
+			$this->ReturnThis['message'] = 'Deleted the rate.';
 		}catch( CustomException $e ){
 			returnData('sunLifeDeleteRate');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('sunLifeDeleteRate');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('sunLifeDeleteRate');
 		}
 		returnData('sunLifeDeleteRate');
@@ -942,10 +943,10 @@ LIMIT 1;");
 					$publicMessage .= '<div>' . $arrayOfMessages[0] . '</div>';
 					$debugMessage .= '<div>' . $arrayOfMessages[1] . '</div>';
 				}
-				$this->_Debug->add($debugMessage);
-				$this->_ReturnThis['message'] = $publicMessage;
+				$this->Debug->add($debugMessage);
+				$this->ReturnThis['message'] = $publicMessage;
 			}else{
-				$insertQuery = $this->_Dbc->prepare("UPDATE sun_life_rates SET
+				$insertQuery = $this->Dbc->prepare("UPDATE sun_life_rates SET
 	benefit = ?,
 	`option` = ?,
 	age_start = ?,
@@ -956,22 +957,22 @@ WHERE
 	id = ?");
 				$params = array($_POST['benefit'], $_POST['option'], $_POST['agestart'], $_POST['ageend'], $_POST['rate'], $_POST['calculate'], $_POST['id']);
 				$insertQuery->execute($params);
-				$this->_Success = true;
-				$this->_ReturnThis['list'] = self::manageRates();
-				$this->_ReturnThis['message'] = 'Updated the record.';
+				$this->Success = true;
+				$this->ReturnThis['list'] = self::manageRates();
+				$this->ReturnThis['message'] = 'Updated the record.';
 			}
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}finally{
 			if( MODE == 'sunLifeUpdate' ){
@@ -1104,7 +1105,7 @@ WHERE
 			$reportObject->setAge();
 			if( array_key_exists($reportObject->getEmployeeId(), $this->_employeeArray) ){
 				$errors[] = 'The employee is listed twice.';
-				$this->_duplicateArray[] = array($this->_employeeArray[$reportObject->getEmployeeId()], $row);
+				$this->duplicateArray[] = array($this->_employeeArray[$reportObject->getEmployeeId()], $row);
 			}
 
 			$this->_employeeArray[$reportObject->getEmployeeId()] = $row;
@@ -1114,10 +1115,10 @@ WHERE
 			}
 			$outputArray = $reportObject->outputForQuery();
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return $outputArray;

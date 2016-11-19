@@ -1,5 +1,5 @@
 <?php
-
+namespace Embassy;
 /**
  * Created by PhpStorm.
  * User: Mark O'Russa
@@ -31,13 +31,13 @@ Class OtherTable extends PayrollInterface {
 				self::otherTableDeleteTable();
 			}
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -49,13 +49,13 @@ Class OtherTable extends PayrollInterface {
 				throw new CustomException('', 'The parent method process returned false.');
 			}
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 	}
@@ -77,8 +77,8 @@ Class OtherTable extends PayrollInterface {
 </table>
 <div class="makeButtonInline" id="otherTableAddTable">Add Table</div> ';
 		$rowSupply = '<table class="otherTableRowSupply hide">' . $row . '</table>';
-		$this->_Success = true;
-		$this->_ReturnThis['otherTableAddColumn'] = $row;
+		$this->Success = true;
+		$this->ReturnThis['otherTableAddColumn'] = $row;
 		if( MODE == 'otherTableAddColumn' ){
 			returnData('otherTableAddColumn');
 		}else{
@@ -97,30 +97,30 @@ Class OtherTable extends PayrollInterface {
 			for( $x = 0; isset($_POST['otherTableDataType' . $x]); $x++ ){
 				$type = $this->_dataTypes[$_POST['otherTableDataType' . $x]] == 'DECIMAL' ? 'DECIMAL (10,2)' : $this->_dataTypes[$_POST['otherTableDataType' . $x]];
 				$query .= ', `' . $_POST['otherTableColumnName' . $x] . '` ' . $type . ' ' . self::mysqlNull($_POST['otherTableAllowNull' . $x]);
-				$this->_Debug->add('otherTableDataType' . $x . ': ' . $_POST['otherTableDataType' . $x]);
-				$this->_Debug->add('otherTableColumnName' . $x . ': ' . $_POST['otherTableColumnName' . $x]);
-				$this->_Debug->add('otherTableAllowNull' . $x . ': ' . $_POST['otherTableAllowNull' . $x]);
+				$this->Debug->add('otherTableDataType' . $x . ': ' . $_POST['otherTableDataType' . $x]);
+				$this->Debug->add('otherTableColumnName' . $x . ': ' . $_POST['otherTableColumnName' . $x]);
+				$this->Debug->add('otherTableAllowNull' . $x . ': ' . $_POST['otherTableAllowNull' . $x]);
 			}
 			$query .= ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8";
-			$this->_Debug->add('$query: ' . $query);
-			$this->_Dbc->query($query);
+			$this->Debug->add('$query: ' . $query);
+			$this->Dbc->query($query);
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
-		$this->_Success = true;
-		$this->_ReturnThis['list'] = self::otherTableGetTables();
-		$this->_ReturnThis['message'] = 'Added the table.';
+		$this->Success = true;
+		$this->ReturnThis['list'] = self::otherTableGetTables();
+		$this->ReturnThis['message'] = 'Added the table.';
 		if( MODE == 'otherTableAddTable' ){
 			returnData('otherTableAddTable');
 		}else{
@@ -131,17 +131,17 @@ Class OtherTable extends PayrollInterface {
 	public function otherTableGetTables() {
 		// Get all 'otherTable' tables.
 		try{
-			$otherTableGetTables = $this->_Dbc->prepare("SHOW TABLES WHERE tables_in_payroll_interfaces LIKE '%othertable%' ");
+			$otherTableGetTables = $this->Dbc->prepare("SHOW TABLES WHERE tables_in_payroll_interfaces LIKE '%othertable%' ");
 			$otherTableGetTables->execute();
 			$output = '<ul>';
 			$foundRows = false;
 			while( $row = $otherTableGetTables->fetch(PDO::FETCH_NUM) ){
-				$describeTableStmt = $this->_Dbc->query('DESCRIBE ' . $row[0]);
+				$describeTableStmt = $this->Dbc->query('DESCRIBE ' . $row[0]);
 				$describeTableStmt->execute();
 				// Build the table structure view.
 				$tableRows = '';
 				while( $tableInfo = $describeTableStmt->fetch(PDO::FETCH_ASSOC) ){
-//					$this->_Debug->add($tableInfo, '$tableInfo');
+//					$this->Debug->add($tableInfo, '$tableInfo');
 					$tableHeader = '<tr>';
 					$tableRows .= '<tr>';
 					foreach( $tableInfo as $key => $value ){
@@ -163,19 +163,19 @@ Class OtherTable extends PayrollInterface {
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
-		$this->_Success = true;
-		$this->_ReturnThis['otherTableGetTables'] = $output;
+		$this->Success = true;
+		$this->ReturnThis['otherTableGetTables'] = $output;
 		if( MODE == 'otherTableGetTables' ){
 			returnData('otherTableGetTables');
 		}else{
@@ -188,18 +188,18 @@ Class OtherTable extends PayrollInterface {
 			if( empty($_POST['tableName']) ){
 				throw new CustomException('', '$_POST[\'tableName\'] is empty.');
 			}
-			$deleteTableStmt = $this->_Dbc->prepare("DROP TABLE IF EXISTS othertable" . $_POST['tableName']);
+			$deleteTableStmt = $this->Dbc->prepare("DROP TABLE IF EXISTS othertable" . $_POST['tableName']);
 			$deleteTableStmt->execute();
-			$this->_Success = true;
-			$this->_ReturnThis['list'] = self::otherTableGetTables();
-			$this->_ReturnThis['message'] = 'Deleted the table.';
+			$this->Success = true;
+			$this->ReturnThis['list'] = self::otherTableGetTables();
+			$this->ReturnThis['message'] = 'Deleted the table.';
 		}catch( CustomException $e ){
 			returnData('otherTableDeleteTable');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('otherTableDeleteTable');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('otherTableDeleteTable');
 		}
 		returnData('otherTableDeleteTable');

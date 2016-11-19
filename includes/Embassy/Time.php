@@ -1,4 +1,6 @@
 <?php
+namespace Embassy;
+use Embassy\CustomException;
 
 class Time {
     /**

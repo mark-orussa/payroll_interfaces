@@ -1,4 +1,6 @@
 <?php
+namespace Embassy;
+use PDO, ErrorException, Exception;
 
 /**
  * Created by PhpStorm.
@@ -36,23 +38,23 @@ class PayrollManagement extends PayrollInterface {
 			if( !isset($_POST['EmpXRef']) ){
 				throw new CustomException('', '$_POST[\'EmpXRef\'] is not set.');
 			}
-			$deleteEmpXRefStmt = $this->_Dbc->prepare("DELETE FROM
+			$deleteEmpXRefStmt = $this->Dbc->prepare("DELETE FROM
 	empxref
 WHERE
 	EmpXRef = ?
 LIMIT 1");
 			$params = array($_POST['EmpXRef']);
 			$deleteEmpXRefStmt->execute($params);
-			$this->_Success = true;
-			$this->_ReturnThis['list'] = self::listEmpXRef();
-			$this->_ReturnThis['message'] = 'Deleted the EmpXRef.';
+			$this->Success = true;
+			$this->ReturnThis['list'] = self::listEmpXRef();
+			$this->ReturnThis['message'] = 'Deleted the EmpXRef.';
 		}catch( CustomException $e ){
 			returnData('deleteEmpXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('deleteEmpXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('deleteEmpXRef');
 		}
 		returnData('deleteEmpXRef');
@@ -63,23 +65,23 @@ LIMIT 1");
 			if( empty($_POST['JobXRef']) ){
 				throw new CustomException('', '$_POST[\'JobXRef\'] is empty.');
 			}
-			$deleteJobXRefStmt = $this->_Dbc->prepare("DELETE FROM
+			$deleteJobXRefStmt = $this->Dbc->prepare("DELETE FROM
 	jobxref
 WHERE
 	JobXRef = ?
 LIMIT 1");
 			$params = array($_POST['JobXRef']);
 			$deleteJobXRefStmt->execute($params);
-			$this->_Success = true;
-			$this->_ReturnThis['list'] = self::listJobXRef();
-			$this->_ReturnThis['message'] = 'Deleted the JobXRef.';
+			$this->Success = true;
+			$this->ReturnThis['list'] = self::listJobXRef();
+			$this->ReturnThis['message'] = 'Deleted the JobXRef.';
 		}catch( CustomException $e ){
 			returnData('deleteJobXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('deleteJobXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('deleteJobXRef');
 		}
 		returnData('deleteJobXRef');
@@ -90,23 +92,23 @@ LIMIT 1");
 			if( empty($_POST['EmpXRef']) ){
 				throw new CustomException('', '$_POST[\'EmpXRef\'] is empty.');
 			}
-			$deleteEmpXRefStmt = $this->_Dbc->prepare("DELETE FROM
+			$deleteEmpXRefStmt = $this->Dbc->prepare("DELETE FROM
 	master_level_empxref
 WHERE
 	EmpXRef = ?
 LIMIT 1;");
 			$params = array($_POST['EmpXRef']);
 			$deleteEmpXRefStmt->execute($params);
-			$this->_Success = true;
-			$this->_ReturnThis['list'] = self::listMasterLevelEmpXRef();
-			$this->_ReturnThis['message'] = 'Deleted the Master Level EmpXRef.';
+			$this->Success = true;
+			$this->ReturnThis['list'] = self::listMasterLevelEmpXRef();
+			$this->ReturnThis['message'] = 'Deleted the Master Level EmpXRef.';
 		}catch( CustomException $e ){
 			returnData('deleteMasterLevelEmpXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('deleteMasterLevelEmpXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('deleteMasterLevelEmpXRef');
 		}
 		returnData('deleteMasterLevelEmpXRef');
@@ -115,7 +117,7 @@ LIMIT 1;");
 	public function listEmpXRef() {
 		$output = '';
 		try{
-			$listEmpXRefStmt = $this->_Dbc->prepare("SELECT * FROM
+			$listEmpXRefStmt = $this->Dbc->prepare("SELECT * FROM
 	empxref
 ORDER BY EmpXRef");
 			$listEmpXRefStmt->execute();
@@ -129,18 +131,18 @@ ORDER BY EmpXRef");
 				$output .= '<li>No EmpXRef codes were found.</li>';
 			}
 			$output .= '</ul>';
-			$this->_Success = true;
-			$this->_ReturnThis['list'] = $output;
+			$this->Success = true;
+			$this->ReturnThis['list'] = $output;
 		}catch( CustomException $e ){
 			returnData('listEmpXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('listEmpXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('listEmpXRef');
 		}catch( Error $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('listEmpXRef');
 		}
 		if( MODE == 'listEmpXRef' ){
@@ -153,7 +155,7 @@ ORDER BY EmpXRef");
 	public function listJobXRef() {
 		$output = '';
 		try{
-			$listJobXRefStmt = $this->_Dbc->prepare("SELECT * FROM
+			$listJobXRefStmt = $this->Dbc->prepare("SELECT * FROM
 	jobxref ORDER BY JobXRef");
 			$listJobXRefStmt->execute();
 			$output .= '<table>';
@@ -174,15 +176,15 @@ ORDER BY EmpXRef");
 				$output .= '<tr><td>No JobXRef codes were found.</td></tr>';
 			}
 			$output .= '</table>';
-			$this->_Success = true;
-			$this->_ReturnThis['list'] = $output;
+			$this->Success = true;
+			$this->ReturnThis['list'] = $output;
 		}catch( CustomException $e ){
 			returnData('listJobXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('listJobXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('listJobXRef');
 		}
 		if( MODE == 'listJobXRef' ){
@@ -195,7 +197,7 @@ ORDER BY EmpXRef");
 	public function listMasterLevelEmpXRef() {
 		$output = '';
 		try{
-			$listMasterLevelEmpXRefStmt = $this->_Dbc->prepare("SELECT * FROM
+			$listMasterLevelEmpXRefStmt = $this->Dbc->prepare("SELECT * FROM
 	master_level_empxref
 ORDER BY level, EmpXRef;");
 			$listMasterLevelEmpXRefStmt->execute();
@@ -217,15 +219,15 @@ ORDER BY level, EmpXRef;");
 				$output .= '<tr><td>No Master Level EmpXRef codes were found.</td></tr>';
 			}
 			$output .= '</table>';
-			$this->_Success = true;
-			$this->_ReturnThis['list'] = $output;
+			$this->Success = true;
+			$this->ReturnThis['list'] = $output;
 		}catch( CustomException $e ){
 			returnData('listMasterLevelEmpXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('listMasterLevelEmpXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('listMasterLevelEmpXRef');
 		}
 		if( MODE == 'listMasterLevelEmpXRef' ){
@@ -248,23 +250,23 @@ ORDER BY level, EmpXRef;");
 				throw new CustomException('The interface had trouble recognizing the number you entered. Make sure to enter it without letters or special characters.');
 			}
 			//Add the EmpXRef to the database.
-			$addEmployeeStmt = $this->_Dbc->prepare("INSERT IGNORE INTO
+			$addEmployeeStmt = $this->Dbc->prepare("INSERT IGNORE INTO
 	empxref
 SET
 	EmpXRef = ?");
 			$params = array($EmpXRef);
 			$addEmployeeStmt->execute($params);
 			$resultCount = $addEmployeeStmt->rowCount();
-			$this->_Success = true;
-			$this->_ReturnThis['message'] = $resultCount > 0 ? 'New EmpXRef successfully added.' : '';
-			$this->_ReturnThis['list'] = self::listEmpXRef();
+			$this->Success = true;
+			$this->ReturnThis['message'] = $resultCount > 0 ? 'New EmpXRef successfully added.' : '';
+			$this->ReturnThis['list'] = self::listEmpXRef();
 		}catch( CustomException $e ){
 			returnData('newEmpXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('newEmpXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('newEmpXRef');
 		}
 		returnData('newEmpXRef');
@@ -287,7 +289,7 @@ SET
 			}
 
 			// Check that the JobXRef code does not already exist.
-			$checkStmt = $this->_Dbc->query("SELECT * FROM jobxref
+			$checkStmt = $this->Dbc->query("SELECT * FROM jobxref
 WHERE
 	JobXRef LIKE('%" . $_POST['JobXRef'] . "%')");
 			$output .= '<ul>';
@@ -298,10 +300,10 @@ WHERE
 			}
 			$output .= '</ul>';
 			if( $foundRows ){
-				$this->_ReturnThis['message'] = 'There is already an entry with this JobXRef code.';
+				$this->ReturnThis['message'] = 'There is already an entry with this JobXRef code.';
 			}else{
 				//Add the EmpXRef to the database.
-				$addEmployeeStmt = $this->_Dbc->prepare("INSERT IGNORE INTO
+				$addEmployeeStmt = $this->Dbc->prepare("INSERT IGNORE INTO
 	jobxref
 SET
 	JobXRef = ?,
@@ -309,17 +311,17 @@ SET
 				$params = array($_POST['JobXRef'], $_POST['JobCode']);
 				$addEmployeeStmt->execute($params);
 				$returnCount = $addEmployeeStmt->rowCount();
-				$this->_Success = true;
-				$this->_ReturnThis['message'] = $returnCount > 0 ? 'New JobXRef successfully added.' : '';
-				$this->_ReturnThis['list'] = self::listJobXRef();
+				$this->Success = true;
+				$this->ReturnThis['message'] = $returnCount > 0 ? 'New JobXRef successfully added.' : '';
+				$this->ReturnThis['list'] = self::listJobXRef();
 			}
 		}catch( CustomException $e ){
 			returnData('newJobXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('newJobXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('newJobXRef');
 		}
 		returnData('newJobXRef');
@@ -348,7 +350,7 @@ SET
 				throw new CustomException('The interface had trouble recognizing the Level you entered. Make sure to enter it without letters or special characters.');
 			}
 			//Add the master level EmpXRef to the database.
-			$addMasterLevelEmployeeStmt = $this->_Dbc->prepare("INSERT IGNORE INTO
+			$addMasterLevelEmployeeStmt = $this->Dbc->prepare("INSERT IGNORE INTO
 	master_level_empxref
 SET
 	EmpXRef = ?,
@@ -356,16 +358,16 @@ SET
 			$params = array($EmpXRef, $masterLevel);
 			$addMasterLevelEmployeeStmt->execute($params);
 			$resultCount = $addMasterLevelEmployeeStmt->rowCount();
-			$this->_Success = true;
-			$this->_ReturnThis['message'] = $resultCount > 0 ? 'New master level EmpXRef code successfully added.' : ' ';
-			$this->_ReturnThis['list'] = self::listMasterLevelEmpXRef();
+			$this->Success = true;
+			$this->ReturnThis['message'] = $resultCount > 0 ? 'New master level EmpXRef code successfully added.' : ' ';
+			$this->ReturnThis['list'] = self::listMasterLevelEmpXRef();
 		}catch( CustomException $e ){
 			returnData('newMasterLevelEmpXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('newMasterLevelEmpXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('newMasterLevelEmpXRef');
 		}
 		returnData('newMasterLevelEmpXRef');

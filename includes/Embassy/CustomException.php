@@ -1,4 +1,6 @@
 <?php
+namespace Embassy;
+use Exception;
 
 class CustomException extends Exception {
 	/**

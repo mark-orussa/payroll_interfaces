@@ -1,7 +1,8 @@
 <?php
+namespace Embassy;
 
 class ErrorHandler {
-	private $_Debug;
+	private $Debug;
 	protected $errorHandler;
 	protected $errorsAsExceptions;
 	protected $canceled;
@@ -9,7 +10,7 @@ class ErrorHandler {
 
 	public function __construct($errorHandler = NULL, $errorsAsExceptions = false, $overwriteHandler = false) {
 		global $Debug;
-		$this->_Debug = &$Debug;
+		$this->Debug = &$Debug;
 		$this->_errorMessage = '';
 		if( $errorHandler && !is_callable($errorHandler) ){
 			throw new InvalidArgumentException('$errorHandler passed, but it isn\'t callable!');
@@ -74,16 +75,16 @@ class ErrorHandler {
 	}
 
 	public function errorHandler($errno, $errstr, $errfile, $errline, $errcontext = NULL) {
-		$this->_Debug->add('Error number: ' . $errno);
-		$this->_Debug->add('Error string: ' . $errstr);
-		$this->_Debug->add('Error file: ' . $errfile);
+		$this->Debug->add('Error number: ' . $errno);
+		$this->Debug->add('Error string: ' . $errstr);
+		$this->Debug->add('Error file: ' . $errfile);
 		if(is_array($errline)){
-			$this->_Debug->printArray($errline, '$errline');
+			$this->Debug->printArray($errline, '$errline');
 		}else{
-			$this->_Debug->add('$errline: ' . $errline);
+			$this->Debug->add('$errline: ' . $errline);
 		}
-		$this->_Debug->printArray($errcontext, '$errcontext');
-//		die($this->_Debug->output());
+		$this->Debug->printArray($errcontext, '$errcontext');
+//		die($this->Debug->output());
 //		throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 	}
 }

@@ -29,6 +29,7 @@ function returnData($mode) {
 		global $Debug, $Message, $Success, $ReturnThis;
 		$Success = empty($Success) ? false : $Success;
 		$Message = empty($Message) ? '' : $Message;//<span style="display:none">No message.</span>
+		$Debug->printArray($ReturnThis,'$ReturnThis');
 		if( is_array($ReturnThis) ){
 			$jsonArray = array('debug' => $Debug->output(), 'message' => $Message, 'success' => $Success);
 			foreach( $ReturnThis as $key => $value ){

@@ -1,4 +1,7 @@
 <?php
+namespace Embassy;
+
+use Exception, ErrorException;
 
 class Page {
 	/**
@@ -7,41 +10,41 @@ class Page {
 	 * Build the body, javascript includes, meta, css includes, and other foundational html content.
 	 *
 	 * @author    Mark O'Russa    <mark@orussa.com>
-	 * @param    array $_javascriptIncludes The userId of the sender.
-	 * @param    array $_cssIncludes        The userId of the recipient.
+	 * @param    array $javascriptIncludes The userId of the sender.
+	 * @param    array $cssIncludes        The userId of the recipient.
 	 *
 	 */
 
 	//Properties.
-	protected $_Dbc;
-	protected $_Debug;
-	protected $_Message;
-	protected $_ReturnThis;
-	protected $_Success;
+	protected $Dbc;
+	protected $Debug;
+	protected $Message;
+	protected $ReturnThis;
+	protected $Success;
 
-	protected $_javascriptIncludes;
-	protected $_cssIncludes;
-	protected $_body;
-	protected $_title;
-	protected $_filename;
-	protected $_requireAuth;
+	protected $javascriptIncludes;
+	protected $cssIncludes;
+	protected $body;
+	protected $title;
+	protected $filename;
+	protected $requireAuth;
 
-	public function __construct($title = '', $filename = '') {
-		global $Dbc, $Debug, $Message, $ReturnThis, $Success;
-		$this->_Dbc = &$Dbc;
-		$this->_Debug = &$Debug;
-		$this->_Message = &$Message;
-		$this->_ReturnThis = &$ReturnThis;
-		$this->_Success = &$Success;
+	public function __construct($Debug, $Dbc, $Message, $ReturnThis, $Success) {
+		$this->Dbc = &$Dbc;
+		$this->Debug = &$Debug;
+		$this->Message = &$Message;
+		$this->ReturnThis = &$ReturnThis;
+		$this->Success = &$Success;
 
-		$this->_body = NULL;
-		$this->_javascriptIncludes = NULL;
-		$this->_cssIncludes = NULL;
-		$this->_title = $title;
-		$this->_filename = $filename;
-		$this->_requireAuth = false;
-		$this->_Debug->newFile($filename);
-
+		$this->body = NULL;
+		$this->javascriptIncludes = NULL;
+		$this->cssIncludes = NULL;
+		$this->title = '';
+		$this->filename = '';
+		$this->requireAuth = false;
+		if( !$_SESSION['auth'] && stripos($_SERVER['PHP_SELF'], 'login') === false ){
+			header('Location:' . LINKLOGIN);
+		}
 		if( MODE == 'buildLogin' ){
 			self::buildLogin();
 		}elseif( MODE == 'buildLoginButton' ){
@@ -54,7 +57,7 @@ class Page {
 	}
 
 	public function addBody($content) {
-		$this->_body .= $content;
+		$this->body .= $content;
 	}
 
 	public function addIncludes($fileName, $throwError = '') {
@@ -93,19 +96,19 @@ class Page {
 		if( is_array($fileName) ){
 			foreach( $fileName as $key ){
 				if( stripos($key, 'http://') === false && stripos($key, 'https://') === false ){
-					$this->_javascriptIncludes .= '<script type="text/javascript" src="' . LINKJS . '/' . $key . '?' . date('H') . '"></script>
+					$this->javascriptIncludes .= '<script type="text/javascript" src="' . LINKJS . '/' . $key . '?' . date('H') . '"></script>
 ';
 				}else{
-					$this->_javascriptIncludes .= '<script type="text/javascript" src="' . $key . '?' . date('H') . '"></script>
+					$this->javascriptIncludes .= '<script type="text/javascript" src="' . $key . '?' . date('H') . '"></script>
 ';
 				}
 			}
 		}else{
 			if( stripos($fileName, 'http://') === false && stripos($fileName, 'https://') === false ){
-				$this->_javascriptIncludes .= '<script type="text/javascript" src="' . LINKJS . '/' . $fileName . '?' . date('H') . '"></script>
+				$this->javascriptIncludes .= '<script type="text/javascript" src="' . LINKJS . '/' . $fileName . '?' . date('H') . '"></script>
 ';
 			}else{
-				$this->_javascriptIncludes .= '<script type="text/javascript" src="' . $fileName . '?' . date('H') . '"></script>
+				$this->javascriptIncludes .= '<script type="text/javascript" src="' . $fileName . '?' . date('H') . '"></script>
 ';
 			}
 		}
@@ -125,19 +128,19 @@ class Page {
 		if( is_array($fileName) ){
 			foreach( $fileName as $key ){
 				if( stripos($key, 'http://') === false && stripos($key, 'https://') === false ){
-					$this->_cssIncludes .= '<link rel="stylesheet" href="' . LINKCSS . '/' . $key . '?' . date('H') . '" type="text/css" media="all">
+					$this->cssIncludes .= '<link rel="stylesheet" href="' . LINKCSS . '/' . $key . '?' . date('H') . '" type="text/css" media="all">
 ';
 				}else{
-					$this->_cssIncludes .= '<link rel="stylesheet" href="' . $key . '?' . date('H') . '" type="text/css" media="all">
+					$this->cssIncludes .= '<link rel="stylesheet" href="' . $key . '?' . date('H') . '" type="text/css" media="all">
 ';
 				}
 			}
 		}else{
 			if( stripos($fileName, 'http://') === false && stripos($fileName, 'https://') === false ){
-				$this->_cssIncludes .= '<link rel="stylesheet" href="' . LINKCSS . '/' . $fileName . '?' . date('H') . '" type="text/css" media="all">
+				$this->cssIncludes .= '<link rel="stylesheet" href="' . LINKCSS . '/' . $fileName . '?' . date('H') . '" type="text/css" media="all">
 ';
 			}else{
-				$this->_cssIncludes .= '<link rel="stylesheet" href="' . $fileName . '?' . date('H') . '" type="text/css" media="all">
+				$this->cssIncludes .= '<link rel="stylesheet" href="' . $fileName . '?' . date('H') . '" type="text/css" media="all">
 ';
 			}
 		}
@@ -145,82 +148,24 @@ class Page {
 
 	public function buildLoginButton() {
 		$output = '';
-		if(isset($_SESSION['auth']) === true && $_SESSION['auth'] === true){
+		if( isset($_SESSION['auth']) === true && $_SESSION['auth'] === true ){
 			$output = '<span class="auth"><i class="fa fa-sign-out"></i>Logout</span>';
 		}else{
 			$output .= '<span class="auth"><i class="fa fa-sign-in"></i> Login</span>';
 		}
 		if( MODE == 'buildLoginButton' ){
-			$this->_ReturnThis['buildLoginButton'] = $output;
+			$this->ReturnThis['buildLoginButton'] = $output;
 			returnData('buildLoginButton');
 		}else{
 			return $output;
 		}
 	}
 
-	public function buildLogin() {
-		$output = '<label for="password">Password: </label> <input name="password" type="password">
-<div>
-	<div class="g-recaptcha" data-sitekey="6LcCPgwUAAAAAIFRz9cJwRYtk7clMYiMODfCdGF2"></div>
-	<span class="makeButton" id="loginSubmit">Submit</span>
-	<div id="loginError" class="red"></div>
-</div>';
-		$this->_ReturnThis['buildLogin'] = $output;
-		$this->_Success = true;
-		returnData('buildLogin');
-	}
-
 	public function getTitle() {
-		return $this->_title;
+		return $this->title;
 	}
 
-	public function login() {
-		try{
-			if( !isset($_POST['password']) ){
-				throw new CustomException('', '$_POST[\'password\'] is not set.');
-			}
-			if( $_POST['password'] == '1234' ){
-				$_SESSION['auth'] = true;
-				$this->_Success = true;
-				$this->_ReturnThis['buildLoginButton'] = self::buildLoginButton();
-			}elseif($_POST['password'] == '1394'){
-				$_SESSION['auth'] = true;
-				$_SESSION['admin'] = true;
-				$this->_Success = true;
-				$this->_ReturnThis['buildLoginButton'] = self::buildLoginButton();
-			}else{
-				$this->_ReturnThis['message'] = 'Invalid password.';
-			}
-		}catch( CustomException $e ){
-			returnData('login');
-		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
-			returnData('login');
-		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
-			returnData('login');
-		}
-		returnData('login');
-	}
-
-	public function logout() {
-		try{
-			destroySession();
-			$this->_Success = true;
-//			$this->_ReturnThis['buildLoginButton'] = self::buildLoginButton();
-		}catch( CustomException $e ){
-			returnData('logout');
-		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
-			returnData('logout');
-		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
-			returnData('logout');
-		}
-		returnData('logout');
-	}
-
-	public function output($defaultIncludes = true) {
+	public function toString($defaultIncludes = true) {
 		$output = '';
 		$head = '<!DOCTYPE HTML>
 <html lang="en" xml:lang="en">
@@ -228,17 +173,17 @@ class Page {
 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 ';
-		if( $this->_title != '' ){
-			$head .= '<title>' . THENAMEOFTHESITE . ' - ' . $this->_title . '</title>
+		if( $this->title != '' ){
+			$head .= '<title>' . THENAMEOFTHESITE . ' - ' . $this->title . '</title>
 ';
 		}else{
 			$head .= '<title>' . THENAMEOFTHESITE . '</title>
 ';
-			$this->_Debug->add('The $title array for this page was not found.<br>');
+			$this->Debug->add('The $title array for this page was not found.<br>');
 		}
 
 		// CSS files.
-		$head .= empty($this->_cssIncludes) ? '' : $this->_cssIncludes;
+		$head .= empty($this->cssIncludes) ? '' : $this->cssIncludes;
 		$head .= '<link rel="stylesheet" href="' . LINKCSS . '/main.css?' . date('j') . '" media="all" type="text/css">
 		<link rel="stylesheet" href="' . LINKCSS . '/font-awesome-4.6.3/css/font-awesome.min.css" type="text/css">';
 
@@ -250,7 +195,7 @@ class Page {
 			$head .= '<script type="text/javascript" src="' . LINKJS . '/functions.js?' . date('j') . '"></script>
 ';
 		}
-		$head .= empty($this->_javascriptIncludes) ? '' : $this->_javascriptIncludes . '</head>';
+		$head .= empty($this->javascriptIncludes) ? '' : $this->javascriptIncludes . '</head>';
 		//Build the output. Spinners and floaters are for AJAX operations.
 		$output .= $head . '<body>
 	<div id="cover"></div>
@@ -262,22 +207,24 @@ class Page {
 	</div>
 	<div id="floater" class="floater"></div>
 	<div id="message">';
-		$output .= empty($this->_Message) ? '' : $this->_Message;
+		$output .= empty($this->Message) ? '' : $this->Message;
 		$output .= '</div>';
 
 		// Auth section and content
-		if( $this->_requireAuth === true ){
-			$output .= self::buildLoginButton();
+		if( $this->requireAuth === true ){
 			if( isset($_SESSION['auth']) && $_SESSION['auth'] === true ){
-				$output .= $this->_body . '<div class="toggleButtonInline">Show Debug Information</div>
+				$output .= $this->body . '<div class="toggleButtonInline">Show Debug Information</div>
 	<div class="toggleMe">
-		' . $this->_Debug->output() . '
+		' . $this->Debug->output() . '
 	</div>';
 			}else{
-				$output .= '<div style="text-align: center">Please login.</div>';
+				$output .= self::buildLogin() . '<div class="toggleButtonInline">Show Debug Information</div>
+	<div class="toggleMe">
+				' . $this->Debug->output() . '
+	</div>';
 			}
 		}else{
-			$output .= $this->_body;
+			$output .= $this->body;
 		}
 		$output .= '
 					</body >
@@ -285,7 +232,27 @@ class Page {
 		return $output;
 	}
 
-	public function setRequireAuth($state) {
-		$this->_requireAuth = $state === true ? true : false;
+	public function setTitleAndFilename($title, $filename) {
+		/**
+		 * @param string $title    The title of the page as it will appear in the html title tag.
+		 * @param string $filename The name of the file for debugging purposes.
+		 */
+		$this->title = $title;
+		$this->filename = $filename;
+		$this->Debug->newFile($filename);
+	}
+
+	public function setTitle($title) {
+		/**
+		 * @param string $title The title of the page as it will appear in the html title tag.
+		 */
+		$this->title = $title;
+	}
+
+	public function setFilename($filename) {
+		/**
+		 * @param string $filename The name of the file for debugging purposes.
+		 */
+		$this->filename = $filename;
 	}
 }

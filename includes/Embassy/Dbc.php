@@ -1,12 +1,14 @@
 <?php
+namespace Embassy;
+use PDO, ErrorException, Exception, PDOException;
 
 class Dbc extends PDO {
-	private $_Debug;
+	private $Debug;
 	private $_status;
 
 	public function __construct($dsn) {
 		global $Debug;
-		$this->_Debug = &$Debug;
+		$this->Debug = &$Debug;
 		$this->_status = false;
 		try{
 			$options = array(
@@ -32,7 +34,7 @@ class Dbc extends PDO {
 	}
 
 	public function execute($values = array()) {
-		$this->_Debug->printArray($values, '$values');
+		$this->Debug->printArray($values, '$values');
 		try{
 			$t = parent::execute($values);
 			// maybe do some logging here?

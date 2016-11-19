@@ -1,13 +1,19 @@
 {
-    "name": "morussa/pi.embassyllc.dev",
-    "type": "library",
-    "authors": [
-        {
-            "name": "Mark O'Russa",
-            "email": "morussa@embassyllc.com"
-        }
-    ],
-    "require": {
-        "google/recaptcha": "~1.1"
+  "name": "morussa/pi.embassyllc.dev",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Mark O'Russa",
+      "email": "morussa@embassyllc.com"
     }
+  ],
+  "require": {
+    "google/recaptcha": "~1.1",
+    "defuse/php-encryption": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Embassy\\": "includes/Embassy/"
+    }
+  }
 }

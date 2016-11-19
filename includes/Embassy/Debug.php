@@ -1,13 +1,14 @@
 <?php
+namespace Embassy;
 
 class Debug {
 	//Properties
-	private $_Message;
+	private $Message;
 	private $_debugInformation;
 
 	public function __construct() {
 		global $Message;
-		$this->_Message = &$Message;
+		$this->Message = &$Message;
 		$this->_debugInformation = '';
 	}
 
@@ -69,17 +70,17 @@ class Debug {
 		 * @return  string  Returns a message.
 		 */
 		if( empty($publicMessage) ){
-			if( strstr($this->_Message, 'encountered a technical problem') === false ){
-				$this->_Message .= 'We\'ve encountered a technical problem that is preventing information from being shown. Please try again in a few moments.<br>
+			if( strstr($this->Message, 'encountered a technical problem') === false ){
+				$this->Message .= 'We\'ve encountered a technical problem that is preventing information from being shown. Please try again in a few moments.<br>
 If the problem persists please contact the IT Department.<br>';
 			}
 		}else{
-			$this->_Message .= $publicMessage . '<br>';
+			$this->Message .= $publicMessage . '<br>';
 		}
 		if( !empty($debugMessage) ){
 			self::add($debugMessage);
 		}
-		return $this->_Message;
+		return $this->Message;
 	}
 
 	public function newFile($fileName = NULL) {
@@ -172,5 +173,78 @@ MICROTIME: ' . MICROTIME;
 		self::add('<div style="color:red;font-weight:bold;border-top:1px dotted #333;">END DEBUG</div>
 </div>');
 		return $output . $this->_debugInformation;
+	}
+
+	public function readLog() {
+		$handle = fopen(LOG_PATH, 'r');
+		$filesize = filesize(LOG_PATH);
+		return fread($handle, $filesize);
+	}
+
+	public function writeToLog() {
+		/**
+		 * Prepend debug data to the debug log file. This will automatically reduce the file size when it reaches 2 MB.
+		 */
+		try{
+			$output = '<div id="debug" class="debug">
+	<div class="debugTitle">BEGIN DEBUG <span>' . StaticDateTime::utcToLocal(DATETIME) . '</span></div>';
+			if( isset($_COOKIE) ){
+				$output .= '<div class="toggleButtonInline">Toggle $_COOKIE</div><div class="toggleMe">' . $this->printArrayOutput($_COOKIE, '$_COOKIE') . '</div>';
+			}
+			if( isset($_REQUEST) ){
+				$output .= '<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . $this->printArrayOutput($_REQUEST, '$_REQUEST') . '</div>';
+			}
+			if( isset($_SERVER) ){
+				$output .= '<div class="toggleButtonInline">Toggle $_SERVER</div><div class="toggleMe">' . $this->printArrayOutput($_SERVER, '$_SERVER') . '</div>';
+			}
+			if( isset($_SESSION) ){
+				$output .= '<div class="toggleButtonInline">Toggle $_SESSION</div><div class="toggleMe">' . $this->printArrayOutput($_SESSION, '$_SESSION') . '</div>';
+			}
+			$output .= '<br>session_name: ' . session_name() . '<br>
+session_id: ' . session_id() . '<br>
+AUTOLINK: ' . AUTOLINK . '<br>
+DATETIME: ' . DATETIME . '<br>
+MICROTIME: ' . MICROTIME;
+			if( !file_exists(LOG_PATH) ){
+				if( !is_writable(LOG_PATH) ){
+					throw new CustomException('','The debug log file does not exist and the path is not writeable. Modify the permissions for this location to allow debug: ' . LOG_PATH);
+				}else{
+					throw new CustomException('','The debug log file does not exist at: ' . LOG_PATH);
+				}
+			}else{
+				// Check the filesize. If it reaches a certain size we will remove old data.
+				$handle = fopen(LOG_PATH, "r+");
+				clearstatcache();
+				$filesize = filesize(LOG_PATH);
+				self::add('<div class="debugTitle">END DEBUG</div><hr>
+</div>');
+				if( $filesize > 2097152 ){// = 2 MB
+					$this->add('The filesize is over 2 MB.<br>');
+					ftruncate($handle, 524288);// Reduce the size to 512 KB or .5 MB, by chopping off the end. This works as we are prepending, so the newest data is on top.
+				}
+				// Prepend the data to the debug log file.
+				$cache_new = $output . $this->debugInformation; // this gets prepended
+				$len = strlen($cache_new);
+				$final_len = $filesize + $len;
+				$cache_old = fread($handle, $len);
+				rewind($handle);
+				$i = 1;
+				while( ftell($handle) < $final_len ){
+					fwrite($handle, $cache_new);
+					$cache_new = $cache_old;
+					$cache_old = fread($handle, $len);
+					fseek($handle, $i * $len);
+					$i++;
+				}
+
+				/*fopen(LOG_PATH, 'w');
+				$debugFile = fopen(LOG_PATH, 'w');
+				fwrite($debugFile, $debugData);*/
+				fclose($handle);
+			}
+		}catch( CustomException $exception ){
+		}catch(\Exception $exception){
+			die('An error was thrown in ' . __CLASS__ . ': <pre>' . $exception . '</pre>');
+		}
 	}
 }

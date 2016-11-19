@@ -6,14 +6,13 @@
  * Time: 11:48 AM
  */
 define('FORCEHTTPS', true, true);
-require_once('includes/config.php');
-$Page = new Page('Payroll Interfaces', 'index.php');
+require_once('config.php');
+$Page->setTitleAndFilename('Payroll Interfaces', 'index.php');
 $Page->addJs('interfaces.js');
-$Page->setRequireAuth(true);
 
-$Interface = new PayrollManagement();
-$OtherTable = new OtherTable();
-$SunLife = new ADPToSunLife();
+$Interface = new Embassy\PayrollManagement();
+$OtherTable = new Embassy\OtherTable();
+$SunLife = new Embassy\ADPToSunLife();
 // Title and javascript warning.
 $Page->addBody('<div class="pageTitle">' . $Page->getTitle() . '</div>
 <div><noscript>JavaScript must be enabled to use this page. <a href="https://www.google.com/search?q=how+to+enable+javascript" target="_blank">How to enable Javascript</a></noscript></div>');
@@ -183,7 +182,7 @@ $Page->addBody('<div class="toggleButton">
 				<p>Make changes to the Sun Life age bands, rates, volume calculation and more. Click the save button when finish.</p>
 				<p>The information entered here directly affects the calculation of premiums for benefits.</p>
 				<div id="sunLifeMessageContainer" class="interfaceResponse"></div>
-				<div id="sunLifeRatesContainer">' . ADPToSunLife::manageRates() . '</div>
+				<div id="sunLifeRatesContainer">' . Embassy\ADPToSunLife::manageRates($Dbc, $Debug) . '</div>
 			</div>
 		</div>');
-echo $Page->output();
+echo $Page->toString();

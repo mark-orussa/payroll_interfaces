@@ -1,5 +1,5 @@
 <?php
-
+namespace Embassy;
 /**
  * Created by PhpStorm.
  * User: morussa
@@ -64,7 +64,7 @@ class SLStartCentralReachToAdp extends PayrollInterface {
 		 *
 		 * @param    string $inputFileId   The id of the form input file element.
 		 * @param    string $saveDirectory The location to store the file. Due to http protocol limitations this must be relative to the document receiving the file (i.e. './uploads').
-		 * @param    string $this          ->_outgoingDirectory The location to store the output CSV file(s). Due to http protocol limitations this must be relative to the document receiving the file (i.e. './downloads').
+		 * @param    string $this          ->outgoingDirectory The location to store the output CSV file(s). Due to http protocol limitations this must be relative to the document receiving the file (i.e. './downloads').
 		 * @param    string $tableName     The name of the temporary database table.
 		 * @return    bool|string  Returns true, otherwise a string message. Use === true to verify success.
 		 *
@@ -98,11 +98,11 @@ class SLStartCentralReachToAdp extends PayrollInterface {
 				throw new CustomException('', 'outputFile() returned false.');
 			};
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 		}
 	}
 
@@ -115,20 +115,20 @@ class SLStartCentralReachToAdp extends PayrollInterface {
 		try{
 			// Perform some work on the data.
 			$empXRef = str_pad($rowArray['EmpXRef'], 6, '0', STR_PAD_LEFT);// Make the ExpXRef 6 digits by padding it with zeroes.
-			$jobCode = '//////' . $this->_jobXRefArray[$rowArray['JobXRef']];
+			$jobCode = '//////' . $this->jobXRefArray[$rowArray['JobXRef']];
 			$date = Time::convertToDateTime($rowArray['DateOfService'])->format($this->_dateFormat);
 			$inPunch = $rowArray['inDatetime']->format($this->_timeFormat);
 			$outPunch = $rowArray['outDatetime']->format($this->_timeFormat);
 
 			$this->_hours .= $empXRef . ',' . $date . ',' . $inPunch . ',' . $jobCode . "\n" . $empXRef . ',' . $date . ',' . $outPunch . "\n";
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', '<pre>' . $e . '</pre>');
+			$this->Debug->error(__LINE__, '', '<pre>' . $e . '</pre>');
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -156,7 +156,7 @@ class SLStartCentralReachToAdp extends PayrollInterface {
 		 * This method produces an iframe used to download a file.
 		 */
 		return '<div>The file <em>' . $this->_outgoingHoursFileName . '</em> will automatically download. Check the download location.</div>
-		<iframe class="hiddenFileDownload" id="' . $this->_outgoingHoursFileName . '" src="./ServeFile.php?mode=serveFile&fileName=' . $this->_outgoingHoursFileName . '&filePath=' . $this->_outgoingFilePath . '"></iframe>';
+		<iframe class="hiddenFileDownload" id="' . $this->_outgoingHoursFileName . '" src="./ServeFile.php?mode=serveFile&fileName=' . $this->_outgoingHoursFileName . '&filePath=' . $this->outgoingFilePath . '"></iframe>';
 	}
 
 	private function getHours() {
@@ -168,8 +168,8 @@ class SLStartCentralReachToAdp extends PayrollInterface {
 		 */
 		try{
 			// Select regular hours sorted by EmpXRef and timeworkedfrom
-			$selectQuery = $this->_Dbc->query("SELECT * FROM
-  $this->_databaseTable
+			$selectQuery = $this->Dbc->query("SELECT * FROM
+  $this->databaseTable
   WHERE EmpXRef NOT IN (SELECT EmpXRef from empxref)
 ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			$selectQuery->execute();
@@ -185,7 +185,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			if( $rowsFound === false ){
 				throw  new CustomException('No hours were found.');
 			}
-			$this->_Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
+			$this->Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
 			$week = $this->_latestDateDatetime->format('W');
 			$year = $this->_latestDateDatetime->format('Y');
 
@@ -196,18 +196,18 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			$this->_outgoingHoursFileName = 'Embassy_CentralReach_SLS_' . $this->_latestDateDatetime->format('Ymd') . '.csv';
 
 		}catch( CustomPDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -241,10 +241,10 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 				}
 			}
 			// Look for unrecognized job codes.
-			if( empty($this->_jobXRefArray[$this->_currentRow['JobXRef']]) ){
-				$this->_unrecognizedJobCodesArray[] = $this->_currentRow;
+			if( empty($this->jobXRefArray[$this->_currentRow['JobXRef']]) ){
+				$this->unrecognizedJobCodesArray[] = $this->_currentRow;
 			}else{
-				$this->_currentRow['Job Code'] = $this->_jobXRefArray[$this->_currentRow['JobXRef']];
+				$this->_currentRow['Job Code'] = $this->jobXRefArray[$this->_currentRow['JobXRef']];
 			}
 
 			$this->_currentRow['inDatetime'] = Time::convertToDateTime($this->_currentRow['timeworkedfrom']);
@@ -273,13 +273,13 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			return false;
 		}catch
 		( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		// Sanity check.
 		/*if( $this->_count == 4 ){
-			$this->_Debug->add('<pre>' . $this->_hours . '</pre>');
-			die($this->_Debug->output(true));
+			$this->Debug->add('<pre>' . $this->_hours . '</pre>');
+			die($this->Debug->output(true));
 		}
 		$this->_count++;*/
 		return true;
@@ -305,7 +305,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 						){
 							// NONBILL hours overlap regular hours.
 							$typeOverlap = true;
-							$this->_overLapArray[] = array($this->_nonbillHoursGroup[$x], $entry);
+							$this->overLapArray[] = array($this->_nonbillHoursGroup[$x], $entry);
 							break;// Do not go any further. Report the overlap. This entire DateOfService for this employee will not be added.
 						}
 						$currentDatetime = Time::convertToDateTime($entry['timeworkedto']);
@@ -325,10 +325,10 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 				self::processHours($this->_regularHoursGroup);
 			}
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 	}
@@ -354,7 +354,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 					// This is the rare situation where a time period lies inside another. Ignore it.
 				}elseif( $entry['timeworkedfrom'] == $this->_pendingRow['timeworkedfrom'] && $entry['timeworkedto'] == $this->_pendingRow['timeworkedto'] ){
 					// The entries are the same time period. Log it, but ignore it. This is not a problem.
-					$_duplicateArray[] = array($entry,$this->_pendingRow);
+					$duplicateArray[] = array($entry,$this->_pendingRow);
 				}elseif( $entry['inDatetime'] == $this->_pendingRow['outDatetime'] ){
 					// Add a minute to avoid overlap.
 					$entry['inDatetime']->add(new DateInterval('PT1M'));

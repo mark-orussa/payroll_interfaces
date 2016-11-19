@@ -9,14 +9,14 @@ if (document.location.href.indexOf('https') != -1) {
 } else {
     var protocol = 'http';
 }
-
-if (document.location.href.indexOf('localhost') != -1 || document.location.href.match(/\/{2}\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) != null) {
+if (document.location.href.indexOf('dev') != -1 || document.location.href.match(/\/{2}\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) != null) {
     //Local
-    var parts = document.location.href.split('pi.embassyllc.com');
+    var parts = document.location.href.split('pi.embassyllc.dev');
     var local = true;
-    var autolink = parts[0] + 'pi.embassyllc.com';
-    var cookiedomain = '.localhost';
-    var cookiepath = '/pi.embassyllc.com';
+    var autolink = parts[0] + 'pi.embassyllc.dev';
+    var cookiedomain = '.pi.embassyllc.dev';
+    var cookiepath = '/pi.embassyllc.dev';
+    console.log('local');
 } else {
     //Remote
     var local = false;
@@ -24,7 +24,6 @@ if (document.location.href.indexOf('localhost') != -1 || document.location.href.
     var cookiedomain = '.pi.embassyllc.com';
     var cookiepath = '/';
     console.log('remote');
-
 }
 
 function checkForSpaces(s) {

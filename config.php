@@ -5,7 +5,45 @@
  * The production server must allow .htaccess files.
  */
 //ini_set("session.save_handler", "files");
+
 $fileInfo = array('fileName' => 'config.php');
+try{
+	// Use the Composer autoloader. We have given it the location of our custom classes.
+	require __DIR__ . '/vendor/autoload.php';
+}catch( Exception $exception ){
+	echo $exception;
+//	$Debug->writeToLog();
+}
+
+function my_error_handler($errorLevel, $errorMessageString, $errorFile, $errorLine, array $errorContext) {
+	global $Debug, $Message;
+	// error was suppressed with the @-operator
+	if( 0 === error_reporting() ){
+		return false;
+	}
+	$output = '';
+	if( !empty($errorLevel) ){
+		$output .= 'There is a level ' . $errorLevel . ' error';
+	}else{
+		$output .= 'There is an error';
+		$Message->accumulate('We encountered an error.');
+	}
+	if( !empty($errorFile) ){
+		$output .= ' in file <span style="font-weight: bold">' . $errorFile . '</span>';
+	}
+	if( !empty($errorLine) ){
+		$output .= ' on line <span style="font-weight: bold">' . $errorLine . '</span>';
+	}
+	if( !empty($errorMessageString) ){
+		$output .= ' with the message: <pre style="margin-left:2em">' . $errorMessageString . '</pre>';
+	}
+	/*if( !empty($errorContext) ){
+		$output .= '<span style="font-weight: bold">Error Context:</span> ' . $Debug->printArrayOutput($errorContext);
+	}*/
+	$Debug->add($output);
+	//throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+}
+
 if( isset($_REQUEST['message']) ){
 	$Message = $_REQUEST['message'];// == 'Please Login' ? 'Please Login' : $_REQUEST['message'];
 }else{
@@ -59,7 +97,7 @@ define('EMAILSUPPORT', 'support@' . DOMAIN);
 /*define('GOOGLEANALYTICS',$_SERVER['GOOGLEANALYTICS'],1);//The unique Google Analytics Web Property Id. Format: UA-XXXXX-X.
 define('RECAPTCHAPRIVATEKEY', $_SERVER['RECAPTCHAPRIVATEKEY']);*/
 
-class EmbassyAutoloader {
+/*class EmbassyAutoloader {
 	public static function autoload($className) {
 		global $Debug;
 		$includePath = 'Classes/' . str_replace('_', '/', $className) . '.php';
@@ -73,9 +111,9 @@ class EmbassyAutoloader {
 
 spl_autoload_register(null, false);
 spl_autoload_register('EmbassyAutoloader::autoload');
-
+*/
 if( empty($Debug) ){
-	$Debug = new Debug();
+	$Debug = new Embassy\Debug();
 }
 $Debug->newFile($fileInfo['fileName']);
 
@@ -188,7 +226,7 @@ list($micro, $sec) = explode(" ", microtime());
 define('TIMESTAMP', $sec);//Unix timestamp of the default timezone in config.php (UTC), so all time functions refer to that timezone.
 define('MICROTIME', (int)str_replace('0.', '', $micro));//Microseconds displayed as an eight digit integer (47158200).
 define('DATETIME', date('Y-m-d H:i:s', TIMESTAMP));//This time is used for entry into a MYSQL database as a datetime format: YYYY-MM-DD HH:MM:SS
-$PHPErrorHandler = new ErrorHandler(NULL, true);
+$PHPErrorHandler = new Embassy\ErrorHandler(NULL, true);
 $useStrictDebugging = false;
 if( $useStrictDebugging ){
 	function my_exception_handler(Exception $e) {
@@ -354,6 +392,7 @@ define('LINKCSS', AUTOLINK . '/css', 1);
 define('LINKIMAGES', AUTOLINK . '/images', 1);
 define('LINKJS', AUTOLINK . '/js', 1);
 define('LINKDOCUMENTS', AUTOLINK . '/documents', 1);
+define('LINKLOGIN', AUTOLINK . '/login', 1);
 define('COLORBLACK', '000000', 1);
 define('COLORBLUE', '00BCDC', 1);
 define('COLORGRAY', 'F5F5F5', 1);
@@ -365,20 +404,20 @@ define('SIZE2', '2', 1);
 define('SIZE3', '3', 1);
 define('SIZE4', '4', 1);
 define('SIZE5', '5', 1);
-$Success = false;
 $ReturnThis = '';
+$Success = false;
 
 try{
 	// Check that pdo_mysql driver is installed.
 	if( defined('PDO::ATTR_DRIVER_NAME') ){
-		$Dbc = new Dbc(DSN);
+		$Dbc = new Embassy\Dbc(DSN);
 	}else{
-		throw new CustomException('', 'Verify that the module called pdo_mysql is installed by running phpinfo().');
+		throw new Embassy\CustomException('', 'Verify that the module called pdo_mysql is installed by running phpinfo().');
 	}
 	/*if( $Dbc->getStatus() === false ){
 		throw new CustomException('There is no database connection.', 'Could not connect to the database.', '');
 	}*/
-}catch( CustomException $e ){
+}catch( Embassy\CustomException $e ){
 	$Debug->error(__LINE__, '', $e);
 	die($Debug->output());
 //	$PHPErrorHandler->addErrorMessage($e->getMessage());
@@ -390,3 +429,4 @@ if( empty($_REQUEST['mode']) ){
 }
 $Debug->add('MODE: ' . MODE);
 require('utilities.php');
+$Page = new Embassy\Page($Debug, $Dbc, $Message, $ReturnThis, $Success);

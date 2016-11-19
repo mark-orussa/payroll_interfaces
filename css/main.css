@@ -129,6 +129,9 @@ html, body, #cover {
 .fa-close {
   cursor: pointer; }
 
+fieldset {
+  border: 0; }
+
 #floaterContent {
   border: 0.5rem solid #d1f2a5;
   border-radius: 0.4rem;
@@ -149,6 +152,11 @@ html, body, #cover {
 
 form {
   margin-top: 1em; }
+  form #login {
+    text-align: center; }
+  form .g-recaptcha {
+    width: 304px;
+    margin: 0 auto; }
   form input[type=file], form input[type=submit] {
     border-radius: 0.4rem;
     -moz-border-radius: 0.4rem;
@@ -168,7 +176,8 @@ form {
     margin: .5em;
     text-align: center;
     text-decoration: none;
-    white-space: nowrap; }
+    white-space: nowrap;
+    font-size: 1.1em; }
     form input[type=file]:focus, form input[type=submit]:focus {
       cursor: pointer;
       background: #92DF7D;

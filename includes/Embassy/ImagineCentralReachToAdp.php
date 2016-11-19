@@ -1,5 +1,6 @@
 <?php
-
+namespace Embassy;
+use Embassy\CustomException;
 /**
  * Created by PhpStorm.
  * User: Mark O'Russa
@@ -70,7 +71,7 @@ Class ImagineCentralReachToAdp extends PayrollInterface {
 		 *
 		 * @param    string $inputFileId   The id of the form input file element.
 		 * @param    string $saveDirectory The location to store the file. Due to http protocol limitations this must be relative to the document receiving the file (i.e. './uploads').
-		 * @param    string $this          ->_outgoingDirectory The location to store the output CSV file(s). Due to http protocol limitations this must be relative to the document receiving the file (i.e. './downloads').
+		 * @param    string $this          ->outgoingDirectory The location to store the output CSV file(s). Due to http protocol limitations this must be relative to the document receiving the file (i.e. './downloads').
 		 * @param    string $tableName     The name of the temporary database table.
 		 * @return    bool|string  Returns true, otherwise a string message. Use === true to verify success.
 		 *
@@ -117,7 +118,7 @@ Class ImagineCentralReachToAdp extends PayrollInterface {
 				throw new CustomException('', 'outputFile() returned false for regular hours.');
 			}
 
-			$this->_regularHoursOutgoingFilePath = $this->_outgoingFilePath;
+			$this->_regularHoursOutgoingFilePath = $this->outgoingFilePath;
 
 			// Perform the data manipulations on travel hours and return a string.
 			if( self::getTravelHours() === false ){
@@ -127,15 +128,15 @@ Class ImagineCentralReachToAdp extends PayrollInterface {
 			if( self::outputFile($this->_outgoingTravelHoursFileName, $this->_travelHours) === false ){
 				throw new CustomException('', 'outputFile() returned false for travel hours.');
 			}
-			$this->_travelHoursOutgoingFilePath = $this->_outgoingFilePath;
+			$this->_travelHoursOutgoingFilePath = $this->outgoingFilePath;
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -154,7 +155,7 @@ Class ImagineCentralReachToAdp extends PayrollInterface {
 	private function getLevel1Emp() {
 		// Get the level 1 employees who will have specific job codes modified.
 		try{
-			$selectLevel1EmpXRef = $this->_Dbc->query("SELECT EmpXRef FROM
+			$selectLevel1EmpXRef = $this->Dbc->query("SELECT EmpXRef FROM
 	master_level_empxref
 WHERE
 	level = 1");
@@ -163,13 +164,13 @@ WHERE
 				$this->_level1Emp[] = $row['EmpXRef'];
 			}
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -178,7 +179,7 @@ WHERE
 	private function getLevel2Emp() {
 		// Get the level 2 employees who will have specific job codes modified.
 		try{
-			$selectLevel2EmpXRef = $this->_Dbc->query("SELECT EmpXRef FROM
+			$selectLevel2EmpXRef = $this->Dbc->query("SELECT EmpXRef FROM
 	master_level_empxref
 WHERE
 	level = 2");
@@ -187,13 +188,13 @@ WHERE
 				$this->_level2Emp[] = $row['EmpXRef'];
 			}
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -215,8 +216,8 @@ WHERE
 			}
 
 			// Select regular hours sorted by EmpXRef and timeworkedfrom
-			$selectQuery = $this->_Dbc->prepare("SELECT * FROM
-  $this->_databaseTable
+			$selectQuery = $this->Dbc->prepare("SELECT * FROM
+  $this->databaseTable
   WHERE JobXRef NOT IN ($travelCodesString) AND
   EmpXRef NOT IN (SELECT EmpXRef from empxref)
 ORDER BY EmpXRef ASC,timeworkedfrom ASC");
@@ -225,7 +226,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			$this->_checkRow = array();
 			$latestDate = '';
 			$this->_regularHours = "Employee ID,Date,Time,Job Code\n";
-			$this->_Debug->printArray($this->_jobXRefArray, '$this->_jobXRefArray');
+			$this->Debug->printArray($this->jobXRefArray, '$this->jobXRefArray');
 			while( $row = $selectQuery->fetch(PDO::FETCH_ASSOC) ){
 				$this->_currentRow = $row;
 				if( self::modifyRegularHours() === true ){
@@ -238,7 +239,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			if( empty($returnArray) ){
 				throw  new CustomException('No regular hours were found.');
 			}
-			$this->_Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
+			$this->Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
 			$latestDateDT = Time::convertToDateTime($latestDate);
 			$week = $latestDateDT->format('W');
 			$year = $latestDateDT->format('Y');
@@ -250,19 +251,19 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			$this->_outgoingRegularHoursFileName = 'Embassy_CentralReach_Imagine_' . $latestDateDT->format('Ymd') . '.csv';
 
 		}catch( CustomPDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -285,12 +286,12 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			$query = "SELECT *,
 SUM(HrsWorked) SumHours
 FROM
-  $this->_databaseTable
+  $this->databaseTable
   WHERE JobXRef IN ($travelCodesString) AND
   EmpXRef NOT IN (SELECT EmpXRef from empxref)
   GROUP BY EmpXRef, DateOfService
 ORDER BY EmpXRef ASC,timeworkedfrom ASC";
-			$selectQuery = $this->_Dbc->prepare($query);
+			$selectQuery = $this->Dbc->prepare($query);
 			$selectQuery->execute($this->_travelCodes);
 			$this->_checkRow = '';
 			$latestDate = '';
@@ -309,7 +310,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			if( !$foundRows ){
 				throw  new CustomException('No travel hours were found.');
 			}
-			$this->_Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
+			$this->Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
 			$latestDateDT = Time::convertToDateTime($latestDate);
 			$week = $latestDateDT->format('W');
 			$year = $latestDateDT->format('Y');
@@ -319,19 +320,19 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			// Build name for the output file.
 			$this->_outgoingTravelHoursFileName = 'Embassy_CentralReach_Imagine_Travel_' . $latestDateDT->format('Ymd') . '.csv';
 		}catch( CustomPDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -392,7 +393,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 		 */
 		try{
 			// Check for employee exceptions. These are employees compensated at different rates for the same JobXRef codes. Their JobXRef descriptions (i.e. BSMABILL1) are indicated by the addition of a 1 or 2 at the end of the description. The job code (i.e. //////0663) may be the same as the base description, but should be checked any way.
-			$this->_Success = true;
+			$this->Success = true;
 			// Level 1 and 2 employees.
 			if( in_array((Int)$this->_currentRow['EmpXRef'], $this->_level1Emp) && in_array($this->_currentRow['JobXRef'], $this->_level1EmpJobXRef) ){
 				$this->_currentRow['JobXRef'] = $this->_currentRow['JobXRef'] . '1';
@@ -405,11 +406,11 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			if( in_array($this->_currentRow['EmpXRef'], $this->_specialCases) ){
 				$this->_currentRow['JobXRef'] = '';
 				$this->_currentRow['Job Code'] = '';
-			}elseif( empty($this->_jobXRefArray[$this->_currentRow['JobXRef']]) ){
+			}elseif( empty($this->jobXRefArray[$this->_currentRow['JobXRef']]) ){
 				// This is an unrecognized job code.
-				$this->_unrecognizedJobCodesArray[] = $this->_currentRow;
+				$this->unrecognizedJobCodesArray[] = $this->_currentRow;
 			}else{
-				$this->_currentRow['Job Code'] = '//////' . $this->_jobXRefArray[$this->_currentRow['JobXRef']];
+				$this->_currentRow['Job Code'] = '//////' . $this->jobXRefArray[$this->_currentRow['JobXRef']];
 			}
 
 			// Create the new values destined for output.
@@ -435,9 +436,9 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 				// Look for duplicate rows
 				if( $this->_checkRow['ProcedureCodeString'] == $this->_currentRow['ProcedureCodeString'] && $this->_checkRow['timeworkedfrom'] == $this->_currentRow['timeworkedfrom'] && $this->_checkRow['timeworkedto'] == $this->_currentRow['timeworkedto'] ){
 					// Don't write these rows to the output file and move on to the next row
-					$this->_duplicateArray[] = array($this->_checkRow, $this->_currentRow);
-					$this->_Debug->add('found duplicate data');
-					$this->_Success = false;
+					$this->duplicateArray[] = array($this->_checkRow, $this->_currentRow);
+					$this->Debug->add('found duplicate data');
+					$this->Success = false;
 				}
 
 				/**
@@ -452,9 +453,9 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 					// Add a minute to avoid overlap.
 					$laterDatetime->add(new DateInterval('PT1M'));
 				}elseif( $earlierDatetime > $laterDatetime ){
-//                    $this->_Debug->add('Difference is ' . $difference);
+//                    $this->Debug->add('Difference is ' . $difference);
 					// Do not throw an exception for overlaps. Add them to a separate record.
-					$this->_overLapArray[] = array($this->_checkRow, $this->_currentRow);
+					$this->overLapArray[] = array($this->_checkRow, $this->_currentRow);
 				}
 			}
 			// Format punch in time
@@ -463,13 +464,13 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			// Format punch out time
 			$this->_currentRow['outPunch'] = date($timeFormat, strtotime($this->_currentRow['timeworkedto']));
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
-		if( $this->_Success ){
+		if( $this->Success ){
 			$this->_regularHours .= $this->_currentRow['Employee ID'] . ',' . $this->_currentRow['Date'] . ',' . $this->_currentRow['inPunch'] . ',' . $this->_currentRow['Job Code'] . "\n" . $this->_currentRow['Employee ID'] . ',' . $this->_currentRow['Date'] . ',' . $this->_currentRow['outPunch'] . "\n";
 			return true;
 		}else{
@@ -531,7 +532,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			)
 		 */
 		try{
-			$this->_Success = true;
+			$this->Success = true;
 			// Create the new values destined for output.
 			$earlierDatetime = '';
 			if( !empty($this->_checkRow) && array_key_exists('timeworkedto', $this->_checkRow) ){
@@ -556,8 +557,8 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 				// Look for duplicate rows
 				if( $this->_checkRow['ProcedureCodeString'] == $this->_currentRow['ProcedureCodeString'] && $this->_checkRow['timeworkedfrom'] == $this->_currentRow['timeworkedfrom'] && $this->_checkRow['timeworkedto'] == $this->_currentRow['timeworkedto'] ){
 					// Don't write these rows to the output file and move on to the next row
-					$this->_duplicateArray[] = array($this->_checkRow, $this->_currentRow);
-					$this->_Success = false;
+					$this->duplicateArray[] = array($this->_checkRow, $this->_currentRow);
+					$this->Success = false;
 				}
 
 				// Look for overlapping times
@@ -573,9 +574,9 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 					// Add a minute to avoid overlap.
 					$laterDatetime->add(new DateInterval('PT1M'));
 				}elseif( $earlierDatetime > $laterDatetime ){
-//                    $this->_Debug->add('Difference is ' . $difference);
+//                    $this->Debug->add('Difference is ' . $difference);
 					// Do not throw an exception for overlaps. Add them to a separate record.
-					$this->_overLapArray[] = array($this->_checkRow, $this->_currentRow);
+					$this->overLapArray[] = array($this->_checkRow, $this->_currentRow);
 				}
 			}
 			// Format punch in time
@@ -585,13 +586,13 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			$this->_currentRow['outPunch'] = date($timeFormat, strtotime($this->_currentRow['timeworkedto']));
 
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
-		if( $this->_Success ){
+		if( $this->Success ){
 			$this->_travelHours .= $this->_currentRow['Employee ID'] . ',' . $this->_currentRow['Date'] . ',' . $this->_currentRow['Hours Worked'] . "\n";
 			return true;
 		}else{

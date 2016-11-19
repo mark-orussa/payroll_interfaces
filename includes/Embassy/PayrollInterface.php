@@ -1,5 +1,5 @@
 <?php
-
+namespace Embassy;
 /**
  * Created by PhpStorm.
  * User: morussa
@@ -13,46 +13,46 @@ class PayrollInterface {
 	 */
 	private $_output;
 
-	protected $_Dbc;
-	protected $_Debug;
-	protected $_Message;
-	protected $_ReturnThis;
-	protected $_Success;
+	protected $Dbc;
+	protected $Debug;
+	protected $Message;
+	protected $ReturnThis;
+	protected $Success;
 
-	protected $_fileInfo;
-	protected $_databaseTable;
-	protected $_empXRefArray;
-	protected $_jobXRefArray;
-	protected $_invalidDataArray;
-	protected $_overLapArray;
-	protected $_unrecognizedJobCodesArray;
-	protected $_duplicateArray; // An array of two arrays, i.e. array($this->_checkRow, $this->_currentRow);
-	protected $_outgoingDirectory;// The path to the outgoing file. This does not include the filename.
-	protected $_outgoingFilePath;// The path plus the filename.
+	protected $fileInfo;
+	protected $databaseTable;
+	protected $empXRefArray;
+	protected $jobXRefArray;
+	protected $invalidDataArray;
+	protected $overLapArray;
+	protected $unrecognizedJobCodesArray;
+	protected $duplicateArray; // An array of two arrays, i.e. array($this->_checkRow, $this->_currentRow);
+	protected $outgoingDirectory;// The path to the outgoing file. This does not include the filename.
+	protected $outgoingFilePath;// The path plus the filename.
 
 	public function __construct() {
 		global $Dbc, $Debug, $Message, $ReturnThis, $Success;
-		$this->_Dbc = &$Dbc;
-		$this->_Debug = &$Debug;
-		$this->_Message = &$Message;
-		$this->_ReturnThis = &$ReturnThis;
-		$this->_Success = &$Success;
+		$this->Dbc = &$Dbc;
+		$this->Debug = &$Debug;
+		$this->Message = &$Message;
+		$this->ReturnThis = &$ReturnThis;
+		$this->Success = &$Success;
 
 		if( MODE == 'serveFile' ){
 			self::serveFile();
 		}else{
-			$this->_databaseTable = '';
-			$this->_duplicateArray = array();
-			$this->_invalidDataArray = array();
-			$this->_overLapArray = array();
-			$this->_unrecognizedJobCodesArray = array();
-			$this->_nonbillOverlap = array();
-			$this->_fileInfo = array();
-			$this->_empXRefArray = array(); // currently not used. Individual database queries use NOT IN to ignore salaried employees.
-			$this->_jobXRefArray = array();
-			$this->_payrollHeaders = array('ID', 'EmpXRef', 'DeptXRef', 'JobXRef', 'PayCode', 'DateOfService', 'HrsWorked', 'BlankField', 'CentralReachId', 'EmployeeFirstName', 'EmployeeLastName', 'ProcedureCodeString', 'timeworkedfrom', 'timeworkedto');
-			/*			$this->_empXRefArray = array(2429, 1948, 2256, 1845, 1959, 1955, 4828, 2706, 2419, 2652, 2840, 2617, 100871, 101143, 100198, 101275);
-						$this->_jobXRefArray = array('BSMABILL1' => '//////0605', 'BSMANONBILL1' => '//////0661', 'BSMAOB1' => '//////0662', 'BSMABILL2' => '//////0608', 'BSMANONBILL2' => '//////0663', 'BSMAOB2' => '//////0664', 'BSMABILL' => '//////0607', 'BSMANONBILL' => '//////0663', 'BSMAOB' => '//////0664', 'BSPHDBILL1' => '//////0606', 'BSPHDNONBILL1' => '//////0672', 'BSPHDOB1' => '//////0673', 'BSPHDBILL' => '//////0608', 'BSPHDNONBILL' => '//////0674', 'BSPHDOB' => '//////0675', 'BTMABILL' => '//////0612', 'BTMANONBILL' => '//////0670', 'BTBABILL' => '//////0611', 'BTBANONBILL' => '//////0668'******, 'BTHSBILL' => '//////0610', 'BTHSNONBILL' => '//////0665', 'BSMATRAVEL' => '//////0999', 'BSPHDTRAVEL' => '//////0999', 'BTMATRAVEL' => '//////0999', 'BTBATRAVEL' => '//////0999', 'BTHSTRAVEL' => '//////0999', 'PDMGMT' => '//////0607', 'CDMGMT2' => '//////0618', 'DSACHILDPARA' => '//////0631', 'DSADULTPARA' => '//////0630', 'DSAMGMT' => '//////0631', 'DSCHILDPARA' => '//////0630', 'DSCHILDPRO' => '//////0630', 'DSMGMT' => '//////0630', 'DTADULTNONBILL' => '//////0632', 'DTADULTPARA' => '//////0632', 'DTCHILDPRO' => '//////0632', 'DTMGMT' => '//////0632', 'DTDirect Support Professional - DDA' => '//////0632', 'HIADULTNONBILL' => '//////0635', 'HIADULTPARA' => '//////0636', 'HICHILDNONBILL' => '//////0637', 'HICHILDPRO' => '//////0641', 'HSCHILDPRO' => '//////0650', 'HSCHILDNONBILL' => '//////0650', 'HSCHILDPARA' => '//////0650', 'HSSBI1' => '//////0650', 'OMMGMT' => '//////0979', 'OMCHILDPARA' => '//////0979', 'OMADULTPARA' => '//////0979', 'HICHILDPARA' => '//////0638', 'HSADULTPARA' => '//////0650', 'DTCHILDPARA' => '//////0632', 'DTCHILDNONBILL' => '//////0632', 'HSADULTNONBILL' => '//////0650', 'DSAADULTPARA' => '//////0631', 'HISBI1' => '//////0643', 'CSSBI1' => '//////0620', 'CSMGMT' => '//////0620', 'PMMGMT' => '//////0220', 'HSMGMT' => '//////0631 ');*/
+			$this->databaseTable = '';
+			$this->duplicateArray = array();
+			$this->invalidDataArray = array();
+			$this->overLapArray = array();
+			$this->unrecognizedJobCodesArray = array();
+			$this->nonbillOverlap = array();
+			$this->fileInfo = array();
+			$this->empXRefArray = array(); // currently not used. Individual database queries use NOT IN to ignore salaried employees.
+			$this->jobXRefArray = array();
+			$this->payrollHeaders = array('ID', 'EmpXRef', 'DeptXRef', 'JobXRef', 'PayCode', 'DateOfService', 'HrsWorked', 'BlankField', 'CentralReachId', 'EmployeeFirstName', 'EmployeeLastName', 'ProcedureCodeString', 'timeworkedfrom', 'timeworkedto');
+			/*			$this->empXRefArray = array(2429, 1948, 2256, 1845, 1959, 1955, 4828, 2706, 2419, 2652, 2840, 2617, 100871, 101143, 100198, 101275);
+						$this->jobXRefArray = array('BSMABILL1' => '//////0605', 'BSMANONBILL1' => '//////0661', 'BSMAOB1' => '//////0662', 'BSMABILL2' => '//////0608', 'BSMANONBILL2' => '//////0663', 'BSMAOB2' => '//////0664', 'BSMABILL' => '//////0607', 'BSMANONBILL' => '//////0663', 'BSMAOB' => '//////0664', 'BSPHDBILL1' => '//////0606', 'BSPHDNONBILL1' => '//////0672', 'BSPHDOB1' => '//////0673', 'BSPHDBILL' => '//////0608', 'BSPHDNONBILL' => '//////0674', 'BSPHDOB' => '//////0675', 'BTMABILL' => '//////0612', 'BTMANONBILL' => '//////0670', 'BTBABILL' => '//////0611', 'BTBANONBILL' => '//////0668'******, 'BTHSBILL' => '//////0610', 'BTHSNONBILL' => '//////0665', 'BSMATRAVEL' => '//////0999', 'BSPHDTRAVEL' => '//////0999', 'BTMATRAVEL' => '//////0999', 'BTBATRAVEL' => '//////0999', 'BTHSTRAVEL' => '//////0999', 'PDMGMT' => '//////0607', 'CDMGMT2' => '//////0618', 'DSACHILDPARA' => '//////0631', 'DSADULTPARA' => '//////0630', 'DSAMGMT' => '//////0631', 'DSCHILDPARA' => '//////0630', 'DSCHILDPRO' => '//////0630', 'DSMGMT' => '//////0630', 'DTADULTNONBILL' => '//////0632', 'DTADULTPARA' => '//////0632', 'DTCHILDPRO' => '//////0632', 'DTMGMT' => '//////0632', 'DTDirect Support Professional - DDA' => '//////0632', 'HIADULTNONBILL' => '//////0635', 'HIADULTPARA' => '//////0636', 'HICHILDNONBILL' => '//////0637', 'HICHILDPRO' => '//////0641', 'HSCHILDPRO' => '//////0650', 'HSCHILDNONBILL' => '//////0650', 'HSCHILDPARA' => '//////0650', 'HSSBI1' => '//////0650', 'OMMGMT' => '//////0979', 'OMCHILDPARA' => '//////0979', 'OMADULTPARA' => '//////0979', 'HICHILDPARA' => '//////0638', 'HSADULTPARA' => '//////0650', 'DTCHILDPARA' => '//////0632', 'DTCHILDNONBILL' => '//////0632', 'HSADULTNONBILL' => '//////0650', 'DSAADULTPARA' => '//////0631', 'HISBI1' => '//////0643', 'CSSBI1' => '//////0620', 'CSMGMT' => '//////0620', 'PMMGMT' => '//////0220', 'HSMGMT' => '//////0631 ');*/
 		}
 	}
 
@@ -62,23 +62,23 @@ class PayrollInterface {
 				throw new CustomException('', '$_POST[\'JobXRef\'] is empty');
 			}
 			//Add the EmpXRef to the database.
-			$addJobXRefStmt = $this->_Dbc->prepare("INSERT IGNORE INTO
+			$addJobXRefStmt = $this->Dbc->prepare("INSERT IGNORE INTO
 	jobxref
 SET
 	JobXRef = ?,
 	JobCode = ?");
 			$params = array($_POST['JobXRef']);
 			$addJobXRefStmt->execute($params);
-//			$this->_Message = 'Great success';
-			$this->_Success = true;
-			$this->_ReturnThis['butter'] = 'New JobXRef successfully added.';
+//			$this->Message = 'Great success';
+			$this->Success = true;
+			$this->ReturnThis['butter'] = 'New JobXRef successfully added.';
 		}catch( CustomException $e ){
 			returnData('newJobXRef');
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('newJobXRef');
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			returnData('newJobXRef');
 		}
 		returnData('newJobXRef');
@@ -95,12 +95,12 @@ SET
 		 * @param    $ignoreFirstColumn    bool    If the first column of your data is the auto-increment id column you may wish it ignore it.
 		 * @return  string  Returns html.
 		 */
-		if( !empty($this->_duplicateArray) ){
-			$count = count($this->_payrollHeaders);
-			$ignoreFirstColumn = $count == count($this->_duplicateArray) ? false : true;
+		if( !empty($this->duplicateArray) ){
+			$count = count($this->payrollHeaders);
+			$ignoreFirstColumn = $count == count($this->duplicateArray) ? false : true;
 			$td = '';
 			$headerCount = 0;
-			foreach( $this->_payrollHeaders as $value ){
+			foreach( $this->payrollHeaders as $value ){
 				if( $headerCount == 0 && $ignoreFirstColumn ){
 					$headerCount++;
 					continue;
@@ -110,7 +110,7 @@ SET
 			$output = '<p class="interfaceResponse">There is some duplicate data that was ignored.<div class="toggleButton" style="display:inline">Click to View Duplicates</div>
 <div class="toggleMeNoOverlap">
 <table style="border-collapse:collapse"><tr>' . $td . '</tr>';
-			foreach( $this->_duplicateArray as $value ){
+			foreach( $this->duplicateArray as $value ){
 				$array1 = array_values($value[0]);// convert the associative array into an indexed array.
 				$array2 = array_values($value[1]);
 				$row1 = '';
@@ -154,23 +154,23 @@ SET
 		 * @return    bool    Returns true upon success, otherwise false.
 		 */
 		try{
-			$getEmpXRefStmt = $this->_Dbc->query("SELECT * FROM empxref");
+			$getEmpXRefStmt = $this->Dbc->query("SELECT * FROM empxref");
 			$getEmpXRefStmt->execute();
 			while( $row = $getEmpXRefStmt->fetch(PDO::FETCH_ASSOC) ){
-				$this->_empXRefArray[] = $row['EmpXRef'];
+				$this->empXRefArray[] = $row['EmpXRef'];
 			}
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -183,24 +183,24 @@ SET
 		 * @return    bool    Returns true upon success, otherwise false.
 		 */
 		try{
-			$jobXRefStmt = $this->_Dbc->query("SELECT * FROM
+			$jobXRefStmt = $this->Dbc->query("SELECT * FROM
 	jobxref");
 			$jobXRefStmt->execute();
 			while( $row = $jobXRefStmt->fetch(PDO::FETCH_ASSOC) ){
-				$this->_jobXRefArray[$row['JobXRef']] = $row['JobCode'];
+				$this->jobXRefArray[$row['JobXRef']] = $row['JobCode'];
 			}
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -210,7 +210,7 @@ SET
 		/**
 		 * @return array    Returns the fileInfo array, which looks like [filename,type,size].
 		 */
-		return $this->_fileInfo;
+		return $this->fileInfo;
 	}
 
 	public function getInvalidData() {
@@ -235,22 +235,22 @@ SET
 		 * 12 'timeworkedto' => '2016-05-03 18:00:00',
 		 * )
 		 */
-		$count = count($this->_payrollHeaders);
-		$ignoreFirstColumn = $count == count($this->_duplicateArray) ? false : true;
+		$count = count($this->payrollHeaders);
+		$ignoreFirstColumn = $count == count($this->duplicateArray) ? false : true;
 		$td = '';
 		$headerCount = 0;
-		foreach( $this->_payrollHeaders as $value ){
+		foreach( $this->payrollHeaders as $value ){
 			if( $headerCount == 0 && $ignoreFirstColumn ){
 				$headerCount++;
 				continue;
 			}
 			$td .= '<td>' . $value . '</td>';
 		}
-		if( !empty($this->_invalidDataArray) ){
+		if( !empty($this->invalidDataArray) ){
 			$output = '<p class="interfaceResponse">Some invalid data was ignored.<div class="toggleButton" style="display:inline">Click to View Invalid Data</div>
 <div class="toggleMeNoOverlap">
 <table><tr>' . $td . '</tr>';
-			foreach( $this->_invalidDataArray as $row ){
+			foreach( $this->invalidDataArray as $row ){
 				if( !empty($row['validationErrors']) ){
 					$output .= '<tr><td colspan="13" class="red">';
 					$error = '';
@@ -280,12 +280,12 @@ SET
 	}
 
 	public function getUnrecognizedJobCodes() {
-		if( !empty($this->_unrecognizedJobCodesArray) ){
+		if( !empty($this->unrecognizedJobCodesArray) ){
 			$output = '<p>Some entries were ignored because they have unrecognized job codes.<div class="toggleButton" style="display:inline">Click to View Ignored Entries</div>
 <div class="toggleMeNoOverlap">
 <table><tr>
 <td>EmpXRef</td><td>DeptXRef</td><td>JobXRef</td><td>PayCode</td><td>DateOfService</td><td>HrsWorked</td><td>CentralReachId</td><td>EmployeeFirstName</td><td>EmployeeLastName</td><td>ProcedureCodeString</td><td>timeworkedfrom</td><td>timeworkedto</td></tr>';
-			foreach( $this->_unrecognizedJobCodesArray as $row ){
+			foreach( $this->unrecognizedJobCodesArray as $row ){
 				$output .= '<tr><td>' . $row['EmpXRef'] . '</td>
 		<td>' . $row['DeptXRef'] . '</td>
 		<td>' . $row['JobXRef'] . '</td>
@@ -311,12 +311,12 @@ SET
 		 * Displays the duplicate information in a nicely formatted table.
 		 * @return  string  Returns html.
 		 */
-		if( !empty($this->_overLapArray) ){
+		if( !empty($this->overLapArray) ){
 			$output = '<p class="interfaceResponse">There were some overlapping times that were ignored. These need to be manually adjusted or entries from each employee for each listed day will be excluded.<div class="toggleButtonInline">Click to View Overlapping</div>
 <div class="toggleMeNoOverlap">
 <table><tr>
 <td>EmpXRef</td><td>JobXRef</td><td>DateOfService</td><td>EmployeeFirstName</td><td>EmployeeLastName</td><td>ProcedureCodeString</td><td>timeworkedfrom</td><td>timeworkedto</td></tr>';
-			foreach( $this->_overLapArray as $set => $rows ){
+			foreach( $this->overLapArray as $set => $rows ){
 				$output .= '<tr><td>' . $rows[0]['EmpXRef'] . '<br>
             ' . $rows[1]['EmpXRef'] . '</td><td>' . $rows[0]['JobXRef'] . '<br>
             ' . $rows[1]['JobXRef'] . '</td><td>' . $rows[0]['DateOfService'] . '<br>
@@ -351,10 +351,10 @@ SET
 
 		try{
 			// Make the outgoing directory if it doesn't exist.
-			if( !file_exists($this->_outgoingDirectory) && !is_dir($this->_outgoingDirectory) ){
-				mkdir($this->_outgoingDirectory);
+			if( !file_exists($this->outgoingDirectory) && !is_dir($this->outgoingDirectory) ){
+				mkdir($this->outgoingDirectory);
 			}
-			$handle = fopen($this->_outgoingDirectory . '/' . $filename, "w+");
+			$handle = fopen($this->outgoingDirectory . '/' . $filename, "w+");
 			$fileResult = false;
 			if( !$handle ){
 				throw new CustomException("Could not open the file for writing.");
@@ -370,12 +370,12 @@ SET
 			if( !$fileResult ){
 				throw new CustomException("Could not produce the file.");
 			}
-			$this->_outgoingFilePath = $this->_outgoingDirectory . '/' . $filename;// Path to file.
+			$this->outgoingFilePath = $this->outgoingDirectory . '/' . $filename;// Path to file.
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -391,8 +391,8 @@ SET
 		ini_set('display_errors', '1');
 		date_default_timezone_set("America/Los_Angeles");
 		try{
-			$this->_databaseTable = $databaseTableName;
-			$this->_outgoingDirectory = $outgoingDirectory;
+			$this->databaseTable = $databaseTableName;
+			$this->outgoingDirectory = $outgoingDirectory;
 
 			// Get the JobXRef codes.
 			if( self::getJobXRef() === false ){
@@ -400,7 +400,7 @@ SET
 			}
 
 			//Truncate database. We do this first because a thrown error may prevent the database from being truncated later.
-			if( self::truncateDatabase($this->_databaseTable) === false ){
+			if( self::truncateDatabase($this->databaseTable) === false ){
 				throw new CustomException();
 			}
 
@@ -414,13 +414,13 @@ SET
 				throw new CustomException('Could not save the data to the database.');
 			};
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -436,11 +436,11 @@ SET
 		ini_set('display_errors', '1');
 		date_default_timezone_set("America/Los_Angeles");
 		try{
-			$this->_databaseTable = $databaseTableName;
-			$this->_outgoingDirectory = $outgoingDirectory;
+			$this->databaseTable = $databaseTableName;
+			$this->outgoingDirectory = $outgoingDirectory;
 
 			//Truncate database. We do this first because a thrown error may prevent the database from being truncated later.
-			if( self::truncateDatabase($this->_databaseTable) === false ){
+			if( self::truncateDatabase($this->databaseTable) === false ){
 				throw new CustomException();
 			}
 
@@ -454,13 +454,13 @@ SET
 				throw new CustomException('Could not save the data to the database.');
 			};
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -483,10 +483,10 @@ SET
 				throw new CustomException('There was an error with the file.', "Error: " . $_FILES[$formFileInputName]["error"]);
 			}
 			// Store info about the selected file.
-			$this->_fileInfo['filename'] = $_FILES[$formFileInputName]["name"];
-			$this->_fileInfo['type'] = $_FILES[$formFileInputName]["type"];
-			$this->_fileInfo['size'] = $_FILES[$formFileInputName]["size"] / 1024;
-			$this->_fileInfo['directory'] = $saveDirectory;
+			$this->fileInfo['filename'] = $_FILES[$formFileInputName]["name"];
+			$this->fileInfo['type'] = $_FILES[$formFileInputName]["type"];
+			$this->fileInfo['size'] = $_FILES[$formFileInputName]["size"] / 1024;
+			$this->fileInfo['directory'] = $saveDirectory;
 
 			// Make the save directory if it doesn't exist.
 			if( !file_exists($saveDirectory) && !is_dir($saveDirectory) ){
@@ -500,13 +500,13 @@ SET
 				throw new CustomException('Could not move the file.', "Move from temp file failed: " . $_FILES[$formFileInputName]["error"]);
 			}
 		}catch( CustomException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -520,13 +520,13 @@ SET
 		 */
 		try{
 			// Open the File.
-			$handle = fopen($this->_fileInfo['directory'] . '/' . $this->_fileInfo['filename'], "r");
+			$handle = fopen($this->fileInfo['directory'] . '/' . $this->fileInfo['filename'], "r");
 			if( $handle !== FALSE ){
 				// The mysql query to store the data.
 				$row = fgetcsv($handle, 0, ",");// This is the header row. We will use it to get a parameter count.
 
 				// Loop through the table describe to understand the columns and their data types.
-				$describeTableStmt = $this->_Dbc->query('DESCRIBE ' . $this->_databaseTable);
+				$describeTableStmt = $this->Dbc->query('DESCRIBE ' . $this->databaseTable);
 				$describeTableStmt->execute();
 				$tableRows = '';
 				$describeCount = 0;
@@ -536,7 +536,7 @@ SET
 				$notice = false;
 				while( $tableInfo = $describeTableStmt->fetch(PDO::FETCH_ASSOC) ){
 					if( $describeCount > 0 ){ // Skip the id column.
-						$this->_Debug->add($tableInfo['Type'], '$tableInfo[\'Type\']');
+						$this->Debug->add($tableInfo['Type'], '$tableInfo[\'Type\']');
 						$dataTypeArray[$describeCount] = $tableInfo['Type'];
 						$parameters .= $parameters == '' ? '?' : ', ?';
 						if( $tableInfo['Type'] == 'date' || $tableInfo['Type'] == 'datetime' || $tableInfo['Type'] == 'float' || strpos($tableInfo['Type'], 'decimal') !== false ){
@@ -546,9 +546,9 @@ SET
 					}
 					$describeCount++;
 				}
-				$this->_Debug->printArray($noticeArray, '$noticeArray');
-				//$this->_Debug->printArray($dataTypeArray, '$dataTypeArray');
-				$insertStmt = $this->_Dbc->prepare("INSERT INTO $this->_databaseTable
+				$this->Debug->printArray($noticeArray, '$noticeArray');
+				//$this->Debug->printArray($dataTypeArray, '$dataTypeArray');
+				$insertStmt = $this->Dbc->prepare("INSERT INTO $this->databaseTable
 VALUES (NULL, " . $parameters . ')');
 				$rowCount = 0;
 				while( ($row = fgetcsv($handle, 0, ",")) !== FALSE ){
@@ -566,32 +566,32 @@ VALUES (NULL, " . $parameters . ')');
 								}else{
 									$temp = self::numberWithCommasToFloat($row[$key]);
 								}
-								$this->_Debug->add($row[$key] . ' converted to ' . $temp);
+								$this->Debug->add($row[$key] . ' converted to ' . $temp);
 								$row[$key] = $temp;
 							}
 						}
 					}
-//					$this->_Debug->printArray($row,'$row');
+//					$this->Debug->printArray($row,'$row');
 					if( $insertStmt->execute($row) ){
 						$rowCount++;
 					}
 				}
-				$this->_Debug->add($rowCount . ' records were inserted.');
+				$this->Debug->add($rowCount . ' records were inserted.');
 			}else{
 				throw new CustomException('Could not read from the file.');
 			}
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -605,10 +605,10 @@ VALUES (NULL, " . $parameters . ')');
 		 */
 		try{
 			// Open the File.
-			$handle = fopen($this->_fileInfo['directory'] . '/' . $this->_fileInfo['filename'], "r");
+			$handle = fopen($this->fileInfo['directory'] . '/' . $this->fileInfo['filename'], "r");
 			if( $handle !== FALSE ){
 				// The mysql query to store the data.
-				$insertStmt = $this->_Dbc->prepare("INSERT INTO $this->_databaseTable
+				$insertStmt = $this->Dbc->prepare("INSERT INTO $this->databaseTable
 SET
   EmpXRef = ?,
   DeptXRef = ?,
@@ -637,7 +637,7 @@ SET
 						$validatedData = self::validateIncomingCSVData($row);
 						if( $validatedData === false || array_key_exists('validationErrors', $validatedData) ){
 							// Handle rows that do not validate.
-							$this->_invalidDataArray[] = $validatedData;
+							$this->invalidDataArray[] = $validatedData;
 						}else{
 							// Insert the record to the database.
 							if( $insertStmt->execute($validatedData) ){
@@ -646,22 +646,22 @@ SET
 						}
 					}
 				}
-				$this->_Debug->add($rowCount . ' records were inserted.');
+				$this->Debug->add($rowCount . ' records were inserted.');
 			}else{
 				throw new CustomException('Could not read from the file.');
 			}
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -690,9 +690,9 @@ SET
 			if( empty($_REQUEST['fileName']) ){
 				throw new CustomException('', '$_POST[\'fileName\'] is empty.');
 			}
-			$this->_Success = true;
-			$this->_Message .= 'Sending file';
-			$this->_Debug->add('$_REQUEST[\'filePath\']: ' . $_REQUEST['filePath'] . '$_REQUEST[\'fileName\']: ' . $_REQUEST['fileName']);
+			$this->Success = true;
+			$this->Message .= 'Sending file';
+			$this->Debug->add('$_REQUEST[\'filePath\']: ' . $_REQUEST['filePath'] . '$_REQUEST[\'fileName\']: ' . $_REQUEST['fileName']);
 // hide notices
 			//@ini_set('error_reporting', E_ALL & ~E_NOTICE);
 
@@ -707,15 +707,15 @@ SET
 			$path_parts = pathinfo($_REQUEST['filePath']);
 			$file_name = $path_parts['basename'];
 			$file_ext = $path_parts['extension'];
-			$this->_Debug->printArray($path_parts, '$path_parts');
-			//die($this->_Debug->output(true));
+			$this->Debug->printArray($path_parts, '$path_parts');
+			//die($this->Debug->output(true));
 
 // allow a file to be streamed instead of sent as an attachment
 			$is_attachment = isset($_REQUEST['stream']) ? false : true;
 // make sure the file exists
 			if( is_file($_REQUEST['filePath']) ){
 				$file_size = filesize($_REQUEST['filePath']);
-				$this->_Debug->add('$file_size: ' . $file_size);
+				$this->Debug->add('$file_size: ' . $file_size);
 				$file = @fopen($_REQUEST['filePath'], "rb");
 				if( $file ){
 					if( !empty($_REQUEST['fileName']) ){
@@ -764,7 +764,7 @@ SET
 					}else{
 						$range = '';
 					}
-					$this->_Debug->add('$range: ' . $range);
+					$this->Debug->add('$range: ' . $range);
 					//figure out download piece from range (if set)
 					if( $range != '' ){
 						list($seek_start, $seek_end) = explode('-', $range, 2);
@@ -815,10 +815,10 @@ SET
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 	}
@@ -829,20 +829,20 @@ SET
 		 * @return    bool    Returns true upon success, false otherwise.
 		 */
 		try{
-			$truncateQuery = $this->_Dbc->query('TRUNCATE TABLE ' . $tableName . ';');
+			$truncateQuery = $this->Dbc->query('TRUNCATE TABLE ' . $tableName . ';');
 			$truncateQuery->execute();
 		}catch( CustomPDOException $e ){
 			return false;
 		}catch( PDOException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( CustomException $e ){
 			return false;
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return true;
@@ -935,10 +935,10 @@ SET
 				$row['validationErrors'] = $errors;
 			}
 		}catch( ErrorException $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}catch( Exception $e ){
-			$this->_Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
 		return $row;
