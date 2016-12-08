@@ -1,40 +1,42 @@
 <?php
 namespace Embassy;
-use PDO, ErrorException, Exception, PDOException;
+use Exception, ErrorException, PDOException, PDO;
 
 class Dbc extends PDO {
 	private $Debug;
-	private $_status;
+	private $status;
 
-	public function __construct($dsn) {
-		global $Debug;
+	public function __construct($Debug, $hostname, $databaseName, $port, $user, $password) {
 		$this->Debug = &$Debug;
-		$this->_status = false;
+		$this->status = false;
+		$this->Debug->newFile('includes/Embassy/Dbc.php');
+
 		try{
+			if( !defined('PDO::ATTR_DRIVER_NAME') ){
+				throw new CustomException('','PDO::ATTR_DRIVER_NAME is not defined. Verify that the module called pdo_mysql is installed by running phpinfo().');
+			}
 			$options = array(
 				PDO::ATTR_PERSISTENT => true,
 				PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 			);
-
-			$dbcParts = preg_split('/{\w+}/', $dsn);
-			parent::__construct($dbcParts[0], $dbcParts[1], $dbcParts[2], $options);
+			parent::__construct("mysql:host=$hostname;dbname=$databaseName;port=$port", $user, $password, $options);
 		}catch( CustomException $e ){
-			$Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e);
 		}catch( ErrorException $e ){
-			$Debug->error(__LINE__, '', '<pre>' . $e . '</pre>');
+			$this->Debug->error(__LINE__, '', '<pre>' . $e . '</pre>');
 		}catch( Exception $e ){
-			$Debug->error(__LINE__, '', $e);
-			die($Debug->output());
+			$this->Debug->error(__LINE__, '', $e);
 		}
-		$this->_status = true;
+		$this->status = true;
 	}
 
 	public function getStatus() {
-		return $this->_status;
+		return $this->status;
 	}
 
 	public function execute($values = array()) {
 		$this->Debug->printArray($values, '$values');
+		$t = false;
 		try{
 			$t = parent::execute($values);
 			// maybe do some logging here?

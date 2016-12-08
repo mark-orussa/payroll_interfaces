@@ -1,12 +1,8 @@
 <?php
 namespace Embassy;
-
 use Exception;
 
 class CustomException extends Exception {
-
-	private $Debug;
-	private $Message;
 
 	public function __construct($publicMessage = '', $debugMessage = '', $code = 0, Exception $previous = null) {
 		/**
@@ -21,11 +17,7 @@ class CustomException extends Exception {
 		 */
 
 		global $Debug, $Message;
-		$this->Debug = &$Debug;
-		$this->Message = &$Message;
 		$Debug->newFile('includes/Embassy/CustomException.php');
-
-		self::setMessages($publicMessage,$debugMessage,$this->Message,$this->Debug);
 
 		//Add the messages.
 		$trace = parent::getTrace();
@@ -49,7 +41,7 @@ class CustomException extends Exception {
 								}
 							}
 						}else{
-							if(is_array($value)){
+							if( is_array($value) ){
 								$traceArgs .= $Debug->printArrayOutput($value);
 							}else{
 								$traceArgs .= ', ' . $value;
@@ -62,22 +54,12 @@ class CustomException extends Exception {
 		}
 		$temp .= $traceArgs . '<br>
 	<span style="font-weight: bold">Class File:</span>' . parent::getFile() . ' on line ' . parent::getLine() . '<br>
-	<span style="font-weight: bold">Public Message:</span>' . $Message->toString() . '
+	<span style="font-weight: bold">Public Message:</span>' . $Message . '
 	<span style="font-weight: bold">Private Message:</span>' . $debugMessage . '</span>
 </div>';
-		$Debug->add($temp);
+		$Debug->error(__LINE__, $publicMessage, $temp);
 		$code = (int)$code;
 		parent::__construct($publicMessage, $code, $previous);
 		return ($publicMessage);
-	}
-
-	public static function setMessages($publicMessage,$debugMessage,$Message,$Debug) {
-		if( empty($publicMessage) && strstr($Message->__toString(), 'encountered a technical problem') === false ){
-			$Message->add('We\'ve encountered a technical problem that is preventing information from being shown. Please try again in a few moments.<br>
-If the problem persists please contact support.<br>');
-		}else{
-			$Message->add($publicMessage);
-		}
-		$Debug->add($debugMessage);
 	}
 }

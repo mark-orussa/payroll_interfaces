@@ -1,5 +1,6 @@
 <?php
 namespace Embassy;
+
 use PDO, ErrorException, Exception, PDOException;
 
 /**
@@ -18,10 +19,10 @@ class ADPToSunLife extends PayrollInterface {
 	private $_outputTable;
 	private $_outgoingFilename;
 
-	public function __construct() {
+	public function __construct($Ajax, $Dbc, $Debug, $Message) {
 		$this->_employeeArray = array();
 		try{
-			parent::__construct();
+			parent::__construct($Ajax, $Dbc, $Debug, $Message);
 
 			if( MODE == 'sunLifeAddRecord' ){
 				self::sunLifeAddRecord();
@@ -47,7 +48,7 @@ class ADPToSunLife extends PayrollInterface {
 	public function beginAdpToSunLife($formFileInputName, $saveDirectory, $outgoingDirectory, $databaseTableName) {
 		/**
 		 * @param $formFileInputName string
-		 * @param $saveDirectory string
+		 * @param $saveDirectory     string
 		 * @param $outgoingDirectory string
 		 * @param $databaseTableName string
 		 * @return  bool  Returns true on success, otherwise false.
@@ -79,7 +80,7 @@ class ADPToSunLife extends PayrollInterface {
 			};
 			self::outputFile($this->_outgoingFilename, $this->_outputCSV);
 			$headerArray = array('Employee ID', 'First Name', 'Last Name', 'Date of Birth', 'Age', 'Annual Salary', 'Employee Life Amount', 'Employee ADD Amount', 'Spouse Life Amount', 'Spouse ADD Amount', 'Child Life Amount', 'Child ADD Amount', 'STD', 'LTD', 'Employee Critical Illness', 'Spouse Critical Illness', 'Child Critical Illness', 'Employee Tobacco Status', 'Spouse Tobacco Status');
-			self::addToOutput('<div>Your browser has been promted to download a CSV file. Please check your downloads folder for a file called ' . $this->_outgoingFilename . '</div><div>This file has all of the information that Sun Life needs.</div>' . self::getInvalidData($headerArray) . self::getDuplicateEntries($headerArray) . $this->_outputTable);
+			self::addToOutput('<div>Your browser has been promted to download a CSV file. Please check your downloads folder for a file called ' . $this->_outgoingFilename . '</div><div>This file has all of the information that Sun Life needs.</div>' . self::getInvalidData() . self::getDuplicateEntries($headerArray) . $this->_outputTable);
 		}catch( CustomException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			return false;
@@ -537,7 +538,6 @@ WHERE
 					}
 				}
 			}
-			$this->Debug->printArray($keepThis, '$keepThis');
 			$longQuery = 'SELECT ' . $employeeVoluntaryLifeQuery . ', ' . $spouseVoluntaryLifeQuery . ', ' . $employeeCriticalIllnessQuery . ', ' . $spouseCriticalIllnessQuery . ' FROM adp_to_sun_life LIMIT 1';
 //			$this->Debug->add('$wholeQuery: ' . $longQuery);
 
@@ -663,8 +663,7 @@ WHERE
 <td>(i.e. 100, 1000)<br><input class="sunLifeInput" type="text" id="sunLifeNewCalculate" data-type="integer" data-name="Calculate" value="1000"></td>
 </table>
 <div class="makeButtonInline" id="sunLifeAddRecordButton">Add Record</div></div> ';
-			$Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
-
+			$Debug->add($selectQuery->rowCount() . ' rows returned in on line ' . __LINE__ . ' in file ' . __FILE__ . '.');
 		}catch( CustomPDOException $e ){
 			$Debug->error(__LINE__, '', $e);
 			return false;
@@ -815,7 +814,7 @@ SET
 					$debugMessage .= '<div>' . $arrayOfMessages[1] . '</div>';
 				}
 				$this->Debug->add($debugMessage);
-				$this->ReturnThis['message'] = $publicMessage;
+				$this->Message->add($publicMessage);
 			}else{
 				$insertQuery = $this->Dbc->prepare("INSERT INTO sun_life_rates SET
 	benefit = ?,
@@ -826,9 +825,9 @@ SET
 	calculate = ?");
 				$params = array($_POST['sunLifeNewBenefit'], $_POST['sunLifeNewOption'], $_POST['sunLifeNewAgeStart'], $_POST['sunLifeNewAgeEnd'], $_POST['sunLifeNewRate'], $_POST['sunLifeNewCalculate']);
 				$insertQuery->execute($params);
-				$this->Success = true;
-				$this->ReturnThis['list'] = self::manageRates();
-				$this->ReturnThis['message'] = 'Added the record.';
+				$this->Ajax->SetSuccess(true);
+				$this->Ajax->AddValue(array('list' => self::manageRates($this->Dbc, $this->Debug)));
+				$this->Message->add('Added the record.');
 			}
 		}catch( CustomPDOException $e ){
 			return false;
@@ -845,13 +844,13 @@ SET
 			return false;
 		}finally{
 			if( MODE == 'sunLifeAddRecord' ){
-				returnData('sunLifeAddRecord');
+				$this->Ajax->ReturnData();
 			}else{
 				return '';
 			}
 		}
 		if( MODE == 'sunLifeAddRecord' ){
-			returnData('sunLifeAddRecord');
+			$this->Ajax->ReturnData();
 		}else{
 			return '';
 		}
@@ -869,19 +868,19 @@ WHERE
 LIMIT 1;");
 			$params = array($_POST['rateId']);
 			$deleteRateStmt->execute($params);
-			$this->Success = true;
-			$this->ReturnThis['list'] = self::manageRates();
-			$this->ReturnThis['message'] = 'Deleted the rate.';
+			$this->Ajax->SetSuccess(true);
+			$this->Ajax->AddValue(array('list' => self::manageRates($this->Dbc, $this->Debug)));
+			$this->Message->add('Deleted the rate.');
 		}catch( CustomException $e ){
-			returnData('sunLifeDeleteRate');
+			$this->Ajax->ReturnData();
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('sunLifeDeleteRate');
+			$this->Ajax->ReturnData();
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('sunLifeDeleteRate');
+			$this->Ajax->ReturnData();
 		}
-		returnData('sunLifeDeleteRate');
+		$this->Ajax->ReturnData();
 	}
 
 	private function sunLifeUpdate() {
@@ -944,7 +943,7 @@ LIMIT 1;");
 					$debugMessage .= '<div>' . $arrayOfMessages[1] . '</div>';
 				}
 				$this->Debug->add($debugMessage);
-				$this->ReturnThis['message'] = $publicMessage;
+				$this->Message->add($publicMessage);
 			}else{
 				$insertQuery = $this->Dbc->prepare("UPDATE sun_life_rates SET
 	benefit = ?,
@@ -957,9 +956,9 @@ WHERE
 	id = ?");
 				$params = array($_POST['benefit'], $_POST['option'], $_POST['agestart'], $_POST['ageend'], $_POST['rate'], $_POST['calculate'], $_POST['id']);
 				$insertQuery->execute($params);
-				$this->Success = true;
-				$this->ReturnThis['list'] = self::manageRates();
-				$this->ReturnThis['message'] = 'Updated the record.';
+				$this->Ajax->SetSuccess(true);
+				$this->Ajax->AddValue(array('list' => self::manageRates($this->Dbc, $this->Debug)));
+				$this->Message->Add('Updated the record.');
 			}
 		}catch( CustomPDOException $e ){
 			return false;
@@ -976,13 +975,13 @@ WHERE
 			return false;
 		}finally{
 			if( MODE == 'sunLifeUpdate' ){
-				returnData('sunLifeUpdate');
+				$this->Ajax->ReturnData();
 			}else{
 				return '';
 			}
 		}
 		if( MODE == 'sunLifeUpdate' ){
-			returnData('sunLifeUpdate');
+			$this->Ajax->ReturnData();
 		}else{
 			return '';
 		}

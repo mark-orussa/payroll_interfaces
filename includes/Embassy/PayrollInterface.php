@@ -1,11 +1,13 @@
 <?php
-namespace Embassy;
 /**
  * Created by PhpStorm.
  * User: morussa
  * Date: 5/17/2016
  * Time: 3:53 PM
  */
+namespace Embassy;
+use ErrorException, Exception, PDO, PDOException;
+
 class PayrollInterface {
 	/**
 	 * Salaried employees are not even entered into the database.
@@ -13,11 +15,10 @@ class PayrollInterface {
 	 */
 	private $_output;
 
+	protected $Ajax;
 	protected $Dbc;
 	protected $Debug;
 	protected $Message;
-	protected $ReturnThis;
-	protected $Success;
 
 	protected $fileInfo;
 	protected $databaseTable;
@@ -30,13 +31,11 @@ class PayrollInterface {
 	protected $outgoingDirectory;// The path to the outgoing file. This does not include the filename.
 	protected $outgoingFilePath;// The path plus the filename.
 
-	public function __construct() {
-		global $Dbc, $Debug, $Message, $ReturnThis, $Success;
+	public function __construct($Ajax, $Dbc, $Debug, $Message) {
+		$this->Ajax = &$Ajax;
 		$this->Dbc = &$Dbc;
 		$this->Debug = &$Debug;
 		$this->Message = &$Message;
-		$this->ReturnThis = &$ReturnThis;
-		$this->Success = &$Success;
 
 		if( MODE == 'serveFile' ){
 			self::serveFile();
@@ -70,22 +69,42 @@ SET
 			$params = array($_POST['JobXRef']);
 			$addJobXRefStmt->execute($params);
 //			$this->Message = 'Great success';
-			$this->Success = true;
-			$this->ReturnThis['butter'] = 'New JobXRef successfully added.';
+			$this->Ajax->SetSuccess(true);
+			$this->Ajax->SetReference('newJobXRef');
+			$this->Ajax->AddValue(array('butter' => 'New JobXRef successfully added.'));
 		}catch( CustomException $e ){
-			returnData('newJobXRef');
+			$this->Ajax->ReturnData();
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('newJobXRef');
+			$this->Ajax->ReturnData();
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('newJobXRef');
+			$this->Ajax->ReturnData();
 		}
-		returnData('newJobXRef');
+		$this->Ajax->ReturnData();
 	}
 
 	protected function addToOutput($addThis) {
 		$this->_output .= $addThis . '<br>';
+	}
+
+	protected function formatCurrencyAsNumber($number) {
+		// Converts $1,120.34 to 1120.34.
+		$region = 'en_US';
+		$currency = 'USD';
+		$formatter = new NumberFormatter($region, NumberFormatter::CURRENCY);
+		return $formatter->parseCurrency($number, $currency);
+	}
+
+	protected function formatNumberWithCommas($number, $decimals = 2) {
+		/**
+		 * Converts 1120.34 to 1,120.34.
+		 *
+		 * @param $number
+		 * @param int $decimals The number of digits after the decimal point.
+		 * @return string
+		 */
+		return number_format($number, $decimals);
 	}
 
 	public function getDuplicateEntries() {
@@ -332,6 +351,20 @@ SET
 		}else{
 			return '<p class="interfaceResponse">There is no overlapping data.</p>';
 		}
+	}
+
+	private function numberWithCommasToFloat($string) {
+		return floatval(str_replace(",", "", $string));
+	}
+
+	protected function numberWithCommasAndDecimalToInt($string) {
+		$returnThis = '';
+		if( empty($string) ){
+			$returnThis = 0;
+		}else{
+			$returnThis = intval(str_replace(",", "", $string));
+		}
+		return $returnThis;
 	}
 
 	public function output() {
@@ -690,7 +723,7 @@ SET
 			if( empty($_REQUEST['fileName']) ){
 				throw new CustomException('', '$_POST[\'fileName\'] is empty.');
 			}
-			$this->Success = true;
+			$this->Ajax->SetSuccess(true);
 			$this->Message .= 'Sending file';
 			$this->Debug->add('$_REQUEST[\'filePath\']: ' . $_REQUEST['filePath'] . '$_REQUEST[\'fileName\']: ' . $_REQUEST['fileName']);
 // hide notices
@@ -720,7 +753,8 @@ SET
 				if( $file ){
 					if( !empty($_REQUEST['fileName']) ){
 						// Use cookies to report when the files have been served
-						setcookie($_REQUEST['fileName'], 'set', time() + 90, COOKIEPATH, COOKIEDOMAIN); // expires in 90 seconds.
+						$cookies = session_get_cookie_params();
+						setcookie($_REQUEST['fileName'], 'set', time() + 90, $cookies['path'], $cookies['domain']); // expires in 90 seconds.
 					}
 					// set the headers, prevent caching
 					header("Pragma: public");
@@ -942,38 +976,5 @@ SET
 			return false;
 		}
 		return $row;
-	}
-
-	private function numberWithCommasToFloat($string) {
-		return floatval(str_replace(",", "", $string));
-	}
-
-	protected function numberWithCommasAndDecimalToInt($string) {
-		$returnThis = '';
-		if( empty($string) ){
-			$returnThis = 0;
-		}else{
-			$returnThis = intval(str_replace(",", "", $string));
-		}
-		return $returnThis;
-	}
-
-	protected function formatCurrencyAsNumber($number) {
-		// Converts $1,120.34 to 1120.34.
-		$region = 'en_US';
-		$currency = 'USD';
-		$formatter = new NumberFormatter($region, NumberFormatter::CURRENCY);
-		return $formatter->parseCurrency($number, $currency);
-	}
-
-	protected function formatNumberWithCommas($number, $decimals = 2) {
-		/**
-		 * Converts 1120.34 to 1,120.34.
-		 *
-		 * @param $number
-		 * @param int $decimals The number of digits after the decimal point.
-		 * @return string
-		 */
-		return number_format($number, $decimals);
 	}
 }

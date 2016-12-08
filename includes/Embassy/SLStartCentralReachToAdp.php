@@ -1,5 +1,8 @@
 <?php
 namespace Embassy;
+
+use DateInterval, Exception, ErrorException, PDO, PDOException;
+
 /**
  * Created by PhpStorm.
  * User: morussa
@@ -59,7 +62,7 @@ class SLStartCentralReachToAdp extends PayrollInterface {
 	private $_nonbillHoursGroup;
 	private $_count;
 
-	public function __construct($formFileInputName, $saveDirectory, $outgoingDirectory, $databaseTableName) {
+	public function __construct($Ajax, $Dbc, $Debug, $Message, $formFileInputName, $saveDirectory, $outgoingDirectory, $databaseTableName) {
 		/**
 		 *
 		 * @param    string $inputFileId   The id of the form input file element.
@@ -69,9 +72,8 @@ class SLStartCentralReachToAdp extends PayrollInterface {
 		 * @return    bool|string  Returns true, otherwise a string message. Use === true to verify success.
 		 *
 		 */
-
 		try{
-			parent::__construct();
+			parent::__construct($Ajax, $Dbc, $Debug, $Message);
 			$this->_latestDateDatetime = Time::convertToDateTime('2000-01-01');
 			$this->_timeFormat = 'g:i A'; // 1:30 PM
 			$this->_dateFormat = 'm/d/Y'; // 5/7/2016
@@ -185,7 +187,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			if( $rowsFound === false ){
 				throw  new CustomException('No hours were found.');
 			}
-			$this->Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
+			$this->Debug->add($selectQuery->rowCount() . ' rows returned in on line ' . __LINE__ . ' in file ' . __FILE__ . '.');
 			$week = $this->_latestDateDatetime->format('W');
 			$year = $this->_latestDateDatetime->format('Y');
 
@@ -229,7 +231,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 
 		try{
 			// Look for special cases
-			if($this->_currentRow['EmpXRef'] == 4602 && in_array($this->_currentRow['EmpXRef'], $this->_specialCases) && $this->_currentRow['EmpXRef'] != 'CSMGMT' ){
+			if( $this->_currentRow['EmpXRef'] == 4602 && in_array($this->_currentRow['EmpXRef'], $this->_specialCases) && $this->_currentRow['EmpXRef'] != 'CSMGMT' ){
 				if( $this->_currentRow['JobXRef'] == 'CSCHILDPRO' ){
 					$this->_currentRow['JobXRef'] = 'HICHILDPRO';
 				}elseif( $this->_currentRow['JobXRef'] == 'CSADULTPARA' ){
@@ -354,7 +356,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 					// This is the rare situation where a time period lies inside another. Ignore it.
 				}elseif( $entry['timeworkedfrom'] == $this->_pendingRow['timeworkedfrom'] && $entry['timeworkedto'] == $this->_pendingRow['timeworkedto'] ){
 					// The entries are the same time period. Log it, but ignore it. This is not a problem.
-					$duplicateArray[] = array($entry,$this->_pendingRow);
+					$duplicateArray[] = array($entry, $this->_pendingRow);
 				}elseif( $entry['inDatetime'] == $this->_pendingRow['outDatetime'] ){
 					// Add a minute to avoid overlap.
 					$entry['inDatetime']->add(new DateInterval('PT1M'));

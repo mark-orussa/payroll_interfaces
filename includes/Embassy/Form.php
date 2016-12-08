@@ -7,6 +7,7 @@
  * Time: 12:54 PM
  */
 namespace Embassy;
+
 use Exception;
 
 class Form {
@@ -14,11 +15,11 @@ class Form {
 	private $formName;
 	private $ajax;
 
-	public function __construct($Debug,$formName,$ajax = false) {
+	public function __construct($Debug, $formName, $ajax = false) {
 		$this->Debug = &$Debug;
 		$this->formName = $formName;
 		$this->ajax = $ajax;
-		$Debug->newFile('includes/Embassy/Form.php');
+		$this->Debug->newFile('includes/Embassy/Form.php');
 	}
 
 	public function input($type, $name, Array $options = null) {
@@ -47,20 +48,25 @@ class Form {
 			}
 
 			// Name and Id.
-			$output .= ' name="' . $this->formName . '[' . $name . ']" id="' . $this->formName . '_' . $name . '"';
+			if( $name == 'mode' ){
+				// This is a mode input. Do not nest it in a form group.
+				$output .= ' name="' . $name . '" id="' . $name . '"';
+			}else{
+				$output .= ' name="' . $this->formName . '[' . $name . ']" id="' . $this->formName . '_' . $name . '"';
+			}
 
 			// Add the optional parameters
 			if( is_array($options) && !empty($options) ){
 				foreach( $options as $key => $value ){
-					if($key === 'label'){
-						$output = '<label for="' . $this->formName . '_' . $name . '">' . $value . ':</label>' . $output;
+					if( $key === 'label' ){
+						$output = '<label style="margin: 0 .5em" for="' . $this->formName . '_' . $name . '">' . $value . '</label>' . $output;
 					}elseif( $value == 'label' ){
 						$text = ucwords(str_ireplace('_', ' ', $name));
-						$output = '<label for="' . $this->formName . '_' . $name . '">' . $text . ':</label>' . $output;
+						$output = '<label style="margin: 0 .5em" for="' . $this->formName . '_' . $name . '">' . $text . '</label>' . $output;
 					}elseif( $value == 'required' ){
 						$output .= ' required="1"';
 					}else{
-						if($type == 'submit'){
+						if( $type == 'submit' ){
 							//die($this->Debug->printArrayOutput($options) . ' ' . $key . '="' . $value . '"');
 						}
 						$output .= ' ' . $key . '="' . $value . '"';
@@ -92,7 +98,7 @@ class Form {
 		$output .= $this->ajax ? ' data-ajax="1">' : '>';
 
 		// Generate a cross site request forgery (CSRF) prevention token.
-		$_SESSION['CSRF'] = empty($_SESSION['CSRF']) ? Secret::generateKey() : $_SESSION['CSRF'];
+		$_SESSION['CSRF'] = Secret::generateKey();
 
 		$output .= '<input id="CSRF" name="' . $this->formName . '[CSRF]" type="hidden" value="' . $_SESSION['CSRF'] . '">';
 		return $output;

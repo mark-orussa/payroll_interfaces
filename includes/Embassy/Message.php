@@ -27,7 +27,13 @@ class Message {
 	}
 
 	public function __toString() {
-		return $this->message;
+		$output = '';
+		if(!empty($this->message)){
+			$output .= '<div id="message"><div class="generalCancel"><i class="fa fa-close"></i> Close</div>' . $this->message . '</div>';
+		}else{
+			$output .= '<div id="message" style="display:none;"></div>';
+		}
+		return $output;
 	}
 
 	public function accumulate($message) {

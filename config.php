@@ -93,22 +93,17 @@ try{
 
 // Instantiate our classes.
 	$Message = new Embassy\Message();
-	$Debug = new Embassy\Debug();
+	$Debug = new Embassy\Debug($Message);
 	set_error_handler("my_error_handler");
-	$Config = new Embassy\Config($configPath);
-	$Secret = new Embassy\Secret($keyPath);
-	$Ajax = new Embassy\Ajax();
-
+	$Config = new Embassy\Config($Debug, $configPath);
+	$Secret = new Embassy\Secret($Debug, $Message, $keyPath);
+	$Ajax = new Embassy\Ajax($Debug, $Message);
 	// This is for initial encryption work.
-	//	print $Secret::generateKey();
-	//	die();
-	//	print $Secret->encrypt('localhost');
-	//	print $Secret->decrypt($Config->getDatabaseHostname());
+//		print $Secret::generateKey();
+//		die();
+//		die($Secret->encrypt(''));
+//		print $Secret->decrypt($Config->getDatabaseHostname());
 
-
-	if( isset($_SESSION['auth']) && !$_SESSION['auth'] && stripos($_SERVER['PHP_SELF'], 'login') === false ){
-		header('Location:' . LINKLOGIN);
-	}
 
 // Get the database credentials and establish the default base connection.
 	$databaseCredentials = $Config->getDatabaseCredentials();
@@ -117,24 +112,30 @@ try{
 			$value = $Secret->decrypt($value);
 		}
 	}
-	$Dbc = new Embassy\Dbc($databaseCredentials['DATABASE_HOST'], $databaseCredentials['DATABASE_NAME'], $databaseCredentials['DATABASE_PORT'], $databaseCredentials['DATABASE_USER'], $databaseCredentials['DATABASE_PASSWORD']);
 
+	$Dbc = new Embassy\Dbc($Debug, $databaseCredentials['DATABASE_HOST'], $databaseCredentials['DATABASE_NAME'], $databaseCredentials['DATABASE_PORT'], $databaseCredentials['DATABASE_USER'], $databaseCredentials['DATABASE_PASSWORD']);
 
-// Catch our AJAX requests.
-//	require 'Embassy/AjaxListener.php';
+	require('utilities.php');
+	if( isset($_REQUEST['mode']) ){
+		define('MODE', $_REQUEST['mode']);
+	}else{
+		define('MODE', '');
+	}
 
-// Instantiate the Page class.
-	$Page = new Embassy\Page($Debug, $Dbc, $Message, $ReturnThis, $Success);
+	// We want all pages to require authentication.
+	$Auth = new \Embassy\Auth($Ajax, $Debug, $Dbc, $Message, $Secret, $Config);
+	$Auth->isAuth();// Redirect to login page if not authenticated.
+
+	// Instantiate the Page class.
+	$Page = new Embassy\Page($Ajax, $Auth, $Debug, $Dbc, $Message);
 	$Page->addBody('<div id="environment" style="display: none;">' . ENVIRONMENT . '</div>');
 	$Page->addJs(array('jquery-3.1.0.js', 'functions.js'));
 
-	// Pass our application off to the routing.
-//	require '../routes.php';
-	require('utilities.php');
 
 }catch( Exception $exception ){
 	echo $exception;
 	$Debug->writeToLog();
+	die();
 }
 // TODO: slowly converting site to new php logic configuration.
 

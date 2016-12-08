@@ -24,7 +24,7 @@ class Page {
 
 	//Properties.
 	private $Ajax;
-	protected $Base;
+	private $Auth;
 	protected $Debug;
 	protected $Message;
 
@@ -33,25 +33,19 @@ class Page {
 	protected $body;
 	protected $title;
 	protected $filename;
-	protected $requireAuth;
 
-	public function __construct($title = '', $filename = '') {
-		global $Ajax, $Base, $Debug, $Message;
+	public function __construct($Ajax, $Auth, $Debug, $Dbc, $Message) {
 		$this->Ajax = &$Ajax;
-		$this->Base = &$Base;
+		$this->Auth = &$Auth;
 		$this->Debug = &$Debug;
 		$this->Message = &$Message;
-		$Debug->newFile('includes/Embassy/Page.php');
+		$this->Debug->newFile('includes/Embassy/Page.php');
 
 		$this->body = '';
 		$this->javascriptIncludes = NULL;
 		$this->cssIncludes = NULL;
-		$this->title = $title;
-		$this->filename = $filename;
-		$this->requireAuth = false;
-		if( !empty($filename) ){
-			$this->Debug->newFile($filename);
-		}
+		$this->title = '';
+		$this->filename = '';
 	}
 
 	public function addBody($content) {
@@ -112,7 +106,7 @@ class Page {
 		}
 	}
 
-	public function addJs($fileName) {
+	public function addJs($fileName, $extra = '') {
 		/**
 		 * Include javascript files.
 		 *
@@ -135,10 +129,10 @@ class Page {
 			}
 		}else{
 			if( stripos($fileName, 'http://') === false && stripos($fileName, 'https://') === false ){
-				$this->javascriptIncludes .= '<script type="text/javascript" src="' . LINKJS . '/' . $fileName . '?' . date('H') . '"></script>
+				$this->javascriptIncludes .= '<script type="text/javascript" src="' . LINKJS . '/' . $fileName . '?' . date('H') . '" ' . $extra . '></script>
 ';
 			}else{
-				$this->javascriptIncludes .= '<script type="text/javascript" src="' . $fileName . '?' . date('H') . '"></script>
+				$this->javascriptIncludes .= '<script type="text/javascript" src="' . $fileName . '?' . date('H') . '" ' . $extra . '></script>
 ';
 			}
 		}
@@ -146,22 +140,6 @@ class Page {
 
 	public function getTitle() {
 		return $this->title;
-	}
-
-	public function setRequireAuth($state) {
-		$this->requireAuth = $state === true ? true : false;
-	}
-
-	public function setSSL($bool) {
-		if( HTTPS === false && $bool === true ){
-			// We are using http but want https.
-			$this->Debug->add('Trying to redirect to https.');
-			header('Location: https://' . DOMAIN . $_SERVER['REQUEST_URI']);
-		}elseif(HTTPS === true && $bool === false ){
-			// We are using http but want https.
-			$this->Debug->add('Trying to redirect to http.');
-			header('Location: http://' . DOMAIN . $_SERVER['REQUEST_URI']);
-		}
 	}
 
 	public function setTitleAndFilename($title, $filename) {
@@ -185,10 +163,10 @@ class Page {
 		/**
 		 * @param string $filename The name of the file for debugging purposes.
 		 */
-		$this->filename = $filename;
+		$this->Debug->newFile($filename);
 	}
 
-	public function toString($defaultIncludes = true) {
+	public function __toString() {
 		$output = '';
 		$head = '<!DOCTYPE HTML>
 <html lang="en" xml:lang="en">
@@ -207,35 +185,28 @@ class Page {
 
 		// CSS files.
 		$head .= empty($this->cssIncludes) ? '' : $this->cssIncludes;
-		$head .= '<link rel="stylesheet" href="' . LINKCSS . '/main.css?' . date('j') . '" media="all" type="text/css">';
+		$head .= '<link rel="stylesheet" href="' . LINKCSS . '/main.css?' . date('j') . '" media="all" type="text/css">
+		<link rel="stylesheet" href="' . LINKCSS . '/font-awesome-4.7.0/css/font-awesome.min.css?' . date('j') . '" media="all" type="text/css">';
 
 		// Javascript files
 		//$head .= '<script type="text/javascript" src="' . LINKJS . '/jquery/jquery-3.1.0.js"></script>';
 		//<script src="https://use.fonticons.com/f71366fc.js"></script>
-		if( $defaultIncludes ){
-			//$head .= '<script type="text/javascript" src="' . LINKJS . '/functions.js?' . date('j') . '"></script>';
-		}
+		//$head .= '<script type="text/javascript" src="' . LINKJS . '/functions.js?' . date('j') . '"></script>';
 		$head .= empty($this->javascriptIncludes) ? '' : $this->javascriptIncludes . '</head>';
 
 		//Build the output. Spinners and floaters are for AJAX operations.
-		$output .= $head . '<body>
-	<div id="cover"></div>
-	<div id="spinner">
-	<a href="' . AUTOLINK . $_SERVER['PHP_SELF'] . '"><img alt="" class="absolute" src="' . LINKIMAGES . '/spinner.png" style=""><p>Refresh</p></a>
-	</div>
-	<div class="red textCenter">
-		<noscript>(javascript required)</noscript>
-	</div>
-	<div id="closeButtonRepository" style="display:none"><div class="generalCancel"><i class="fa fa-close"></i> Close</div></div>
-	<div id="floater" class="floater"></div>
-	<div id="message">';
-		if( !empty($this->Message) ){
-			$output .= $this->Message;
-		}
-
-		$output .= '</div>
-' . $this->body . '
-					</body >
+		$output .= $head . '	<body>
+		<div id="cover"></div>
+		<div id="spinner">
+		<a href="' . AUTOLINK . $_SERVER['PHP_SELF'] . '"><img alt="" class="absolute" src="' . LINKIMAGES . '/spinner.png" style=""><p>Refresh</p></a>
+		</div>
+		<div class="red textCenter" style="margin:0">
+			<noscript>(javascript required)</noscript>
+		</div>
+		<div id="closeButtonRepository" style="display:none"><div class="generalCancel"><i class="fa fa-close"></i> Close</div></div>
+		<div id="floater" class="floater"></div>
+		' . $this->Message . $this->Auth->buildLogout() . $this->body . '
+	</body >
 </html > ';
 		return $output;
 	}

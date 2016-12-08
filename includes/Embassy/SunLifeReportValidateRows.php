@@ -1,5 +1,8 @@
 <?php
 namespace Embassy;
+
+use DateTime;
+
 /**
  * Created by PhpStorm.
  * User: morussa
@@ -102,9 +105,6 @@ class SunLifeReportValidateRows {
 		return $this->_age;
 	}
 
-	/**
-	 * @param mixed $age
-	 */
 	public function setAge() {
 		// Calculate the age.
 		$date_of_reportDatetime = new DateTime(self::getDateOfReport());
@@ -325,7 +325,8 @@ class SunLifeReportValidateRows {
 	}
 
 	/**
-	 * @param mixed $date_of_report
+	 * @param $string string $date_of_report
+	 * @throws CustomException
 	 */
 	public function setDateOfReport($string) {
 		// The date of the report. This affects the calculation of the employee age.
@@ -340,7 +341,7 @@ class SunLifeReportValidateRows {
 		}
 		$this->_date_of_report = $date_of_report;
 	}
-	
+
 	public function outputForQuery() {
 		/*
 		 * The output needs to match the insert query.
@@ -394,8 +395,8 @@ class SunLifeReportValidateRows {
 		/**
 		 * This is for splitting the employee critical illness fields into amount and tobacco status.
 		 * This does not apply to child critical illness as they don't have a tobacco status.
-		 * @param $criticalIllness    The field to be split.
-		 * @param $tobacco            The tobacco status, if set.
+		 * @param string $criticalIllness The field to be split.
+		 * @param bool $tobacco           The tobacco status, if set.
 		 * @return    null    This sets the values for critical illness and tobacco status.
 		 */
 		if( !empty($criticalIllness) ){
@@ -421,8 +422,8 @@ class SunLifeReportValidateRows {
 		/**
 		 * This is for splitting the spouse critical illness fields into amount and tobacco status.
 		 * This does not apply to child critical illness as they don't have a tobacco status.
-		 * @param $criticalIllness    The field to be split.
-		 * @param $tobacco            The tobacco status, if set.
+		 * @param string $criticalIllness The field to be split.
+		 * @param bool $tobacco           The tobacco status, if set.
 		 * @return    null    This sets the values for critical illness and tobacco status.
 		 */
 		if( !empty($criticalIllness) ){

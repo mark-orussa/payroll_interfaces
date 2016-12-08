@@ -10,9 +10,9 @@ require_once('config.php');
 $Page->setTitleAndFilename('Payroll Interfaces', 'index.php');
 $Page->addJs('interfaces.js');
 
-$Interface = new Embassy\PayrollManagement();
-$OtherTable = new Embassy\OtherTable();
-$SunLife = new Embassy\ADPToSunLife();
+$Interface = new Embassy\PayrollManagement($Ajax, $Dbc, $Debug, $Message);
+$OtherTable = new Embassy\OtherTable($Ajax, $Dbc, $Debug, $Message);
+$SunLife = new Embassy\ADPToSunLife($Ajax, $Dbc, $Debug, $Message);
 // Title and javascript warning.
 $Page->addBody('<div class="pageTitle">' . $Page->getTitle() . '</div>
 <div><noscript>JavaScript must be enabled to use this page. <a href="https://www.google.com/search?q=how+to+enable+javascript" target="_blank">How to enable Javascript</a></noscript></div>');
@@ -118,7 +118,8 @@ $Page->addBody('<div class="toggleButton">
 		</div>
 		<div class="toggleMe">
 			<p>The Central interfaces exclude salaried employees. This section is used to manage the salaried employees that will be ignored.</p>
-			<label for="newEmpXRef">Enter the EmpXRef code for salaried employees, one at a time: </label><input name="newEmpXRef" id="newEmpXRef"> <input type="button" id="addNewEmpXRef" class="makeButton" value="Add EmpXRef to List"> <span id="EmpXRefMessage" class="error"></span>
+			<label for="newEmpXRef">Enter the EmpXRef code (Employee number) for salaried employees, one at a time: </label><input name="newEmpXRef" id="newEmpXRef"> <input type="button" id="addNewEmpXRef" class="makeButton" value="Add EmpXRef to List"> <span id="EmpXRef
+			" class="error"></span>
 			<p>The numbers below are current salaried EmpXRef numbers. These employees are not included in the Central Reach interfaces.<br>
 			Click on the red X to remove the number from the list.</p>
 			<div class="XRefContainer" id="EmpXRefContainer">' . $Interface->listEmpXRef() . '</div>
@@ -185,4 +186,5 @@ $Page->addBody('<div class="toggleButton">
 				<div id="sunLifeRatesContainer">' . Embassy\ADPToSunLife::manageRates($Dbc, $Debug) . '</div>
 			</div>
 		</div>');
-echo $Page->toString();
+echo $Page;
+$Debug->writeToLog();

@@ -4,12 +4,11 @@ namespace Embassy;
 class Debug {
 	//Properties
 	private $Message;
-	private $_debugInformation;
+	private $debugInformation;
 
-	public function __construct() {
-		global $Message;
+	public function __construct($Message) {
 		$this->Message = &$Message;
-		$this->_debugInformation = '';
+		$this->debugInformation = '';
 	}
 
 	private function backtrace($debug_backtrace) {//Currently not used.
@@ -48,16 +47,16 @@ class Debug {
 		if( is_array($debug_backtrace) && !empty($debug_backtrace) ){
 			$tempStuff .= $this->printArray($debug_backtrace);
 		}
-		if(is_array($debugMessage)){
+		if( is_array($debugMessage) ){
 			$tempStuff .= self::printArrayOutput($debugMessage);
 		}else{
 			$tempStuff .= empty($debugMessage) ? '' : '<div>' . $debugMessage . '</div>
 ';
 		}
-		$this->_debugInformation .= $tempStuff;
+		$this->debugInformation .= $tempStuff;
 	}
 
-	public function error($line = false, $publicMessage = false, $debugMessage = false) {
+	public function error($line = false, $publicMessage = '', $debugMessage = false) {
 		/**
 		 * Return error information
 		 *
@@ -71,32 +70,32 @@ class Debug {
 		 */
 		if( empty($publicMessage) ){
 			if( strstr($this->Message, 'encountered a technical problem') === false ){
-				$this->Message .= 'We\'ve encountered a technical problem that is preventing information from being shown. Please try again in a few moments.<br>
-If the problem persists please contact the IT Department.<br>';
+				$this->Message->add( 'We\'ve encountered a technical problem that is preventing information from being shown. Please try again in a few moments.<br>
+If the problem persists please contact the IT Department.<br>');
 			}
 		}else{
-			$this->Message .= $publicMessage . '<br>';
+			$this->Message->add($publicMessage);
 		}
-		if( !empty($debugMessage) ){
+		if( $debugMessage ){
 			self::add($debugMessage);
 		}
 		return $this->Message;
 	}
 
-	public function newFile($fileName = NULL) {
-		/*
-		$fileName = (string) will default the the page's $title['fileName'] if not provided.
-		*/
+	public function newFile($fileName = '') {
+		/**
+		 * @param mixed $fileName The name of the file for debugging purposes.
+		 */
 		global $fileInfo;
 		if( empty($fileName) ){
 			if( empty($fileInfo) ){
-				$fileName = NULL;
+				$fileName = '';
 			}else{
-				$fileName = is_array($fileInfo) ? $fileInfo['fileName'] : NULL;
+				$fileName = is_array($fileInfo) ? $fileInfo['fileName'] : '';
 			}
 		}
 		//Specifically used when introducing a new document. All php files should use this at the top.
-		self::add('<div style="font-weight:bold;border:1px dotted #333;">From ' . $fileName . '</div>');
+		self::add('<div class="newPage">From ' . $fileName . '</div>');
 	}
 
 	public function printArray($array, $arrayName = '', $dump = false) {
@@ -149,30 +148,31 @@ If the problem persists please contact the IT Department.<br>';
 	}
 
 	public function output() {
+
 		$output = '<div id="debug" class="debug">
-	<div style="color:red;font-weight:bold;">BEGIN DEBUG</div>
+<div><span class="debugTitle">BEGIN DEBUG <span>' . StaticDateTime::utcToLocal(DATETIME) . '</span></div>
+<div>From includes/Embassy/Debug.php</div>
 AUTOLINK: ' . AUTOLINK . '<br>
-COOKIEDOMAIN: ' . COOKIEDOMAIN . '<br>
-COOKIEPATH: ' . COOKIEPATH . '<br>
-LOCAL: ' . LOCAL . '<br>
+ENVIRONMENT: ' . ENVIRONMENT . '<br>
 HTTPS: ' . HTTPS . '<br>
-FORCEHTTPS: ' . FORCEHTTPS . '<br>';
-		if( isset($_SESSION['admin']) && $_SESSION['admin'] === true ){
-			$output .= self::printArrayOutput($_SERVER, '$_SERVER');
-		}
-		if( isset($_COOKIE) ){
-			$output .= self::printArrayOutput($_COOKIE, '$_COOKIE');
-		}
-		if( isset($_SESSION) ){
-			$output .= self::printArrayOutput($_SESSION, '$_SESSION');
-		}
-		$output .= 'session_name: ' . session_name() . '<br>
-session_id: ' . session_id() . '<br>
 DATETIME: ' . DATETIME . '<br>
 MICROTIME: ' . MICROTIME;
-		self::add('<div style="color:red;font-weight:bold;border-top:1px dotted #333;">END DEBUG</div>
-</div>');
-		return $output . $this->_debugInformation;
+
+		$output .= self::printArrayOutput(session_get_cookie_params(), 'cookie params');
+		if( isset($_COOKIE) ){
+			$output .= '<div class="toggleButtonInline">Toggle $_COOKIE</div><div class="toggleMe">' . $this->printArrayOutput($_COOKIE, '$_COOKIE') . '</div>';
+		}
+		if( isset($_REQUEST) ){
+			$output .= '<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . $this->printArrayOutput($_REQUEST, '$_REQUEST') . '</div>';
+		}
+		if( isset($_SERVER) ){
+			$output .= '<div class="toggleButtonInline">Toggle $_SERVER</div><div class="toggleMe">' . $this->printArrayOutput($_SERVER, '$_SERVER') . '</div>';
+		}
+		if( isset($_SESSION) ){
+			$output .= '<div class="toggleButtonInline">Toggle $_SESSION</div><div class="toggleMe">' . $this->printArrayOutput($_SESSION, '$_SESSION') . '</div>';
+		}
+		return $output . $this->debugInformation . '<div style="color:red;font-weight:bold;border-top:1px dotted #333;">END DEBUG</div>
+</div>';
 	}
 
 	public function readLog() {
@@ -186,44 +186,24 @@ MICROTIME: ' . MICROTIME;
 		 * Prepend debug data to the debug log file. This will automatically reduce the file size when it reaches 2 MB.
 		 */
 		try{
-			$output = '<div id="debug" class="debug">
-	<div class="debugTitle">BEGIN DEBUG <span>' . StaticDateTime::utcToLocal(DATETIME) . '</span></div>';
-			if( isset($_COOKIE) ){
-				$output .= '<div class="toggleButtonInline">Toggle $_COOKIE</div><div class="toggleMe">' . $this->printArrayOutput($_COOKIE, '$_COOKIE') . '</div>';
-			}
-			if( isset($_REQUEST) ){
-				$output .= '<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . $this->printArrayOutput($_REQUEST, '$_REQUEST') . '</div>';
-			}
-			if( isset($_SERVER) ){
-				$output .= '<div class="toggleButtonInline">Toggle $_SERVER</div><div class="toggleMe">' . $this->printArrayOutput($_SERVER, '$_SERVER') . '</div>';
-			}
-			if( isset($_SESSION) ){
-				$output .= '<div class="toggleButtonInline">Toggle $_SESSION</div><div class="toggleMe">' . $this->printArrayOutput($_SESSION, '$_SESSION') . '</div>';
-			}
-			$output .= '<br>session_name: ' . session_name() . '<br>
-session_id: ' . session_id() . '<br>
-AUTOLINK: ' . AUTOLINK . '<br>
-DATETIME: ' . DATETIME . '<br>
-MICROTIME: ' . MICROTIME;
 			if( !file_exists(LOG_PATH) ){
 				if( !is_writable(LOG_PATH) ){
-					throw new CustomException('','The debug log file does not exist and the path is not writeable. Modify the permissions for this location to allow debug: ' . LOG_PATH);
+					throw new CustomException('', 'The debug log file does not exist and the path is not writeable. Modify the permissions for this location to allow debug: ' . LOG_PATH);
 				}else{
-					throw new CustomException('','The debug log file does not exist at: ' . LOG_PATH);
+					throw new CustomException('', 'The debug log file does not exist at: ' . LOG_PATH);
 				}
 			}else{
 				// Check the filesize. If it reaches a certain size we will remove old data.
 				$handle = fopen(LOG_PATH, "r+");
 				clearstatcache();
 				$filesize = filesize(LOG_PATH);
-				self::add('<div class="debugTitle">END DEBUG</div><hr>
-</div>');
+				$output = self::output();
 				if( $filesize > 2097152 ){// = 2 MB
 					$this->add('The filesize is over 2 MB.<br>');
 					ftruncate($handle, 524288);// Reduce the size to 512 KB or .5 MB, by chopping off the end. This works as we are prepending, so the newest data is on top.
 				}
 				// Prepend the data to the debug log file.
-				$cache_new = $output . $this->debugInformation; // this gets prepended
+				$cache_new = $output; // this gets prepended
 				$len = strlen($cache_new);
 				$final_len = $filesize + $len;
 				$cache_old = fread($handle, $len);
@@ -243,7 +223,8 @@ MICROTIME: ' . MICROTIME;
 				fclose($handle);
 			}
 		}catch( CustomException $exception ){
-		}catch(\Exception $exception){
+			die('5twqh');
+		}catch( \Exception $exception ){
 			die('An error was thrown in ' . __CLASS__ . ': <pre>' . $exception . '</pre>');
 		}
 	}

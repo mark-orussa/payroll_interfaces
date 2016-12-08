@@ -1,5 +1,8 @@
 <?php
 namespace Embassy;
+
+use PDO, ErrorException, Exception, PDOException;
+
 /**
  * Created by PhpStorm.
  * User: Mark O'Russa
@@ -17,10 +20,10 @@ Class OtherTable extends PayrollInterface {
 	// Properties
 	private $_dataTypes;
 
-	public function __construct() {
+	public function __construct($Ajax, $Dbc, $Debug, $Message) {
 		$this->_dataTypes = array('boolean' => 'BOOL', 'date' => 'DATE', 'datetime' => 'DATETIME', 'int' => 'INT(10)', 'float' => 'FLOAT', 'string' => 'VARCHAR (256)', 'text' => 'TEXT', 'decimal (currency)' => 'DECIMAL');
 		try{
-			parent::__construct();
+			parent::__construct($Ajax, $Dbc, $Debug, $Message);
 			if( MODE == 'otherTableAddColumn' ){
 				self::otherTableAddColumn();
 			}elseif( MODE == 'otherTableAddColumn' ){
@@ -77,10 +80,10 @@ Class OtherTable extends PayrollInterface {
 </table>
 <div class="makeButtonInline" id="otherTableAddTable">Add Table</div> ';
 		$rowSupply = '<table class="otherTableRowSupply hide">' . $row . '</table>';
-		$this->Success = true;
-		$this->ReturnThis['otherTableAddColumn'] = $row;
+		$this->Ajax->SetSuccess(true);
+		$this->Ajax->AddValue(array('otherTableAddColumn' => $row));
 		if( MODE == 'otherTableAddColumn' ){
-			returnData('otherTableAddColumn');
+			$this->Ajax->ReturnData();
 		}else{
 			return $tableStart . $row . $tableEnd . $rowSupply;
 		}
@@ -118,11 +121,11 @@ Class OtherTable extends PayrollInterface {
 			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
-		$this->Success = true;
-		$this->ReturnThis['list'] = self::otherTableGetTables();
-		$this->ReturnThis['message'] = 'Added the table.';
+		$this->Ajax->SetSuccess(true);
+		$this->Ajax->AddValue(array('list' => self::otherTableGetTables()));
+		$this->Ajax->Message->add('Added the table.');
 		if( MODE == 'otherTableAddTable' ){
-			returnData('otherTableAddTable');
+			$this->Ajax->ReturnData();
 		}else{
 			return '';
 		}
@@ -174,10 +177,10 @@ Class OtherTable extends PayrollInterface {
 			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
-		$this->Success = true;
-		$this->ReturnThis['otherTableGetTables'] = $output;
+		$this->Ajax->SetSuccess(true);
+		$this->Ajax->AddValue(array('otherTableGetTables' => $output));
 		if( MODE == 'otherTableGetTables' ){
-			returnData('otherTableGetTables');
+			$this->Ajax->ReturnData();
 		}else{
 			return $output;
 		}
@@ -190,19 +193,19 @@ Class OtherTable extends PayrollInterface {
 			}
 			$deleteTableStmt = $this->Dbc->prepare("DROP TABLE IF EXISTS othertable" . $_POST['tableName']);
 			$deleteTableStmt->execute();
-			$this->Success = true;
-			$this->ReturnThis['list'] = self::otherTableGetTables();
-			$this->ReturnThis['message'] = 'Deleted the table.';
+			$this->Ajax->SetSuccess(true);
+			$this->Ajax->AddValue(array('list' => self::otherTableGetTables()));
+			$this->Message->add('Deleted the table.');
 		}catch( CustomException $e ){
-			returnData('otherTableDeleteTable');
+			$this->Ajax->ReturnData();
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('otherTableDeleteTable');
+			$this->Ajax->ReturnData();
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('otherTableDeleteTable');
+			$this->Ajax->ReturnData();
 		}
-		returnData('otherTableDeleteTable');
+		$this->Ajax->ReturnData();
 	}
 
 	private function mysqlNull($test) {

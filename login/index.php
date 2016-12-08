@@ -7,6 +7,8 @@
  */
 
 require '../config.php';
-$Auth = new Embassy\Auth($Debug, $Dbc, $Message);
+$Page->setTitleAndFilename('Login','login/index.php');
+$Page->addJs('https://www.google.com/recaptcha/api.js','async defer');
 $Page->addBody($Auth->buildLogin());
-echo $Page->toString();
+echo $Page;
+$Debug->writeToLog();

@@ -13,7 +13,7 @@ class StaticDateTime {
 
 	public function __construct() {
 		global $Debug;
-		$Debug->newFile('includes/Embassy/Time.php');
+		$Debug->newFile('includes/Embassy/StaticDateTime.php');
 	}
 
 	private static function intThis($value) {
@@ -55,7 +55,7 @@ class StaticDateTime {
 
 	public static function buildTimeZones() {
 		//Build a drop down list of times every 15 minutes. This function is dependent on date_default_timezone_set('UTC').
-		global $Debug, $Message, $Success, $Dbc, $returnThis;
+		global $Ajax, $Debug, $Message, $Success, $Dbc;
 		$output = '';
 		try{
 			if( empty($_POST['timestampMilliseconds']) ){
@@ -120,7 +120,7 @@ WHERE
 		}catch( PDOException $e ){
 			error(__LINE__, '', '<pre>' . $e . '</pre>');
 		}
-		returnData('buildTimeZones');
+		$Ajax->ReturnData(); ;
 	}
 
 	public static function convertToDateTime($str) {

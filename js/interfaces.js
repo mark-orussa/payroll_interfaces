@@ -59,13 +59,9 @@ $(document).ready(function () {
         }
     });
 
-    Page.on("click", ".auth", function () {
+    Page.on("click", "#logout", function () {
         var mode = '';
-        if ($(this).children($("i")).hasClass("fa-sign-out")) {
-            logout();
-        } else {
-            buildLogin();
-        }
+        logout();
     });
 
     Page.on("click", "#loginSubmit", function () {

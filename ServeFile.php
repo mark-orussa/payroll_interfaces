@@ -7,8 +7,9 @@
  */
 require_once('config.php');
 $Page->setTitleAndFilename('Serve File', 'ServeFile.php');
-$loadPayrollInterface = new Embassy\PayrollInterface();
+$loadPayrollInterface = new Embassy\PayrollInterface($Ajax, $Dbc, $Debug, $Message);
 if( !empty($Message) ){
 	$Page->addBody('<div>' . $Message . '</div>');
 }
-echo $Page->toString();
+echo $Page;
+$Debug->writeToLog();

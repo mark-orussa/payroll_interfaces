@@ -1,6 +1,6 @@
 <?php
 namespace Embassy;
-use Embassy\CustomException;
+use DateTime, DateTimeZone, PDO, PDOException;
 
 class Time {
     /**
@@ -116,9 +116,9 @@ WHERE
             $returnThis['timeZones'] = $output;
         }catch(CustomException $e){
         }catch(PDOException $e){
-            error(__LINE__, '', '<pre>' . $e . '</pre>');
+            $Debug->error(__LINE__, '', '<pre>' . $e . '</pre>');
         }
-        returnData('buildTimeZones');
+        $this->Ajax->ReturnData(); ;
     }
 
     public static function convertToDateTime($str) {

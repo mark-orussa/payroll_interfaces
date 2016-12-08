@@ -1,6 +1,7 @@
 <?php
 namespace Embassy;
-use Embassy\CustomException;
+use DateInterval, ErrorException, Exception, PDO, PDOException;
+
 /**
  * Created by PhpStorm.
  * User: Mark O'Russa
@@ -66,7 +67,7 @@ Class ImagineCentralReachToAdp extends PayrollInterface {
 	private $_regularHours;
 	private $_travelHours;
 
-	public function __construct($formFileInputName, $saveDirectory, $outgoingDirectory, $databaseTableName) {
+	public function __construct($Ajax, $Dbc, $Debug, $Message, $formFileInputName, $saveDirectory, $outgoingDirectory, $databaseTableName) {
 		/**
 		 *
 		 * @param    string $inputFileId   The id of the form input file element.
@@ -78,7 +79,7 @@ Class ImagineCentralReachToAdp extends PayrollInterface {
 		 */
 
 		try{
-			parent::__construct();
+			parent::__construct($Ajax, $Dbc, $Debug, $Message);
 			if( parent::processPayroll($formFileInputName, $saveDirectory, $outgoingDirectory, $databaseTableName) === false ){
 				throw new CustomException('', 'The parent init method returned false.');
 			}
@@ -239,7 +240,8 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			if( empty($returnArray) ){
 				throw  new CustomException('No regular hours were found.');
 			}
-			$this->Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
+			$this->Debug->add($selectQuery->rowCount() . ' rows returned in on line ' . __LINE__ . ' in file ' . __FILE__ . '.');
+
 			$latestDateDT = Time::convertToDateTime($latestDate);
 			$week = $latestDateDT->format('W');
 			$year = $latestDateDT->format('Y');
@@ -310,7 +312,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			if( !$foundRows ){
 				throw  new CustomException('No travel hours were found.');
 			}
-			$this->Debug->add('Number of returned rows: ' . $selectQuery->rowCount() . ' on line ' . __LINE__ . '.');
+			$this->Debug->add($selectQuery->rowCount() . ' rows returned in on line ' . __LINE__ . ' in file ' . __FILE__ . '.');
 			$latestDateDT = Time::convertToDateTime($latestDate);
 			$week = $latestDateDT->format('W');
 			$year = $latestDateDT->format('Y');
@@ -393,7 +395,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 		 */
 		try{
 			// Check for employee exceptions. These are employees compensated at different rates for the same JobXRef codes. Their JobXRef descriptions (i.e. BSMABILL1) are indicated by the addition of a 1 or 2 at the end of the description. The job code (i.e. //////0663) may be the same as the base description, but should be checked any way.
-			$this->Success = true;
+			$this->Ajax->SetSuccess(true);
 			// Level 1 and 2 employees.
 			if( in_array((Int)$this->_currentRow['EmpXRef'], $this->_level1Emp) && in_array($this->_currentRow['JobXRef'], $this->_level1EmpJobXRef) ){
 				$this->_currentRow['JobXRef'] = $this->_currentRow['JobXRef'] . '1';
@@ -532,7 +534,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			)
 		 */
 		try{
-			$this->Success = true;
+			$this->Ajax->SetSuccess(true);
 			// Create the new values destined for output.
 			$earlierDatetime = '';
 			if( !empty($this->_checkRow) && array_key_exists('timeworkedto', $this->_checkRow) ){

@@ -40,10 +40,11 @@ class Config {
 
 	private $databaseCredentials;
 	private $emailCredentials;
+	private $googleCaptchaSecret;
 
 	private $Debug; // This is a reference to the Debug instance.
 
-	public function __construct($configPath) {
+	public function __construct($Debug, $configPath) {
 		/**
 		 * Config_Base constructor.
 		 * This establishes a number of constants that are available throughout the application.
@@ -62,11 +63,20 @@ class Config {
 		 * @param $configPath    string    The path to the yml formatted config file relative to this file. Include the name and yml extension of the config file.
 		 *                       ees.dev
 		 */
-		global $Debug;
 		$this->Debug = &$Debug;
 		$this->Debug->newFile('includes/Embassy/Config.php');
 		$this->databaseCredentials = array();
 		$this->emailCredentials = array();
+		$this->googleCaptchaSecret = '';
+
+		//Define the current local time.
+		date_default_timezone_set('UTC');
+		setlocale(LC_ALL, 'en_US');
+		setlocale(LC_CTYPE, 'C');//Downgrades the character type locale to the POSIX (C) locale.
+		list($micro, $sec) = explode(" ", microtime());
+		define('TIMESTAMP', $sec);//Unix timestamp of the default timezone in config.php (UTC), so all time functions refer to that timezone.
+		define('MICROTIME', (int)str_replace('0.', '', $micro));//Microseconds displayed as an eight digit integer (47158200).
+		define('DATETIME', date('Y-m-d H:i:s', TIMESTAMP));//This time is used for entry into a MYSQL database as a datetime format: YYYY-MM-DD HH:MM:SS
 		try{
 			// Read the config file.
 			if( !file_exists($configPath) ){
@@ -75,8 +85,7 @@ class Config {
 			if( !is_readable($configPath) ){
 				throw new CustomException('', 'File is not readable: ' . $configPath);
 			}
-			function testFile($configPath) {
-				global $Debug;
+			function testFile($Debug,$configPath) {
 				$myfile = fopen($configPath, "r") or die("Unable to open file!");
 				$Debug->add(fread($myfile, filesize($configPath)));
 				$Debug->writeToLog();
@@ -84,7 +93,7 @@ class Config {
 			}
 
 			// Test that the config file is available.
-//			testFile($configPath);
+//			testFile($this->Debug,$configPath);
 
 			// Read the config file.
 			$config = yaml_parse_file($configPath, 0);
@@ -100,42 +109,60 @@ class Config {
 
 			// Get the non-encrypted config values and place them in constants.
 			if( !isset($config['ENVIRONMENT']) ){
-				throw new Exception('ENVIRONMENT value not found in config file.');
+				throw new CustomException('','ENVIRONMENT value not found in config file.');
 			}else{
 				define('ENVIRONMENT', $config['ENVIRONMENT']);
 			}
 			if( !isset($config['DOMAIN']) ){
-				throw new Exception('DOMAIN value not found in config file.');
+				throw new CustomException('','DOMAIN value not found in config file.');
 			}else{
 				define('DOMAIN', $config['DOMAIN']);
 			}
+
+			// Force an SSL connection.
+			if( (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ){
+				//Using https:. This does not mean the connection is actually secure, just that the protocol is HTTPS.
+				define('PROTOCOL', 'https://', true);
+				define('HTTPS', true, true);
+			}else{
+				//Not using https. Redirect to secure page.
+				header('Location: https://' . DOMAIN . $_SERVER['PHP_SELF']);
+				define('PROTOCOL', 'http://', true);
+				define('HTTPS', false, true);
+			}
+
 			if( !isset($config['PUBLIC_PATH']) ){
-				throw new Exception('PUBLIC_PATH value not found in config file.');
+				throw new CustomException('','PUBLIC_PATH value not found in config file.');
 			}else{
 				define('PUBLIC_PATH', $config['PUBLIC_PATH']);
 			}
 			if( !isset($config['INCLUDE_PATH']) ){
-				throw new Exception('INCLUDE_PATH value not found in config file.');
+				throw new CustomException('','INCLUDE_PATH value not found in config file.');
 			}else{
 				set_include_path($config['INCLUDE_PATH'] . '/');
 			}
 			if( !isset($config['CUSTOM_NAMESPACE']) ){
-				throw new Exception('CUSTOM_NAMESPACE value not found in config file.');
+				throw new CustomException('','CUSTOM_NAMESPACE value not found in config file.');
 			}else{
-				define('CUSTOM_NAMESPACE',$config['CUSTOM_NAMESPACE']);
+				define('CUSTOM_NAMESPACE', $config['CUSTOM_NAMESPACE']);
 			}
 			if( !isset($config['NAME_OF_THE_SITE']) ){
-				throw new Exception('NAME_OF_THE_SITE value not found in config file.');
+				throw new CustomException('','NAME_OF_THE_SITE value not found in config file.');
 			}else{
 				define('NAME_OF_THE_SITE', $config['NAME_OF_THE_SITE']);
 			}
 			if( !isset($config['LOG_PATH']) ){
-				throw new Exception('LOG_PATH value not found in config file.');
+				throw new CustomException('','LOG_PATH value not found in config file.');
 			}else{
 				define('LOG_PATH', $config['LOG_PATH']);
 			}
+			if( !isset($config['GOOGLE_CAPTCHA_SECRET']) ){
+				throw new CustomException('', 'GOOGLE_CAPTCHA_SECRET value not found in config file.');
+			}else{
+				$this->googleCaptchaSecret = $config['GOOGLE_CAPTCHA_SECRET'];
+			}
 			if( !isset($config['SESSION_NAME']) ){
-				throw new Exception('SESSION_NAME value not found in config file.');
+				throw new CustomException('','SESSION_NAME value not found in config file.');
 			}else{
 				// Define session parameters.
 				/**
@@ -152,64 +179,52 @@ class Config {
 				session_start();
 				//session_regenerate_id();
 			}
-
 			// Database credentials.
 			if( !isset($config['DATABASE_HOST']) ){
-				throw new Exception('DATABASE_HOST value not found in config file.');
+				throw new CustomException('','DATABASE_HOST value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_HOST'] = $config['DATABASE_HOST'];
 			}
 			if( !isset($config['DATABASE_NAME']) ){
-				throw new Exception('DATABASE_NAME value not found in config file.');
+				throw new CustomException('','DATABASE_NAME value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_NAME'] = $config['DATABASE_NAME'];
 			}
 			if( !isset($config['DATABASE_PORT']) ){
-				throw new Exception('DATABASE_PORT value not found in config file.');
+				throw new CustomException('','DATABASE_PORT value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_PORT'] = $config['DATABASE_PORT'];
 			}
 			if( !isset($config['DATABASE_USER']) ){
-				throw new Exception('DATABASE_USER value not found in config file.');
+				throw new CustomException('','DATABASE_USER value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_USER'] = $config['DATABASE_USER'];
 			}
 			if( !isset($config['DATABASE_PASSWORD']) ){
-				throw new Exception('DATABASE_PASSWORD value not found in config file.');
+				throw new CustomException('','DATABASE_PASSWORD value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_PASSWORD'] = $config['DATABASE_PASSWORD'];
 			}
-
 			// Email credentials.
 			if( !isset($config['EMAIL_HOST']) ){
-				throw new Exception('EMAIL_HOST value not found in config file.');
+				throw new CustomException('','EMAIL_HOST value not found in config file.');
 			}else{
 				$this->emailCredentials['EMAIL_HOST'] = $config['EMAIL_HOST'];
 			}
 			if( !isset($config['EMAIL_USER']) ){
-				throw new Exception('EMAIL_USER value not found in config file.');
+				throw new CustomException('','EMAIL_USER value not found in config file.');
 			}else{
 				$this->emailCredentials['EMAIL_USER'] = $config['EMAIL_USER'];
 			}
 			if( !isset($config['EMAIL_PASSWORD']) ){
-				throw new Exception('EMAIL_PASSWORD value not found in config file.');
+				throw new CustomException('','EMAIL_PASSWORD value not found in config file.');
 			}else{
 				$this->emailCredentials['EMAIL_PASSWORD'] = $config['EMAIL_PASSWORD'];
 			}
 			if( !isset($config['EMAIL_PORT']) ){
-				throw new Exception('EMAIL_PORT value not found in config file.');
+				throw new CustomException('','EMAIL_PORT value not found in config file.');
 			}else{
 				$this->emailCredentials['EMAIL_PORT'] = $config['EMAIL_PORT'];
-			}
-
-			if( (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ){
-				//Using https:. This does not mean the connection is actually secure, just that the protocol is HTTPS.
-				define('PROTOCOL', 'https://', true);
-				define('HTTPS', true, true);
-			}else{
-				//Not using https://
-				define('PROTOCOL', 'http://', true);
-				define('HTTPS', false, true);
 			}
 
 			define('AUTOLINK', PROTOCOL . DOMAIN, true);
@@ -219,21 +234,15 @@ class Config {
 			define('LINKDOCUMENTS', AUTOLINK . '/documents', 1);
 			define('LINKLOGIN', AUTOLINK . '/login', 1);
 
-			//Define the current local time.
-			date_default_timezone_set('UTC');
-			setlocale(LC_ALL, 'en_US');
-			setlocale(LC_CTYPE, 'C');//Downgrades the character type locale to the POSIX (C) locale.
-			list($micro, $sec) = explode(" ", microtime());
-			define('TIMESTAMP', $sec);//Unix timestamp of the default timezone in config.php (UTC), so all time functions refer to that timezone.
-			define('MICROTIME', (int)str_replace('0.', '', $micro));//Microseconds displayed as an eight digit integer (47158200).
-			define('DATETIME', date('Y-m-d H:i:s', TIMESTAMP));//This time is used for entry into a MYSQL database as a datetime format: YYYY-MM-DD HH:MM:SS
-
 		}catch( CustomException $exception ){
-			$this->Debug->add('<pre>' . $exception . '</pre>');
-			$Debug->writeToLog();
+			$this->Debug->add('fancy');
+			$charlie = $this->Debug->error(__LINE__, 'butter ball', '<pre>' . $exception . '</pre>');
+			$this->Debug->writeToLog();
+			die();
 		}catch( Exception $exception ){
 			$this->Debug->add('<pre>' . $exception . '</pre>');
 			$Debug->writeToLog();
+			die();
 		}finally{
 		}
 	}
@@ -250,5 +259,12 @@ class Config {
 		 * @return string
 		 */
 		return $this->emailCredentials;
+	}
+
+	public function getGoogleCaptchaSecret() {
+		/**
+		 * @return string
+		 */
+		return $this->googleCaptchaSecret;
 	}
 }

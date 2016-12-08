@@ -1,5 +1,6 @@
 <?php
 namespace Embassy;
+
 use PDO, ErrorException, Exception;
 
 /**
@@ -10,8 +11,8 @@ use PDO, ErrorException, Exception;
  */
 class PayrollManagement extends PayrollInterface {
 
-	public function __construct() {
-		parent::__construct();
+	public function __construct($Ajax, $Dbc, $Debug, $Message) {
+		parent::__construct($Ajax, $Dbc, $Debug, $Message);
 		if( MODE == 'newEmpXRef' ){
 			self::newEmpXRef();
 		}elseif( MODE == 'newJobXRef' ){
@@ -45,19 +46,20 @@ WHERE
 LIMIT 1");
 			$params = array($_POST['EmpXRef']);
 			$deleteEmpXRefStmt->execute($params);
-			$this->Success = true;
-			$this->ReturnThis['list'] = self::listEmpXRef();
-			$this->ReturnThis['message'] = 'Deleted the EmpXRef.';
+			$this->Ajax->SetSuccess(true);
+			$this->Ajax->setReference('deleteEmpXRef');
+			$this->Ajax->AddValue(array('list' => self::listEmpXRef()));
+			$this->Message->add('Deleted the EmpXRef.');
 		}catch( CustomException $e ){
-			returnData('deleteEmpXRef');
+			$this->Ajax->ReturnData();
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('deleteEmpXRef');
+			$this->Ajax->ReturnData();
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('deleteEmpXRef');
+			$this->Ajax->ReturnData();
 		}
-		returnData('deleteEmpXRef');
+		$this->Ajax->ReturnData();
 	}
 
 	public function deleteJobXRef() {
@@ -72,19 +74,19 @@ WHERE
 LIMIT 1");
 			$params = array($_POST['JobXRef']);
 			$deleteJobXRefStmt->execute($params);
-			$this->Success = true;
-			$this->ReturnThis['list'] = self::listJobXRef();
-			$this->ReturnThis['message'] = 'Deleted the JobXRef.';
+			$this->Ajax->SetSuccess(true);
+			$this->Ajax->AddValue(array('list' => self::listJobXRef()));
+			$this->Message->add( 'Deleted the JobXRef.');
 		}catch( CustomException $e ){
-			returnData('deleteJobXRef');
+			$this->Ajax->ReturnData();;
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('deleteJobXRef');
+			$this->Ajax->ReturnData();;
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('deleteJobXRef');
+			$this->Ajax->ReturnData();;
 		}
-		returnData('deleteJobXRef');
+		$this->Ajax->ReturnData();;
 	}
 
 	public function deleteMasterLevelEmpXRef() {
@@ -99,19 +101,19 @@ WHERE
 LIMIT 1;");
 			$params = array($_POST['EmpXRef']);
 			$deleteEmpXRefStmt->execute($params);
-			$this->Success = true;
-			$this->ReturnThis['list'] = self::listMasterLevelEmpXRef();
-			$this->ReturnThis['message'] = 'Deleted the Master Level EmpXRef.';
+			$this->Ajax->SetSuccess(true);
+			$this->Ajax->AddValue(array('list' => self::listMasterLevelEmpXRef()));
+			$this->Message->add('Deleted the Master Level EmpXRef.');
 		}catch( CustomException $e ){
-			returnData('deleteMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('deleteMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('deleteMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}
-		returnData('deleteMasterLevelEmpXRef');
+		$this->Ajax->ReturnData();;
 	}
 
 	public function listEmpXRef() {
@@ -131,22 +133,22 @@ ORDER BY EmpXRef");
 				$output .= '<li>No EmpXRef codes were found.</li>';
 			}
 			$output .= '</ul>';
-			$this->Success = true;
-			$this->ReturnThis['list'] = $output;
+			$this->Ajax->SetSuccess(true);
+			$this->Ajax->AddValue(array('list' => $output));
 		}catch( CustomException $e ){
-			returnData('listEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('listEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('listEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( Error $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('listEmpXRef');
+			$this->Ajax->ReturnData();;
 		}
 		if( MODE == 'listEmpXRef' ){
-			returnData('listEmpXRef');
+			$this->Ajax->ReturnData();;
 		}else{
 			return $output;
 		}
@@ -176,19 +178,19 @@ ORDER BY EmpXRef");
 				$output .= '<tr><td>No JobXRef codes were found.</td></tr>';
 			}
 			$output .= '</table>';
-			$this->Success = true;
-			$this->ReturnThis['list'] = $output;
+			$this->Ajax->SetSuccess(true);
+			$this->Ajax->AddValue(array('list' => $output));
 		}catch( CustomException $e ){
-			returnData('listJobXRef');
+			$this->Ajax->ReturnData();;
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('listJobXRef');
+			$this->Ajax->ReturnData();;
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('listJobXRef');
+			$this->Ajax->ReturnData();;
 		}
 		if( MODE == 'listJobXRef' ){
-			returnData('listJobXRef');
+			$this->Ajax->ReturnData();;
 		}else{
 			return $output;
 		}
@@ -219,19 +221,19 @@ ORDER BY level, EmpXRef;");
 				$output .= '<tr><td>No Master Level EmpXRef codes were found.</td></tr>';
 			}
 			$output .= '</table>';
-			$this->Success = true;
-			$this->ReturnThis['list'] = $output;
+			$this->Ajax->SetSuccess(true);
+			$this->Ajax->AddValue(array('list' => $output));
 		}catch( CustomException $e ){
-			returnData('listMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('listMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('listMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}
 		if( MODE == 'listMasterLevelEmpXRef' ){
-			returnData('listMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}else{
 			return $output;
 		}
@@ -257,19 +259,19 @@ SET
 			$params = array($EmpXRef);
 			$addEmployeeStmt->execute($params);
 			$resultCount = $addEmployeeStmt->rowCount();
-			$this->Success = true;
-			$this->ReturnThis['message'] = $resultCount > 0 ? 'New EmpXRef successfully added.' : '';
-			$this->ReturnThis['list'] = self::listEmpXRef();
+			$this->Ajax->SetSuccess(true);
+			$this->Message->add( $resultCount > 0 ? 'New EmpXRef successfully added.' : '');
+			$this->Ajax->AddValue(array('list' => self::listEmpXRef()));
 		}catch( CustomException $e ){
-			returnData('newEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('newEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('newEmpXRef');
+			$this->Ajax->ReturnData();;
 		}
-		returnData('newEmpXRef');
+		$this->Ajax->ReturnData();;
 	}
 
 	protected function newJobXRef() {
@@ -300,7 +302,7 @@ WHERE
 			}
 			$output .= '</ul>';
 			if( $foundRows ){
-				$this->ReturnThis['message'] = 'There is already an entry with this JobXRef code.';
+				$this->Message->add('There is already an entry with this JobXRef code.');
 			}else{
 				//Add the EmpXRef to the database.
 				$addEmployeeStmt = $this->Dbc->prepare("INSERT IGNORE INTO
@@ -311,20 +313,20 @@ SET
 				$params = array($_POST['JobXRef'], $_POST['JobCode']);
 				$addEmployeeStmt->execute($params);
 				$returnCount = $addEmployeeStmt->rowCount();
-				$this->Success = true;
-				$this->ReturnThis['message'] = $returnCount > 0 ? 'New JobXRef successfully added.' : '';
-				$this->ReturnThis['list'] = self::listJobXRef();
+				$this->Ajax->SetSuccess(true);
+				$this->Message->add( $returnCount > 0 ? 'New JobXRef successfully added.' : '');
+				$this->Ajax->AddValue(array('list' => self::listJobXRef()));
 			}
 		}catch( CustomException $e ){
-			returnData('newJobXRef');
+			$this->Ajax->ReturnData();;
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('newJobXRef');
+			$this->Ajax->ReturnData();;
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('newJobXRef');
+			$this->Ajax->ReturnData();;
 		}
-		returnData('newJobXRef');
+		$this->Ajax->ReturnData();;
 	}
 
 	protected function newMasterLevelEmpXRef() {
@@ -358,18 +360,18 @@ SET
 			$params = array($EmpXRef, $masterLevel);
 			$addMasterLevelEmployeeStmt->execute($params);
 			$resultCount = $addMasterLevelEmployeeStmt->rowCount();
-			$this->Success = true;
-			$this->ReturnThis['message'] = $resultCount > 0 ? 'New master level EmpXRef code successfully added.' : ' ';
-			$this->ReturnThis['list'] = self::listMasterLevelEmpXRef();
+			$this->Ajax->SetSuccess(true);
+			$this->Message->add($resultCount > 0 ? 'New master level EmpXRef code successfully added.' : ' ');
+			$this->Ajax->AddValue(array('list' => self::listMasterLevelEmpXRef()));
 		}catch( CustomException $e ){
-			returnData('newMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('newMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
-			returnData('newMasterLevelEmpXRef');
+			$this->Ajax->ReturnData();;
 		}
-		returnData('newMasterLevelEmpXRef');
+		$this->Ajax->ReturnData();;
 	}
 }
