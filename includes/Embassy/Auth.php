@@ -12,6 +12,7 @@ use ErrorException, Exception;
 class Auth {
 	//Properties.
 	protected $Ajax;
+	protected $Config;
 	protected $Dbc;
 	protected $Debug;
 	protected $Message;
@@ -19,6 +20,7 @@ class Auth {
 
 	public function __construct($Ajax, $Debug, $Dbc, $Message, $Config) {
 		$this->Ajax = &$Ajax;
+		$this->Config = &$Config;
 		$this->Dbc = &$Dbc;
 		$this->Debug = &$Debug;
 		$this->Message = &$Message;
