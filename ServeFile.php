@@ -5,10 +5,10 @@
  * Date: 6/3/2016
  * Time: 4:23 PM
  */
-require_once('includes/config.php');
-$Page = new Page('Serve File', 'ServeFile.php');
-$loadPayrollInterface = new PayrollInterface();
+require_once('config.php');
+$Page->setTitleAndFilename('Serve File', 'ServeFile.php');
+$loadPayrollInterface = new Embassy\PayrollInterface($Ajax, $Dbc, $Debug, $Message);
 if( !empty($Message) ){
 	$Page->addBody('<div>' . $Message . '</div>');
 }
-echo $Page->output();
+echo $Page;
