@@ -222,7 +222,6 @@ MICROTIME: ' . MICROTIME;
 				fwrite($debugFile, $debugData);*/
 				fclose($handle);
 			}
-
 		}catch( CustomException $exception ){
 			die('5twqh');
 		}catch( \Exception $exception ){
