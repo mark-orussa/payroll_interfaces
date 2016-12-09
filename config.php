@@ -16,8 +16,11 @@
  * - The Debug class needs to write to a log file.
  */
 //C:\xampp\htdocs\pi.embassyllc.devSecrets\
-$configPath = '/var/pi_secrets/config.yml'; // The location of the YML formatted config file. It should not be in the public directory.
-$keyPath = '/var/pi_secrets/key.txt';// The location of the key file. It should not be in the public directory. Ideally it is in a different directory than the config file.
+$configPath = 'C:\xampp\htdocs\pi.embassyllc.devSecrets\config_new.yml'; // The location of the YML formatted config file. It should not be in the public directory.
+$keyPath = 'C:\xampp\htdocs\pi.embassyllc.devSecrets\key.txt';// The location of the key file. It should not be in the public directory. Ideally it is in a different directory than the config file.
+
+//$configPath = '/var/pi_secrets/config.yml'; // The location of the YML formatted config file. It should not be in the public directory.
+//$keyPath = '/var/pi_secrets/key.txt';// The location of the key file. It should not be in the public directory. Ideally it is in a different directory than the config file.
 
 
 // Nothing below this point should be modified.
@@ -93,6 +96,7 @@ try{
 	//$loader->add('Embassy\\', __DIR__ . '/vendor/embassy');
 
 // Instantiate our classes.
+
 	$Message = new Embassy\Message();
 	$Debug = new Embassy\Debug($Message);
 	set_error_handler("my_error_handler");
@@ -103,16 +107,17 @@ try{
 //		print $Secret::generateKey();
 //		die();
 //		die($Secret->encrypt(''));
-//		print $Secret->decrypt($Config->getDatabaseHostname());
-
+//		print $Secret->decrypt($Config->getGoogleCaptchaSecret());
 
 // Get the database credentials and establish the default base connection.
 	$databaseCredentials = $Config->getDatabaseCredentials();
+	/*
+	 // No longer using Defuse.
 	foreach( $databaseCredentials as $key => &$value ){
 		if( !empty($value) ){
 			$value = $Secret->decrypt($value);
 		}
-	}
+	}*/
 
 	$Dbc = new Embassy\Dbc($Debug, $databaseCredentials['DATABASE_HOST'], $databaseCredentials['DATABASE_NAME'], $databaseCredentials['DATABASE_PORT'], $databaseCredentials['DATABASE_USER'], $databaseCredentials['DATABASE_PASSWORD']);
 
@@ -138,5 +143,3 @@ try{
 	$Debug->writeToLog();
 	die();
 }
-// TODO: slowly converting site to new php logic configuration.
-

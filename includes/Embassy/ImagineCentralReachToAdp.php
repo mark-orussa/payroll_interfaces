@@ -110,6 +110,7 @@ Class ImagineCentralReachToAdp extends PayrollInterface {
 			$this->_outgoingRegularHoursFileName = '';
 			$this->_outgoingTravelHoursFileName = '';
 
+			$this->Debug->add('About to get the regular hours.');
 			// Perform the data manipulations on regular hours and return a string.
 			if( self::getRegularHours() === false ){
 				throw new CustomException('Could not get the regular hours.');
@@ -228,8 +229,10 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			$latestDate = '';
 			$this->_regularHours = "Employee ID,Date,Time,Job Code\n";
 			$this->Debug->printArray($this->jobXRefArray, '$this->jobXRefArray');
+			$this->Debug->add('Trying to get regular hours.');
 			while( $row = $selectQuery->fetch(PDO::FETCH_ASSOC) ){
 				$this->_currentRow = $row;
+				$this->Debug->add($row);
 				if( self::modifyRegularHours() === true ){
 					// Data modification is good. Do something.
 					$latestDate = strtotime($latestDate) > strtotime($row['DateOfService']) ? $latestDate : $row['DateOfService'];
@@ -440,7 +443,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 					// Don't write these rows to the output file and move on to the next row
 					$this->duplicateArray[] = array($this->_checkRow, $this->_currentRow);
 					$this->Debug->add('found duplicate data');
-					$this->Success = false;
+					$this->Ajax->SetSuccess(false);
 				}
 
 				/**
@@ -472,10 +475,11 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
-		if( $this->Success ){
+		if( $this->Ajax->GetSuccess() ){
 			$this->_regularHours .= $this->_currentRow['Employee ID'] . ',' . $this->_currentRow['Date'] . ',' . $this->_currentRow['inPunch'] . ',' . $this->_currentRow['Job Code'] . "\n" . $this->_currentRow['Employee ID'] . ',' . $this->_currentRow['Date'] . ',' . $this->_currentRow['outPunch'] . "\n";
 			return true;
 		}else{
+			$this->Debug->add('No Success');
 			return false;
 		}
 	}
@@ -560,7 +564,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 				if( $this->_checkRow['ProcedureCodeString'] == $this->_currentRow['ProcedureCodeString'] && $this->_checkRow['timeworkedfrom'] == $this->_currentRow['timeworkedfrom'] && $this->_checkRow['timeworkedto'] == $this->_currentRow['timeworkedto'] ){
 					// Don't write these rows to the output file and move on to the next row
 					$this->duplicateArray[] = array($this->_checkRow, $this->_currentRow);
-					$this->Success = false;
+					$this->Ajax->SetSuccess(false);
 				}
 
 				// Look for overlapping times
@@ -594,7 +598,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC";
 			$this->Debug->error(__LINE__, '', $e);
 			return false;
 		}
-		if( $this->Success ){
+		if( $this->Ajax->GetSuccess() ){
 			$this->_travelHours .= $this->_currentRow['Employee ID'] . ',' . $this->_currentRow['Date'] . ',' . $this->_currentRow['Hours Worked'] . "\n";
 			return true;
 		}else{

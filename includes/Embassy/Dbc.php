@@ -25,7 +25,7 @@ class Dbc extends PDO {
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', '<pre>' . $e . '</pre>');
 		}catch( Exception $e ){
-			$this->Debug->error(__LINE__, '', $e);
+			$Debug->error(__LINE__, '', $e);
 		}
 		$this->status = true;
 	}

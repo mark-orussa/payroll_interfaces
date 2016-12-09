@@ -208,6 +208,7 @@ class Page {
 		' . $this->Message . $this->Auth->buildLogout() . $this->body . '
 	</body >
 </html > ';
+		$this->Debug->writeToLog();
 		return $output;
 	}
 }

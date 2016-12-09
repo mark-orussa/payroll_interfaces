@@ -70,7 +70,7 @@ class Debug {
 		 */
 		if( empty($publicMessage) ){
 			if( strstr($this->Message, 'encountered a technical problem') === false ){
-				$this->Message->add( 'We\'ve encountered a technical problem that is preventing information from being shown. Please try again in a few moments.<br>
+				$this->Message->add('We\'ve encountered a technical problem that is preventing information from being shown. Please try again in a few moments.<br>
 If the problem persists please contact the IT Department.<br>');
 			}
 		}else{
@@ -162,9 +162,8 @@ MICROTIME: ' . MICROTIME;
 		if( isset($_COOKIE) ){
 			$output .= '<div class="toggleButtonInline">Toggle $_COOKIE</div><div class="toggleMe">' . $this->printArrayOutput($_COOKIE, '$_COOKIE') . '</div>';
 		}
-		if( isset($_REQUEST) ){
-			$output .= '<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . $this->printArrayOutput($_REQUEST, '$_REQUEST') . '</div>';
-		}
+		$output .= '<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . $this->printArrayOutput($_REQUEST, '$_REQUEST') . '</div>';
+		$output .= '<div class="toggleButtonInline">Toggle $_FILES</div><div class="toggleMe">' . $this->printArrayOutput($_FILES, '$_FILES') . '</div>';
 		if( isset($_SERVER) ){
 			$output .= '<div class="toggleButtonInline">Toggle $_SERVER</div><div class="toggleMe">' . $this->printArrayOutput($_SERVER, '$_SERVER') . '</div>';
 		}

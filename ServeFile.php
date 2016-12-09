@@ -12,4 +12,3 @@ if( !empty($Message) ){
 	$Page->addBody('<div>' . $Message . '</div>');
 }
 echo $Page;
-$Debug->writeToLog();

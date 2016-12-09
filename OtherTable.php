@@ -10,4 +10,3 @@ if(!empty($_POST['otherTableSelectTable'])){
 	$Debug->add('Couln\'t find the file.');
 }
 echo $Page;
-$Debug->writeToLog();

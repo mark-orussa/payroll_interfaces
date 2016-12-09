@@ -60,6 +60,10 @@ class Ajax {
 		die(json_encode($jsonArray, JSON_HEX_APOS | JSON_HEX_QUOT));
 	}
 
+	public function GetSuccess() {
+		return $this->success;
+	}
+
 	public function SetSuccess($state) {
 		if( is_bool($state) ){
 			$this->success = $state;

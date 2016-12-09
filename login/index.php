@@ -11,4 +11,3 @@ $Page->setTitleAndFilename('Login','login/index.php');
 $Page->addJs('https://www.google.com/recaptcha/api.js','async defer');
 $Page->addBody($Auth->buildLogin());
 echo $Page;
-$Debug->writeToLog();

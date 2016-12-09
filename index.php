@@ -187,4 +187,3 @@ $Page->addBody('<div class="toggleButton">
 			</div>
 		</div>');
 echo $Page;
-$Debug->writeToLog();

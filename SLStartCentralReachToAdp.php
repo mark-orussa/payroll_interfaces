@@ -9,4 +9,3 @@ $Page->addBody('
         <div>Incoming file: ' . $fileInfo['filename'] . ' (' . round($fileInfo['size'], 1) . ' KB)</div>
         <span style="font-weight:bold">Step 3:</span>' . $SlstartCentralReachToAdp->getOutgoingFile() . $SlstartCentralReachToAdp->getInvalidData() . $SlstartCentralReachToAdp->getDuplicateEntries() . $SlstartCentralReachToAdp->getOverlappingEntries() . $SlstartCentralReachToAdp->getUnrecognizedJobCodes());
 echo $Page;
-$Debug->writeToLog();

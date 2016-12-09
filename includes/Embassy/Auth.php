@@ -25,7 +25,8 @@ class Auth {
 		$this->Message = &$Message;
 
 		$this->siteKey = '6LcCPgwUAAAAAIFRz9cJwRYtk7clMYiMODfCdGF2';
-		$this->secret = $Secret->decrypt($Config->getGoogleCaptchaSecret());
+//		$this->secret = $Secret->decrypt($Config->getGoogleCaptchaSecret());/ No longer using Defuse.
+		$this->secret = $Config->getGoogleCaptchaSecret();
 
 		if( MODE == 'login' ){
 			self::login();
@@ -63,6 +64,8 @@ class Auth {
 		if( isset($_SESSION['auth']) && $_SESSION['auth'] === true ){
 			return true;
 		}elseif( stripos($_SERVER['SCRIPT_FILENAME'], 'login') === false ){
+			// This redirects to the login page when a user is not authenticated.
+//			die('Redirecting in file ' . __FILE__ . ' line ' . __LINE__);
 			header('Location:' . LINKLOGIN);
 		}
 	}
@@ -99,12 +102,14 @@ class Auth {
 						$_SESSION['auth'] = true;
 						// Redirect to root.
 						$this->Debug->add('We successfully logged in as regular user. Trying to redirect to home.');
+//						die('Redirecting in file ' . __FILE__ . ' line ' . __LINE__);
 						header('Location: ' . AUTOLINK);
 					}elseif( $_POST['login']['password'] == '1394' ){
 						$_SESSION['auth'] = true;
 						$_SESSION['admin'] = true;
 						// Redirect to root.
 						$this->Debug->add('We successfully logged in as admin. Trying to redirect to home.');
+//						die('Redirecting in file ' . __FILE__ . ' line ' . __LINE__);
 						header('Location: ' . AUTOLINK);
 					}else{
 						// The password is invalid, so show the login form again.
