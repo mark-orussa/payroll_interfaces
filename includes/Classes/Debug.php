@@ -171,6 +171,7 @@ DATETIME: ' . DATETIME . '<br>
 MICROTIME: ' . MICROTIME;
 		self::add('<div style="color:red;font-weight:bold;border-top:1px dotted #333;">END DEBUG</div>
 </div>');
+//		return 'trouble';
 		return $output . $this->_debugInformation;
 	}
 }

@@ -33,7 +33,7 @@ define('THENAMEOFTHESITE', 'pi.embassyllc.com', true);//This is shown at the top
 define('READABLEDOMAIN', 'pi.embassyllc.com', true);
 define('REMEMBERME', 'piRememberMe', true);//The cookie used to autofill the user's email address at the login page.
 define('UNIQUECOOKIE', 'piUniqueId');//The cookie used to autofill the user's email address at the login page.
-$rdbHost = 'localhost';//The hostname or IP address for the remote database. Get this information from your web hosting company. Example: mysql5.yourhostingcompany.com for shared hosting, 'localhost' for dedicated hosting.
+$rdbHost = '127.0.0.1';//The hostname or IP address for the remote database. Get this information from your web hosting company. Example: mysql5.yourhostingcompany.com for shared hosting, 'localhost' for dedicated hosting.
 $remoteDbPort = $_SERVER['PRODUCTION_PAYROLL_INTERFACES_PORT'];//The remote database port number.
 $remoteDbName = $_SERVER['PRODUCTION_PAYROLL_INTERFACES_DATABASE'];//The name of the remote database. Do not enter the credentials here. Use environment variables.
 $remoteDbUser = $_SERVER['PRODUCTION_PAYROLL_INTERFACES_DATABASE_USER'];//The username for the remote database. Do not enter the credentials here. Use environment variables.
