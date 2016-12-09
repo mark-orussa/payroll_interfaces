@@ -61,7 +61,6 @@ class Config {
 		 * This can also be hard-coded in the php.ini file
 		 *
 		 * @param $configPath    string    The path to the yml formatted config file relative to this file. Include the name and yml extension of the config file.
-		 *                       ees.dev
 		 */
 		$this->Debug = &$Debug;
 		$this->Debug->newFile('includes/Embassy/Config.php');
@@ -85,7 +84,7 @@ class Config {
 			if( !is_readable($configPath) ){
 				throw new CustomException('', 'File is not readable: ' . $configPath);
 			}
-			function testFile($Debug,$configPath) {
+			function testFile($Debug, $configPath) {
 				$myfile = fopen($configPath, "r") or die("Unable to open file!");
 				$Debug->add(fread($myfile, filesize($configPath)));
 				$Debug->writeToLog();
@@ -96,25 +95,30 @@ class Config {
 //			testFile($this->Debug,$configPath);
 
 			// Read the config file.
-			$config = yaml_parse_file($configPath, 0);
+			try{
+				$config = yaml_parse_file($configPath, 0);
+			}catch( ParseException $e ){
+				printf("Unable to parse the YAML string: %s", $e->getMessage() . ' on line ' . __LINE__ . ' in file ' . __FILE__);
+				die();
+			}
 			if( empty($config) ){
 				// The PECL YAML extension is not loaded. Try the Symphony version.
 				try{
 					$config = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($configPath));
 				}catch( ParseException $e ){
-					printf("Unable to parse the YAML string: %s", $e->getMessage());
+					printf("Unable to parse the YAML string: %s", $e->getMessage() . ' on line ' . __LINE__ . ' in file ' . __FILE__);
 					die();
 				}
 			}
 
 			// Get the non-encrypted config values and place them in constants.
 			if( !isset($config['ENVIRONMENT']) ){
-				throw new CustomException('','ENVIRONMENT value not found in config file.');
+				throw new CustomException('', 'ENVIRONMENT value not found in config file . ');
 			}else{
 				define('ENVIRONMENT', $config['ENVIRONMENT']);
 			}
 			if( !isset($config['DOMAIN']) ){
-				throw new CustomException('','DOMAIN value not found in config file.');
+				throw new CustomException('', 'DOMAIN value not found in config file . ');
 			}else{
 				define('DOMAIN', $config['DOMAIN']);
 			}
@@ -132,27 +136,27 @@ class Config {
 			}
 
 			if( !isset($config['PUBLIC_PATH']) ){
-				throw new CustomException('','PUBLIC_PATH value not found in config file.');
+				throw new CustomException('', 'PUBLIC_PATH value not found in config file.');
 			}else{
 				define('PUBLIC_PATH', $config['PUBLIC_PATH']);
 			}
 			if( !isset($config['INCLUDE_PATH']) ){
-				throw new CustomException('','INCLUDE_PATH value not found in config file.');
+				throw new CustomException('', 'INCLUDE_PATH value not found in config file.');
 			}else{
 				set_include_path($config['INCLUDE_PATH'] . '/');
 			}
 			if( !isset($config['CUSTOM_NAMESPACE']) ){
-				throw new CustomException('','CUSTOM_NAMESPACE value not found in config file.');
+				throw new CustomException('', 'CUSTOM_NAMESPACE value not found in config file.');
 			}else{
 				define('CUSTOM_NAMESPACE', $config['CUSTOM_NAMESPACE']);
 			}
 			if( !isset($config['NAME_OF_THE_SITE']) ){
-				throw new CustomException('','NAME_OF_THE_SITE value not found in config file.');
+				throw new CustomException('', 'NAME_OF_THE_SITE value not found in config file.');
 			}else{
 				define('NAME_OF_THE_SITE', $config['NAME_OF_THE_SITE']);
 			}
 			if( !isset($config['LOG_PATH']) ){
-				throw new CustomException('','LOG_PATH value not found in config file.');
+				throw new CustomException('', 'LOG_PATH value not found in config file.');
 			}else{
 				define('LOG_PATH', $config['LOG_PATH']);
 			}
@@ -162,7 +166,7 @@ class Config {
 				$this->googleCaptchaSecret = $config['GOOGLE_CAPTCHA_SECRET'];
 			}
 			if( !isset($config['SESSION_NAME']) ){
-				throw new CustomException('','SESSION_NAME value not found in config file.');
+				throw new CustomException('', 'SESSION_NAME value not found in config file.');
 			}else{
 				// Define session parameters.
 				/**
@@ -181,48 +185,48 @@ class Config {
 			}
 			// Database credentials.
 			if( !isset($config['DATABASE_HOST']) ){
-				throw new CustomException('','DATABASE_HOST value not found in config file.');
+				throw new CustomException('', 'DATABASE_HOST value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_HOST'] = $config['DATABASE_HOST'];
 			}
 			if( !isset($config['DATABASE_NAME']) ){
-				throw new CustomException('','DATABASE_NAME value not found in config file.');
+				throw new CustomException('', 'DATABASE_NAME value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_NAME'] = $config['DATABASE_NAME'];
 			}
 			if( !isset($config['DATABASE_PORT']) ){
-				throw new CustomException('','DATABASE_PORT value not found in config file.');
+				throw new CustomException('', 'DATABASE_PORT value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_PORT'] = $config['DATABASE_PORT'];
 			}
 			if( !isset($config['DATABASE_USER']) ){
-				throw new CustomException('','DATABASE_USER value not found in config file.');
+				throw new CustomException('', 'DATABASE_USER value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_USER'] = $config['DATABASE_USER'];
 			}
 			if( !isset($config['DATABASE_PASSWORD']) ){
-				throw new CustomException('','DATABASE_PASSWORD value not found in config file.');
+				throw new CustomException('', 'DATABASE_PASSWORD value not found in config file.');
 			}else{
 				$this->databaseCredentials['DATABASE_PASSWORD'] = $config['DATABASE_PASSWORD'];
 			}
 			// Email credentials.
 			if( !isset($config['EMAIL_HOST']) ){
-				throw new CustomException('','EMAIL_HOST value not found in config file.');
+				throw new CustomException('', 'EMAIL_HOST value not found in config file.');
 			}else{
 				$this->emailCredentials['EMAIL_HOST'] = $config['EMAIL_HOST'];
 			}
 			if( !isset($config['EMAIL_USER']) ){
-				throw new CustomException('','EMAIL_USER value not found in config file.');
+				throw new CustomException('', 'EMAIL_USER value not found in config file.');
 			}else{
 				$this->emailCredentials['EMAIL_USER'] = $config['EMAIL_USER'];
 			}
 			if( !isset($config['EMAIL_PASSWORD']) ){
-				throw new CustomException('','EMAIL_PASSWORD value not found in config file.');
+				throw new CustomException('', 'EMAIL_PASSWORD value not found in config file.');
 			}else{
 				$this->emailCredentials['EMAIL_PASSWORD'] = $config['EMAIL_PASSWORD'];
 			}
 			if( !isset($config['EMAIL_PORT']) ){
-				throw new CustomException('','EMAIL_PORT value not found in config file.');
+				throw new CustomException('', 'EMAIL_PORT value not found in config file.');
 			}else{
 				$this->emailCredentials['EMAIL_PORT'] = $config['EMAIL_PORT'];
 			}
