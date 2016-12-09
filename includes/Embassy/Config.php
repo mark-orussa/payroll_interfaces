@@ -121,7 +121,6 @@ class Config {
 				define('HTTPS', true, true);
 			}else{
 				//Not using https. Redirect to secure page.
-				die('Redirecting in file ' . __FILE__ . ' line ' . __LINE__);
 				header('Location: https://' . DOMAIN . $_SERVER['PHP_SELF']);
 				define('PROTOCOL', 'http://', true);
 				define('HTTPS', false, true);
