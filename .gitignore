@@ -9,3 +9,4 @@ generations.php
 includes/downloadFile.php
 vendor
 log/development.log
+config.php

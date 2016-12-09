@@ -15,8 +15,9 @@
  * - You must create and declare the absolute path to a key file. It is declared in the second line of code below. This is a plain text document with a single line of code. It can have any title and any or no extension.
  * - The Debug class needs to write to a log file.
  */
-$configPath = 'C:\xampp\htdocs\pi.embassyllc.devSecrets\config.yml'; // The location of the YML formatted config file. It should not be in the public directory.
-$keyPath = 'C:\xampp\htdocs\pi.embassyllc.devSecrets\key.txt';// The location of the key file. It should not be in the public directory. Ideally it is in a different directory than the config file.
+//C:\xampp\htdocs\pi.embassyllc.devSecrets\
+$configPath = '/var/pi_secrets/config.yml'; // The location of the YML formatted config file. It should not be in the public directory.
+$keyPath = '/var/pi_secrets/key.txt';// The location of the key file. It should not be in the public directory. Ideally it is in a different directory than the config file.
 
 
 // Nothing below this point should be modified.

@@ -79,7 +79,7 @@ class Config {
 		try{
 			// Read the config file.
 			if( !file_exists($configPath) ){
-				throw new CustomException('', 'File does not exist: ' . $configPath);
+				die('File does not exist: ' . $configPath);
 			}
 			if( !is_readable($configPath) ){
 				throw new CustomException('', 'File is not readable: ' . $configPath);
