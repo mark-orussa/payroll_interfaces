@@ -98,7 +98,7 @@ class Form {
 		$output .= $this->ajax ? ' data-ajax="1">' : '>';
 
 		// Generate a cross site request forgery (CSRF) prevention token.
-		$_SESSION['CSRF'] = Secret::generateKey();
+		$_SESSION['CSRF'] = md5(time());
 
 		$output .= '<input id="CSRF" name="' . $this->formName . '[CSRF]" type="hidden" value="' . $_SESSION['CSRF'] . '">';
 		return $output;

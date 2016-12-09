@@ -16,9 +16,8 @@ class Auth {
 	protected $Debug;
 	protected $Message;
 	private $siteKey;
-	private $secret;
 
-	public function __construct($Ajax, $Debug, $Dbc, $Message, $Secret, $Config) {
+	public function __construct($Ajax, $Debug, $Dbc, $Message, $Config) {
 		$this->Ajax = &$Ajax;
 		$this->Dbc = &$Dbc;
 		$this->Debug = &$Debug;
@@ -26,7 +25,6 @@ class Auth {
 
 		$this->siteKey = '6LcCPgwUAAAAAIFRz9cJwRYtk7clMYiMODfCdGF2';
 //		$this->secret = $Secret->decrypt($Config->getGoogleCaptchaSecret());/ No longer using Defuse.
-		$this->secret = $Config->getGoogleCaptchaSecret();
 
 		if( MODE == 'login' ){
 			self::login();
@@ -74,18 +72,19 @@ class Auth {
 		$this->Debug->add('Inside Auth::login().');
 		try{
 			$output = '';
+			$secret = $this->Config->getGoogleCaptchaSecret();
 			// Verify the CSRF code.
 			if( Form::verifyCsrf($_POST['login']['CSRF']) === false ){
 				throw new CustomException('', 'Could not verify the CSRF code.');
 			}
-			if( $this->siteKey === '' || $this->secret === '' ){
+			if( $this->siteKey === '' || $secret === '' ){
 				throw new CustomException('', 'Could not find the Google captcha items.');
 			}
 			if( isset($_POST['g-recaptcha-response']) ){
 				$this->Debug->add('Inside the login method. $_POST[\'g-recaptcha-response\'] is set.');
 				// If the form submission includes the "g-captcha-response" field
 				// Create an instance of the service using your secret
-				$recaptcha = new \ReCaptcha\ReCaptcha($this->secret);
+				$recaptcha = new \ReCaptcha\ReCaptcha($secret);
 				// If file_get_contents() is locked down on your PHP installation to disallow
 				// its use with URLs, then you can use the alternative request method instead.
 				// This makes use of fsockopen() instead.
