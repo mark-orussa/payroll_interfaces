@@ -98,7 +98,7 @@ if( (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERV
 $virtualMachine = stripos($_SERVER['SERVER_NAME'], LOCALIP) === false ? false : true;
 //Define the includes folder, starting directory, and other constants depending on local or production.
 if( !defined('LOCAL') ){
-	if( stripos($_SERVER['SERVER_NAME'], 'pi') === false && !$virtualMachine ){
+	if( stripos($_SERVER['SERVER_NAME'], 'dev') === false && !$virtualMachine ){
 		//Production server.
 		define('LOCAL', false, true);
 		if( PRODUCTIONHOMEDIRECTORY == '' ){
