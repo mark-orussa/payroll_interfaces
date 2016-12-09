@@ -97,6 +97,7 @@ class Config {
 			// Read the config file.
 			if( function_exists('yaml_parse_file') ){
 				$config = yaml_parse_file($configPath, 0);
+			}else{
 				// The PECL YAML extension is not loaded. Try the Symphony version.
 				$config = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($configPath));
 			}
@@ -235,12 +236,11 @@ class Config {
 			die($exception);
 		}catch( CustomException $exception ){
 			$this->Debug->error(__LINE__, 'butter ball', '<pre>' . $exception . '</pre>');
-			die($exception);
+			die('<pre>' . $exception . '</pre>');
 			$this->Debug->writeToLog();
-			die();
 		}catch( Exception $exception ){
 			$this->Debug->add('<pre>' . $exception . '</pre>');
-			die($exception);
+			die('<pre>' . $exception . '</pre>');
 			$Debug->writeToLog();
 		}finally{
 		}
