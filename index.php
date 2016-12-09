@@ -5,7 +5,6 @@
  * Date: 5/18/2016
  * Time: 11:48 AM
  */
-define('FORCEHTTPS', true, true);
 require_once('config.php');
 $Page->setTitleAndFilename('Payroll Interfaces', 'index.php');
 $Page->addJs('interfaces.js');

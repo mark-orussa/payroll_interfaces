@@ -43,17 +43,15 @@ class Debug {
 		$debugMessage = (string) a user message to help explain the debug.
 		$debugInfo = debug_backtrace(false)
 		*/
-		$tempStuff = '';
 		if( is_array($debug_backtrace) && !empty($debug_backtrace) ){
-			$tempStuff .= $this->printArray($debug_backtrace);
+			$this->debugInformation .= $this->printArray($debug_backtrace);
 		}
 		if( is_array($debugMessage) ){
-			$tempStuff .= self::printArrayOutput($debugMessage);
+			$this->debugInformation .= self::printArrayOutput($debugMessage);
 		}else{
-			$tempStuff .= empty($debugMessage) ? '' : '<div>' . $debugMessage . '</div>
+			$this->debugInformation .= empty($debugMessage) ? '' : '<div>' . $debugMessage . '</div>
 ';
 		}
-		$this->debugInformation .= $tempStuff;
 	}
 
 	public function error($line = false, $publicMessage = '', $debugMessage = false) {
@@ -162,8 +160,8 @@ MICROTIME: ' . MICROTIME;
 		if( isset($_COOKIE) ){
 			$output .= '<div class="toggleButtonInline">Toggle $_COOKIE</div><div class="toggleMe">' . $this->printArrayOutput($_COOKIE, '$_COOKIE') . '</div>';
 		}
-		$output .= '<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . $this->printArrayOutput($_REQUEST, '$_REQUEST') . '</div>';
-		$output .= '<div class="toggleButtonInline">Toggle $_FILES</div><div class="toggleMe">' . $this->printArrayOutput($_FILES, '$_FILES') . '</div>';
+		$output .= '<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . $this->printArrayOutput($_REQUEST, '$_REQUEST') . '</div>
+		<div class="toggleButtonInline">Toggle $_FILES</div><div class="toggleMe">' . $this->printArrayOutput($_FILES, '$_FILES') . '</div>';
 		if( isset($_SERVER) ){
 			$output .= '<div class="toggleButtonInline">Toggle $_SERVER</div><div class="toggleMe">' . $this->printArrayOutput($_SERVER, '$_SERVER') . '</div>';
 		}
@@ -193,22 +191,23 @@ MICROTIME: ' . MICROTIME;
 				}
 			}else{
 				// Check the filesize. If it reaches a certain size we will remove old data.
-				$handle = fopen(LOG_PATH, "r+");
+				$handle = fopen(LOG_PATH, "r+");// TODO: need a check to see if this file can be opened. The checks above do not catch it when the permissions are set to root.
 				clearstatcache();
 				$filesize = filesize(LOG_PATH);
-				$output = self::output();
-				if( $filesize > 2097152 ){// = 2 MB
+				$memory = 2097152;
+				if( $filesize > $memory ){// = 2 MB
 					$this->add('The filesize is over 2 MB.<br>');
 					ftruncate($handle, 524288);// Reduce the size to 512 KB or .5 MB, by chopping off the end. This works as we are prepending, so the newest data is on top.
 				}
 				// Prepend the data to the debug log file.
-				$cache_new = $output; // this gets prepended
+				$cache_new = self::output(); // this gets prepended
 				$len = strlen($cache_new);
 				$final_len = $filesize + $len;
 				$cache_old = fread($handle, $len);
 				rewind($handle);
 				$i = 1;
 				while( ftell($handle) < $final_len ){
+					// If the php configuration has a low memory setting this section may overwhelm it and cause the script to stop. It will use up too much memory.
 					fwrite($handle, $cache_new);
 					$cache_new = $cache_old;
 					$cache_old = fread($handle, $len);
@@ -218,7 +217,8 @@ MICROTIME: ' . MICROTIME;
 
 				/*fopen(LOG_PATH, 'w');
 				$debugFile = fopen(LOG_PATH, 'w');
-				fwrite($debugFile, $debugData);*/
+				fwrite($handle, self::output());*/
+//				die(self::output());
 				fclose($handle);
 			}
 		}catch( CustomException $exception ){

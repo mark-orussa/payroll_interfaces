@@ -138,17 +138,10 @@ class Auth {
 			}
 
 		}catch( CustomException $e ){
-			$this->Debug->error(__LINE__, '', $e);
-//			$this->Ajax->ReturnData();
 		}catch( ErrorException $e ){
-			$this->Debug->error(__LINE__, '', $e);
-//			$this->Ajax->ReturnData();
 		}catch( Exception $e ){
-			$this->Debug->error(__LINE__, '', $e);
-//			$this->Ajax->ReturnData();
 		}finally{
 		}
-//		$this->Ajax->ReturnData();
 		return $output;
 	}
 
