@@ -19,12 +19,12 @@ class Auth {
 	private $siteKey;
 
 	public function __construct($Ajax, $Debug, $Dbc, $Message, $Config) {
-		$this->Ajax = &$Ajax;
-		$this->Config = &$Config;
-		$this->Dbc = &$Dbc;
-		$this->Debug = &$Debug;
-		$this->Message = &$Message;
-
+		$this->Ajax = $Ajax;
+		$this->Config = $Config;
+		$this->Dbc = $Dbc;
+		$this->Debug = $Debug;
+		$this->Message = $Message;
+		$this->Debug->newFile('includes/Embassy/Auth');
 		$this->siteKey = '6LcCPgwUAAAAAIFRz9cJwRYtk7clMYiMODfCdGF2';
 //		$this->secret = $Secret->decrypt($Config->getGoogleCaptchaSecret());/ No longer using Defuse.
 
@@ -128,7 +128,7 @@ class Auth {
 					$this->Debug->add('<p>Check the error code reference at <tt><a href="https://developers.google.com/recaptcha/docs/verify#error-code-reference">https://developers.google.com/recaptcha/docs/verify#error-code-reference</a></tt>.
 	<p><strong>Note:</strong> Error code <tt>missing-input-response</tt> may mean the user just didn\'t complete the reCAPTCHA.</p>
 	<p><a href="/">Try again</a></p>');
-					$this->Message->add('Please check the "I\'m not a robot" checkbox in the reCAPTCHA box.');
+					$this->Message->add('Please check the "I\'m not a robot" checkbox in the reCAPTCHA box.' . $this->Debug->printArrayOutput($_SESSION) . $this->Debug->printArrayOutput($_REQUEST));
 					$output .= self::buildLogin();
 				}
 			}else{

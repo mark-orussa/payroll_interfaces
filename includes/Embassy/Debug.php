@@ -4,11 +4,11 @@ namespace Embassy;
 class Debug {
 	//Properties
 	private $Message;
-	private $debugInformation;
+	private $collector;
 
 	public function __construct($Message) {
-		$this->Message = &$Message;
-		$this->debugInformation = '';
+		$this->Message = $Message;
+		$this->collector = '';
 	}
 
 	private function backtrace($debug_backtrace) {//Currently not used.
@@ -44,12 +44,12 @@ class Debug {
 		$debugInfo = debug_backtrace(false)
 		*/
 		if( is_array($debug_backtrace) && !empty($debug_backtrace) ){
-			$this->debugInformation .= $this->printArray($debug_backtrace);
+			$this->collector .= $this->printArray($debug_backtrace);
 		}
 		if( is_array($debugMessage) ){
-			$this->debugInformation .= self::printArrayOutput($debugMessage);
+			$this->collector .= self::printArrayOutput($debugMessage);
 		}else{
-			$this->debugInformation .= empty($debugMessage) ? '' : '<div>' . $debugMessage . '</div>
+			$this->collector .= empty($debugMessage) ? '' : '<div>' . $debugMessage . '</div>
 ';
 		}
 	}
@@ -66,6 +66,8 @@ class Debug {
 		 * @param   string $debugMessage  A message for debugging purposes.
 		 * @return  string  Returns a message.
 		 */
+		$temp = self::printArrayOutput($_SESSION, '$_SESSION');
+		$temp .= self::printArrayOutput($_REQUEST, '$_REQUEST');
 		if( empty($publicMessage) ){
 			if( strstr($this->Message, 'encountered a technical problem') === false ){
 				$this->Message->add('We\'ve encountered a technical problem that is preventing information from being shown. Please try again in a few moments.<br>
@@ -74,9 +76,7 @@ If the problem persists please contact the IT Department.<br>');
 		}else{
 			$this->Message->add($publicMessage);
 		}
-		if( $debugMessage ){
-			self::add($debugMessage);
-		}
+		self::add($debugMessage);
 		return $this->Message;
 	}
 
@@ -148,28 +148,21 @@ If the problem persists please contact the IT Department.<br>');
 	public function output() {
 
 		$output = '<div id="debug" class="debug">
-<div><span class="debugTitle">BEGIN DEBUG <span>' . StaticDateTime::utcToLocal(DATETIME) . '</span></div>
-<div>From includes/Embassy/Debug.php</div>
-AUTOLINK: ' . AUTOLINK . '<br>
-ENVIRONMENT: ' . ENVIRONMENT . '<br>
-HTTPS: ' . HTTPS . '<br>
-DATETIME: ' . DATETIME . '<br>
-MICROTIME: ' . MICROTIME;
-
-		$output .= self::printArrayOutput(session_get_cookie_params(), 'cookie params');
-		if( isset($_COOKIE) ){
-			$output .= '<div class="toggleButtonInline">Toggle $_COOKIE</div><div class="toggleMe">' . $this->printArrayOutput($_COOKIE, '$_COOKIE') . '</div>';
-		}
-		$output .= '<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . $this->printArrayOutput($_REQUEST, '$_REQUEST') . '</div>
-		<div class="toggleButtonInline">Toggle $_FILES</div><div class="toggleMe">' . $this->printArrayOutput($_FILES, '$_FILES') . '</div>';
-		if( isset($_SERVER) ){
-			$output .= '<div class="toggleButtonInline">Toggle $_SERVER</div><div class="toggleMe">' . $this->printArrayOutput($_SERVER, '$_SERVER') . '</div>';
-		}
-		if( isset($_SESSION) ){
-			$output .= '<div class="toggleButtonInline">Toggle $_SESSION</div><div class="toggleMe">' . $this->printArrayOutput($_SESSION, '$_SESSION') . '</div>';
-		}
-		return $output . $this->debugInformation . '<div style="color:red;font-weight:bold;border-top:1px dotted #333;">END DEBUG</div>
+	<div><span class="debugTitle">BEGIN DEBUG <span>' . StaticDateTime::utcToLocal(DATETIME) . '</span></div>
+	<div>From includes/Embassy/Debug.php</div>
+	AUTOLINK: ' . AUTOLINK . '<br>
+	ENVIRONMENT: ' . ENVIRONMENT . '<br>
+	HTTPS: ' . HTTPS . '<br>
+	DATETIME: ' . DATETIME . '<br>
+	MICROTIME: ' . MICROTIME . self::printArrayOutput(session_get_cookie_params(), 'cookie params') . '<div class="toggleButtonInline">Toggle $_COOKIE</div><div class="toggleMe">' . self::printArrayOutput($_COOKIE, '$_COOKIE') . '</div>
+	<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . self::printArrayOutput($_REQUEST, '$_REQUEST') . '</div>
+	<div class="toggleButtonInline">Toggle $_FILES</div><div class="toggleMe">' . self::printArrayOutput($_FILES, '$_FILES') . '</div>
+	<div class="toggleButtonInline">Toggle $_SERVER</div><div class="toggleMe">' . self::printArrayOutput($_SERVER, '$_SERVER') . '</div>
+	<div class="toggleButtonInline">Toggle $_SESSION</div><div class="toggleMe">' . self::printArrayOutput($_SESSION, '$_SESSION') . '</div>
+	<div style="color:red;font-weight:bold;border-top:1px dotted #333;">END DEBUG</div>
 </div>';
+		self::add($output);
+		return $this->collector;
 	}
 
 	public function readLog() {

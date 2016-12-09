@@ -16,7 +16,6 @@ class Config {
 	 * The following keys are necessary for this application to function:
 	 *      ENVIRONMENT - Either 'development' or 'production'.
 	 *      DOMAIN - The base domain of the website as registered with the registrar. No http:// or trailing slash.
-	 *      PUBLIC_PATH - The full path (from root) to the publicly available files.
 	 *      INCLUDE_PATH - The full path (from root) to the files that are included when calling include() and require().
 	 *      NAME_OF_THE_SITE - This becomes part of the page title. If your address is www.mysite.com, you would use 'My Site'.
 	 *      REMEMBER_ME_COOKIE - The cookie used to retain login over browser sessions.
@@ -126,11 +125,6 @@ class Config {
 				define('HTTPS', false, true);
 			}
 
-			if( !isset($config['PUBLIC_PATH']) ){
-				throw new CustomException('', 'PUBLIC_PATH value not found in config file.');
-			}else{
-				define('PUBLIC_PATH', $config['PUBLIC_PATH']);
-			}
 			if( !isset($config['INCLUDE_PATH']) ){
 				throw new CustomException('', 'INCLUDE_PATH value not found in config file.');
 			}else{
@@ -157,6 +151,7 @@ class Config {
 				$this->googleCaptchaSecret = $config['GOOGLE_CAPTCHA_SECRET'];
 			}
 			if( !isset($config['SESSION_NAME']) ){
+				die('Could not get SESSION_NAME');
 				throw new CustomException('', 'SESSION_NAME value not found in config file.');
 			}else{
 				// Define session parameters.
@@ -168,8 +163,9 @@ class Config {
 				 * You must validate the user by such common means as username/password combination and then store a $_SESSION variable such as 'auth'.
 				 * In subsequent page calls you can then verify just the $_SESSION['auth'] variable to establish authentication.
 				 * */
+
 				session_name($config['SESSION_NAME']);
-				session_set_cookie_params(7776000, PUBLIC_PATH, '.' . DOMAIN, false, false);
+				session_set_cookie_params(7776000, '/', DOMAIN, true, false);
 				session_cache_limiter('nocache');
 				session_start();
 				//session_regenerate_id();

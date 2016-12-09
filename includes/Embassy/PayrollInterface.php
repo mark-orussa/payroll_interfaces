@@ -32,10 +32,10 @@ class PayrollInterface {
 	protected $outgoingFilePath;// The path plus the filename.
 
 	public function __construct($Ajax, $Dbc, $Debug, $Message) {
-		$this->Ajax = &$Ajax;
-		$this->Dbc = &$Dbc;
-		$this->Debug = &$Debug;
-		$this->Message = &$Message;
+		$this->Ajax = $Ajax;
+		$this->Dbc = $Dbc;
+		$this->Debug = $Debug;
+		$this->Message = $Message;
 
 		if( MODE == 'serveFile' ){
 			self::serveFile();
