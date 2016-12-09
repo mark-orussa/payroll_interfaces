@@ -82,33 +82,23 @@ class Config {
 				die('File does not exist: ' . $configPath);
 			}
 			if( !is_readable($configPath) ){
-				throw new CustomException('', 'File is not readable: ' . $configPath);
+				die('File is not readable: ' . $configPath);
 			}
 			function testFile($Debug, $configPath) {
 				$myfile = fopen($configPath, "r") or die("Unable to open file!");
 				$Debug->add(fread($myfile, filesize($configPath)));
+				die('');
 				$Debug->writeToLog();
-				die();
 			}
 
 			// Test that the config file is available.
-			testFile($this->Debug,$configPath);
+//			testFile($this->Debug,$configPath);
 
 			// Read the config file.
-			try{
+			if( function_exists('yaml_parse_file') ){
 				$config = yaml_parse_file($configPath, 0);
-			}catch( ParseException $e ){
-				printf("Unable to parse the YAML string: %s", $e->getMessage() . ' on line ' . __LINE__ . ' in file ' . __FILE__);
-				die();
-			}
-			if( empty($config) ){
 				// The PECL YAML extension is not loaded. Try the Symphony version.
-				try{
-					$config = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($configPath));
-				}catch( ParseException $e ){
-					printf("Unable to parse the YAML string: %s", $e->getMessage() . ' on line ' . __LINE__ . ' in file ' . __FILE__);
-					die();
-				}
+				$config = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($configPath));
 			}
 
 			// Get the non-encrypted config values and place them in constants.
@@ -237,16 +227,21 @@ class Config {
 			define('LINKJS', AUTOLINK . '/js', 1);
 			define('LINKDOCUMENTS', AUTOLINK . '/documents', 1);
 			define('LINKLOGIN', AUTOLINK . '/login', 1);
-
+		}catch( ParseException $exception ){
+			printf("Unable to parse the YAML string: %s", $exception->getMessage() . ' on line ' . __LINE__ . ' in file ' . __FILE__);
+			die($exception);
+		}catch( \Error $exception ){
+			printf("Unable to parse the YAML string: %s", $exception->getMessage() . ' on line ' . __LINE__ . ' in file ' . __FILE__);
+			die($exception);
 		}catch( CustomException $exception ){
-			$this->Debug->add('fancy');
-			$charlie = $this->Debug->error(__LINE__, 'butter ball', '<pre>' . $exception . '</pre>');
+			$this->Debug->error(__LINE__, 'butter ball', '<pre>' . $exception . '</pre>');
+			die($exception);
 			$this->Debug->writeToLog();
 			die();
 		}catch( Exception $exception ){
 			$this->Debug->add('<pre>' . $exception . '</pre>');
+			die($exception);
 			$Debug->writeToLog();
-			die();
 		}finally{
 		}
 	}
