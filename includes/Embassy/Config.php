@@ -92,7 +92,7 @@ class Config {
 			}
 
 			// Test that the config file is available.
-//			testFile($this->Debug,$configPath);
+			testFile($this->Debug,$configPath);
 
 			// Read the config file.
 			try{

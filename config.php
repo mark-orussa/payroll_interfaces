@@ -99,8 +99,8 @@ try{
 	$Secret = new Embassy\Secret($Debug, $Message, $keyPath);
 	$Ajax = new Embassy\Ajax($Debug, $Message);
 	// This is for initial encryption work.
-		print $Secret::generateKey();
-		die();
+//		print $Secret::generateKey();
+//		die();
 //		die($Secret->encrypt(''));
 //		print $Secret->decrypt($Config->getDatabaseHostname());
 
