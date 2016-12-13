@@ -1,5 +1,5 @@
 <?php
-require 'config.php';
+require '../config.php';
 $Page->setTitle('Debug Log');
 $Page->addBody($Debug->readLog());
-print $Page;
+print $Page->specialSauce();

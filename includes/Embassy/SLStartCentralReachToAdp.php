@@ -281,7 +281,6 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 		// Sanity check.
 		/*if( $this->_count == 4 ){
 			$this->Debug->add('<pre>' . $this->_hours . '</pre>');
-			die($this->Debug->output(true));
 		}
 		$this->_count++;*/
 		return true;

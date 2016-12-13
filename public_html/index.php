@@ -5,8 +5,8 @@
  * Date: 5/18/2016
  * Time: 11:48 AM
  */
-require_once('config.php');
-$Page->setTitleAndFilename('Payroll Interfaces', 'index.php');
+require_once('../config.php');
+$Page->setTitleAndFilename('Payroll Interfaces', 'public_html/index.php');
 $Page->addJs('interfaces.js');
 
 $Interface = new Embassy\PayrollManagement($Ajax, $Dbc, $Debug, $Message);

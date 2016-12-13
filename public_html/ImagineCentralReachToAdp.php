@@ -1,5 +1,5 @@
 <?php
-require_once('config.php');
+require_once('../config.php');
 $Page->setTitleAndFilename('Imagine CentralReach to ADP Interface Output', 'ImagineCentralReachToAdp.php');
 $Page->addJs('interfaces.js');
 $Debug->add('Starting the interface.');

@@ -84,7 +84,6 @@ class ErrorHandler {
 			$this->Debug->add('$errline: ' . $errline);
 		}
 		$this->Debug->printArray($errcontext, '$errcontext');
-//		die($this->Debug->output());
 //		throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 	}
 }

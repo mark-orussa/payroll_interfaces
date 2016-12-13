@@ -35,10 +35,10 @@ class Page {
 	protected $filename;
 
 	public function __construct($Ajax, $Auth, $Debug, $Dbc, $Message) {
-		$this->Ajax = &$Ajax;
-		$this->Auth = &$Auth;
-		$this->Debug = &$Debug;
-		$this->Message = &$Message;
+		$this->Ajax = $Ajax;
+		$this->Auth = $Auth;
+		$this->Debug = $Debug;
+		$this->Message = $Message;
 		$this->Debug->newFile('includes/Embassy/Page.php');
 
 		$this->body = '';
@@ -166,7 +166,7 @@ class Page {
 		$this->Debug->newFile($filename);
 	}
 
-	public function __toString() {
+	private function output() {
 		$output = '';
 		$head = '<!DOCTYPE HTML>
 <html lang="en" xml:lang="en">
@@ -208,7 +208,17 @@ class Page {
 		' . $this->Message . $this->Auth->buildLogout() . $this->body . '
 	</body >
 </html > ';
-		$this->Debug->writeToLog();
 		return $output;
 	}
+
+	public function __toString() {
+		$this->Debug->writeToLog();
+		return $this->output();
+	}
+
+	public function specialSauce() {
+		// This is so writeToLog() isn't called on the viewLog page.
+		return $this->output();
+	}
+
 }

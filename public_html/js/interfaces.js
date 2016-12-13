@@ -2,15 +2,27 @@
  * Created by morussa on 5/11/2016.
  */
 var newEmpXRef, EmpXRefMessage, EmpXRefContainer, JobXRefContainer, newJobXRef, newJobCode, JobXRefMessage, newMasterLevelEmpXRef, newMasterLevel, MasterLevelEmpXRefMessage, MasterLevelEmpXRefContainer, OtherTablesExistingTablesContainer, SunLifeAddRecordMessage, SunLifeRatesContainer, SunLifeMessageContainer;
+
+function submitEnable() {
+    console.log('enable submit');
+    $('#loginSubmit').attr('disabled', false);
+}
+
+function submitDisable() {
+    console.log('disable submit');
+    $('#loginSubmit').attr('disabled', true);
+}
+
 $(document).ready(function () {
     newEmpXRef = $("#newEmpXRef"), EmpXRefMessage = $("#EmpXRefMessage"), EmpXRefContainer = $("#EmpXRefContainer"), JobXRefContainer = $("#JobXRefContainer"), newJobXRef = $("#newJobXRef"), newJobCode = $("#newJobCode"), JobXRefMessage = $("#JobXRefMessage"), newMasterLevelEmpXRef = $("#newMasterLevelEmpXRef"), newMasterLevel = $("#newMasterLevel"), MasterLevelEmpXRefMessage = $("#MasterLevelEmpXRefMessage"), MasterLevelEmpXRefContainer = $("#masterLevelEmpXRefContainer"), OtherTablesExistingTablesContainer = $("#otherTableExistingTablesContainer"), SunLifeAddRecordMessage = $("#sunLifeAddRecordMessage"), SunLifeRatesContainer = $("#sunLifeRatesContainer"), SunLifeMessageContainer = $("#sunLifeMessageContainer");
 
-    if (message.html() != '') {
+    /*if (message.html() != '') {
         message.prepend(closeButton);
         message.show();
     } else {
         message.html(closeButton);
-    }
+    }*/
+
     /*
      Use cookies to detect when the files have been served and then remove the iframes.
      It looks for all elements with the class of hiddenFileDownload and looks to see if there is a cookie that has the id of the element. If the element and the cookie exist it will remove both.

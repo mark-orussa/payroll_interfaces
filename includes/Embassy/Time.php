@@ -53,7 +53,7 @@ class Time {
 
     public static function buildTimeZones() {
         //Build a drop down list of times every 15 minutes. This function is dependent on date_default_timezone_set('UTC').
-        global $Debug, $Message, $Success, $Dbc, $returnThis;
+        global $Ajax, $Debug, $Message, $Success, $Dbc, $returnThis;
         $output = '';
         try{
             if(empty($_POST['timestampMilliseconds'])){
@@ -118,7 +118,7 @@ WHERE
         }catch(PDOException $e){
             $Debug->error(__LINE__, '', '<pre>' . $e . '</pre>');
         }
-        $this->Ajax->ReturnData(); ;
+        $Ajax->ReturnData();
     }
 
     public static function convertToDateTime($str) {
@@ -250,7 +250,6 @@ FROM
         $newDatetime = new DateTime('@' . $timestamp);
         //$newDatetime->setTimestamp($timestamp);
         $Debug->add($newDatetime->format($_SESSION['dateFormat'] . ' h:m:s'));
-        //die($Debug->output());
         if($format){
             return $newDatetime->format($_SESSION['dateFormat']);
         }else{

@@ -2482,7 +2482,7 @@ form {
   form .g-recaptcha {
     width: 304px;
     margin: 0 auto; }
-  form input[type=file], form input[type=submit] {
+  form input[type=file] {
     border-radius: 0.4rem;
     -moz-border-radius: 0.4rem;
     -webkit-border-radius: 0.4rem;
@@ -2503,12 +2503,12 @@ form {
     text-decoration: none;
     white-space: nowrap;
     font-size: 1.1em; }
-    form input[type=file]:focus, form input[type=submit]:focus {
+    form input[type=file]:focus {
       cursor: pointer;
       background: #92DF7D;
       border: solid 1px #647C51;
       text-decoration: none; }
-    form input[type=file]:active, form input[type=submit]:active {
+    form input[type=file]:active {
       cursor: pointer;
       background: #92DF7D;
       border: solid 1px #647C51;

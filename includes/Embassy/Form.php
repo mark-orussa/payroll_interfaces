@@ -13,12 +13,12 @@ use Exception;
 class Form {
 	private $Debug;
 	private $formName;
-	private $ajax;
+	private $Ajax;
 
-	public function __construct($Debug, $formName, $ajax = false) {
-		$this->Debug = &$Debug;
+	public function __construct($Debug, $formName, $Ajax = false) {
+		$this->Debug = $Debug;
 		$this->formName = $formName;
-		$this->ajax = $ajax;
+		$this->Ajax = $Ajax;
 		$this->Debug->newFile('includes/Embassy/Form.php');
 	}
 
@@ -91,11 +91,11 @@ class Form {
 	public function open() {
 		/**
 		 * Create the opening form tag. An anti- CSRF hidden field is automatically created.
-		 * If ajax is requested a custom attribute will be added here.
+		 * If Ajax is requested a custom attribute will be added here.
 		 * @return string
 		 */
 		$output = '<form action="' . $_SERVER['PHP_SELF'] . '" name="' . $this->formName . '" method="post"';
-		$output .= $this->ajax ? ' data-ajax="1">' : '>';
+		$output .= $this->Ajax ? ' data-Ajax="1">' : '>';
 
 		// Generate a cross site request forgery (CSRF) prevention token.
 		$_SESSION['CSRF'] = $_SESSION['CSRF'] == '' ? md5(time()) : $_SESSION['CSRF'];

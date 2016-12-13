@@ -36,8 +36,8 @@ class SunLifeReportValidateRows {
 
 	public function __construct() {
 		global $Debug, $Message;
-		$this->Debug = &$Debug;
-		$this->Message = &$Message;
+		$this->Debug =$Debug;
+		$this->Message = $Message;
 	}
 
 	/**

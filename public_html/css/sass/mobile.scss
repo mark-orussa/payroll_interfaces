@@ -191,7 +191,7 @@ form {
     margin: 0 auto;
   }
   margin-top: 1em;
-  input[type=file], input[type=submit] {
+  input[type=file] {
     @include makeButton;
     font-size: 1.1em;
   }

@@ -1,8 +1,5 @@
 <?php
-$tempFiles = $_FILES;
-require_once('config.php');
-$Debug->printArray($tempFiles,'$tempFiles');
-$Debug->printArray($_FILES,'$_FILES');
+require_once('../config.php');
 $Page->setTitleAndFilename('ADP to Sun Life Interface', 'ADPToSunLife.php');
 $Page->addJs('interfaces.js');
 $adpToSunLife = new Embassy\ADPToSunLife($Ajax, $Dbc, $Debug, $Message);

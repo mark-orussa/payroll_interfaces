@@ -1,4 +1,4 @@
-<?php require_once('config.php');
+<?php require_once('../config.php');
 $Page->setTitleAndFilename('Other File Output', 'OtherFile.php');
 $Page->addJs('interfaces.js');
 if(!empty($_POST['otherTableSelectTable'])){

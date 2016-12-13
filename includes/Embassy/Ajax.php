@@ -17,8 +17,8 @@ class Ajax {
 	private $success;
 
 	public function __construct($Debug, $Message) {
-		$this->Debug = &$Debug;
-		$this->Message = &$Message;
+		$this->Debug = $Debug;
+		$this->Message = $Message;
 
 		$this->reference = '';
 		$this->returnThis = array();

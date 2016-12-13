@@ -58,6 +58,7 @@ class ADPToSunLife extends PayrollInterface {
 		try{
 			$this->databaseTable = $databaseTableName;
 			$this->outgoingDirectory = $outgoingDirectory;
+			$this->Debug->add('bazooka');
 
 			//Truncate database. We do this first because a thrown error may prevent the database from being truncated later.
 			if( parent::truncateDatabase($this->databaseTable) === false ){
@@ -663,7 +664,6 @@ WHERE
 <td>(i.e. 100, 1000)<br><input class="sunLifeInput" type="text" id="sunLifeNewCalculate" data-type="integer" data-name="Calculate" value="1000"></td>
 </table>
 <div class="makeButtonInline" id="sunLifeAddRecordButton">Add Record</div></div> ';
-			$Debug->add($selectQuery->rowCount() . ' rows returned in on line ' . __LINE__ . ' in file ' . __FILE__ . '.');
 		}catch( CustomPDOException $e ){
 			$Debug->error(__LINE__, '', $e);
 			return false;

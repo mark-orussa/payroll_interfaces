@@ -41,9 +41,8 @@ class Config {
 	private $emailCredentials;
 	private $googleCaptchaSecret;
 
-	private $Debug; // This is a reference to the Debug instance.
 
-	public function __construct($Debug, $configPath) {
+	public function __construct($configPath) {
 		/**
 		 * Config_Base constructor.
 		 * This establishes a number of constants that are available throughout the application.
@@ -61,8 +60,6 @@ class Config {
 		 *
 		 * @param $configPath    string    The path to the yml formatted config file relative to this file. Include the name and yml extension of the config file.
 		 */
-		$this->Debug = &$Debug;
-		$this->Debug->newFile('includes/Embassy/Config.php');
 		$this->databaseCredentials = array();
 		$this->emailCredentials = array();
 		$this->googleCaptchaSecret = '';
@@ -83,15 +80,14 @@ class Config {
 			if( !is_readable($configPath) ){
 				die('File is not readable: ' . $configPath);
 			}
-			function testFile($Debug, $configPath) {
+			function testFile( $configPath) {
 				$myfile = fopen($configPath, "r") or die("Unable to open file!");
-				$Debug->add(fread($myfile, filesize($configPath)));
+				//fread($myfile, filesize($configPath));
 				die('');
-				$Debug->writeToLog();
 			}
 
 			// Test that the config file is available.
-//			testFile($this->Debug,$configPath);
+//			testFile($configPath);
 
 			// Read the config file.
 			if( function_exists('yaml_parse_file') ){
@@ -141,7 +137,8 @@ class Config {
 				define('NAME_OF_THE_SITE', $config['NAME_OF_THE_SITE']);
 			}
 			if( !isset($config['LOG_PATH']) ){
-				throw new CustomException('', 'LOG_PATH value not found in config file.');
+				die(__LINE__);
+//				throw new CustomException('', 'LOG_PATH value not found in config file.');
 			}else{
 				define('LOG_PATH', $config['LOG_PATH']);
 			}
@@ -231,13 +228,9 @@ class Config {
 			printf("Unable to parse the YAML string: %s", $exception->getMessage() . ' on line ' . __LINE__ . ' in file ' . __FILE__);
 			die($exception);
 		}catch( CustomException $exception ){
-			$this->Debug->error(__LINE__, 'butter ball', '<pre>' . $exception . '</pre>');
 			die('<pre>' . $exception . '</pre>');
-			$this->Debug->writeToLog();
 		}catch( Exception $exception ){
-			$this->Debug->add('<pre>' . $exception . '</pre>');
 			die('<pre>' . $exception . '</pre>');
-			$Debug->writeToLog();
 		}finally{
 		}
 	}

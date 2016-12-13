@@ -28,10 +28,10 @@ class Message {
 
 	public function __toString() {
 		$output = '';
-		if(!empty($this->message)){
-			$output .= '<div id="message"><div class="generalCancel"><i class="fa fa-close"></i> Close</div>' . $this->message . '</div>';
-		}else{
+		if(empty($this->message)){
 			$output .= '<div id="message" style="display:none;"></div>';
+		}else{
+			$output .= '<div id="message"><div class="generalCancel"><i class="fa fa-close"></i> Close</div>' . $this->message . '</div>';
 		}
 		return $output;
 	}

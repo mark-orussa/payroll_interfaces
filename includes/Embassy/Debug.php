@@ -145,24 +145,24 @@ If the problem persists please contact the IT Department.<br>');
 		return $printArrayOutput;
 	}
 
-	public function output() {
-
-		$output = '<div id="debug" class="debug">
-	<div><span class="debugTitle">BEGIN DEBUG <span>' . StaticDateTime::utcToLocal(DATETIME) . '</span></div>
-	<div>From includes/Embassy/Debug.php</div>
+	private function output() {
+		self::newFile('includes/Embassy/viewLog.php');
+		return '<div id = "debug" class="debug">
+	<div><span class="debugTitle" > BEGIN DEBUG <span>' . StaticDateTime::utcToLocal(DATETIME) . ' </span ></div>'
+			. $this->collector . '
 	AUTOLINK: ' . AUTOLINK . '<br>
 	ENVIRONMENT: ' . ENVIRONMENT . '<br>
 	HTTPS: ' . HTTPS . '<br>
 	DATETIME: ' . DATETIME . '<br>
-	MICROTIME: ' . MICROTIME . self::printArrayOutput(session_get_cookie_params(), 'cookie params') . '<div class="toggleButtonInline">Toggle $_COOKIE</div><div class="toggleMe">' . self::printArrayOutput($_COOKIE, '$_COOKIE') . '</div>
-	<div class="toggleButtonInline">Toggle $_REQUEST</div><div class="toggleMe">' . self::printArrayOutput($_REQUEST, '$_REQUEST') . '</div>
-	<div class="toggleButtonInline">Toggle $_FILES</div><div class="toggleMe">' . self::printArrayOutput($_FILES, '$_FILES') . '</div>
-	<div class="toggleButtonInline">Toggle $_SERVER</div><div class="toggleMe">' . self::printArrayOutput($_SERVER, '$_SERVER') . '</div>
-	<div class="toggleButtonInline">Toggle $_SESSION</div><div class="toggleMe">' . self::printArrayOutput($_SESSION, '$_SESSION') . '</div>
-	<div style="color:red;font-weight:bold;border-top:1px dotted #333;">END DEBUG</div>
+	MICROTIME: ' . MICROTIME . '<br>
+<div class="toggleButtonInline">session_get_cookie_params</div><div class="toggleMe">' . self::printArrayOutput(session_get_cookie_params(), 'cookie params') . '</div>
+<div class="toggleButtonInline">$_COOKIE</div><div class="toggleMe">' . self::printArrayOutput($_COOKIE, '$_COOKIE') . '</div>
+<div class="toggleButtonInline">$_FILES</div><div class="toggleMe">' . self::printArrayOutput($_FILES, '$_FILES') . '</div>
+<div class="toggleButtonInline">$_REQUEST</div><div class="toggleMe">' . self::printArrayOutput($_REQUEST, '$_REQUEST') . '</div>
+<div class="toggleButtonInline">$_SERVER</div><div class="toggleMe">' . self::printArrayOutput($_SERVER, '$_SERVER') . '</div>
+<div class="toggleButtonInline">$_SESSION</div><div class="toggleMe">' . self::printArrayOutput($_SESSION, '$_SESSION') . '</div>
+<div style="color:red;font-weight:bold;border-top:1px dotted #333;">END DEBUG</div>
 </div>';
-		self::add($output);
-		return $this->collector;
 	}
 
 	public function readLog() {
@@ -177,45 +177,46 @@ If the problem persists please contact the IT Department.<br>');
 		 */
 		try{
 			if( !file_exists(LOG_PATH) ){
-				if( !is_writable(LOG_PATH) ){
-					throw new CustomException('', 'The debug log file does not exist and the path is not writeable. Modify the permissions for this location to allow debug: ' . LOG_PATH);
-				}else{
-					throw new CustomException('', 'The debug log file does not exist at: ' . LOG_PATH);
-				}
-			}else{
-				// Check the filesize. If it reaches a certain size we will remove old data.
-				$handle = fopen(LOG_PATH, "r+");// TODO: need a check to see if this file can be opened. The checks above do not catch it when the permissions are set to root.
-				clearstatcache();
-				$filesize = filesize(LOG_PATH);
-				$memory = 2097152;
-				if( $filesize > $memory ){// = 2 MB
-					$this->add('The filesize is over 2 MB.<br>');
-					ftruncate($handle, 524288);// Reduce the size to 512 KB or .5 MB, by chopping off the end. This works as we are prepending, so the newest data is on top.
-				}
-				// Prepend the data to the debug log file.
-				$cache_new = self::output(); // this gets prepended
-				$len = strlen($cache_new);
-				$final_len = $filesize + $len;
-				$cache_old = fread($handle, $len);
-				rewind($handle);
-				$i = 1;
-				while( ftell($handle) < $final_len ){
-					// If the php configuration has a low memory setting this section may overwhelm it and cause the script to stop. It will use up too much memory.
-					fwrite($handle, $cache_new);
-					$cache_new = $cache_old;
-					$cache_old = fread($handle, $len);
-					fseek($handle, $i * $len);
-					$i++;
-				}
-
-				/*fopen(LOG_PATH, 'w');
-				$debugFile = fopen(LOG_PATH, 'w');
-				fwrite($handle, self::output());*/
-//				die(self::output());
-				fclose($handle);
+				throw new CustomException('', 'The log file does not exist at: ' . LOG_PATH);
 			}
+			if( !is_writable(LOG_PATH) ){
+				throw new CustomException('', 'The log file is not writeable. Modify the permissions for this location: ' . LOG_PATH);
+			}
+			if( !is_readable(LOG_PATH) ){
+				throw new CustomException('', 'The log file is not readable. Modify the permissions for this location: ' . LOG_PATH);
+			}
+			// Check the filesize. If it reaches a certain size we will remove old data.
+			$handle = fopen(LOG_PATH, "r+");
+			clearstatcache();
+			$filesize = filesize(LOG_PATH);
+			$memory = 2097152;
+			if( $filesize > $memory ){// = 2 MB
+				$this->add('The filesize is over 2 MB.<br>');
+				ftruncate($handle, 524288);// Reduce the size to 512 KB or .5 MB, by chopping off the end. This works as we are prepending, so the newest data is on top.
+			}
+			// Prepend the data to the debug log file.
+			$cache_new = self::output(); // this gets prepended
+			$len = strlen($cache_new);
+			$final_len = $filesize + $len;
+			$cache_old = fread($handle, $len);
+			rewind($handle);
+			$i = 1;
+			while( ftell($handle) < $final_len ){
+				// If the php configuration has a low memory setting this section may overwhelm it and cause the script to stop. It will use up too much memory.
+				fwrite($handle, $cache_new);
+				$cache_new = $cache_old;
+				$cache_old = fread($handle, $len);
+				fseek($handle, $i * $len);
+				$i++;
+			}
+
+			/*fopen(LOG_PATH, 'w');
+			$debugFile = fopen(LOG_PATH, 'w');
+			fwrite($handle, self::output());*/
+//				die(self::output());
+			fclose($handle);
 		}catch( CustomException $exception ){
-			die('5twqh');
+			die($this->output());
 		}catch( \Exception $exception ){
 			die('An error was thrown in ' . __CLASS__ . ': <pre>' . $exception . '</pre>');
 		}

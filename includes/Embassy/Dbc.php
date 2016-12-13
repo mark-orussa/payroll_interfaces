@@ -7,7 +7,7 @@ class Dbc extends PDO {
 	private $status;
 
 	public function __construct($Debug, $hostname, $databaseName, $port, $user, $password) {
-		$this->Debug = &$Debug;
+		$this->Debug = $Debug;
 		$this->status = false;
 		$this->Debug->newFile('includes/Embassy/Dbc.php');
 
@@ -43,7 +43,6 @@ class Dbc extends PDO {
 		}catch( PDOException $e ){
 			// maybe do some logging here?
 			die('funkytown2');
-			//throw $e . $Debug;
 		}
 		return $t;
 	}

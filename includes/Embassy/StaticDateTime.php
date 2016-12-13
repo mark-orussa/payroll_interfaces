@@ -254,7 +254,6 @@ FROM
 		$newDatetime = new DateTime('@' . $timestamp);
 		//$newDatetime->setTimestamp($timestamp);
 		$Debug->add($newDatetime->format($_SESSION['dateFormat'] . ' h:m:s'));
-		//die($Debug->output());
 		if( $format ){
 			return $newDatetime->format($_SESSION['dateFormat']);
 		}else{

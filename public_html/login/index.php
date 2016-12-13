@@ -6,7 +6,7 @@
  * Time: 5:00 PM
  */
 
-require '../config.php';
+require '../../config.php';
 $Page->setTitleAndFilename('Login','login/index.php');
 $Page->addJs('https://www.google.com/recaptcha/api.js','async defer');
 $Page->addBody($Auth->buildLogin());

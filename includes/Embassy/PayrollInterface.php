@@ -741,7 +741,6 @@ SET
 			$file_name = $path_parts['basename'];
 			$file_ext = $path_parts['extension'];
 			$this->Debug->printArray($path_parts, '$path_parts');
-			//die($this->Debug->output(true));
 
 // allow a file to be streamed instead of sent as an attachment
 			$is_attachment = isset($_REQUEST['stream']) ? false : true;

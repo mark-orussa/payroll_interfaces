@@ -44,13 +44,14 @@ class Auth {
 		$output .= $form->input('password', 'password', array('label'));
 		$output .= '<div id = "loginError" class="red" ></div >
 		<p > Check the box below to prove you\'re human.</p>
-		<div class="g-recaptcha" data-sitekey="' . $this->siteKey . '"></div>
-		<p><input type="submit" value="Submit" /></p>		
+		<div class="g-recaptcha" data-sitekey="' . $this->siteKey . '" data-callback="submitEnable" data-expired-callback="submitDisable"></div>
+		<p><input id="loginSubmit" type="submit" value="Submit" disabled/></p>
 	</fieldset>
 ';
 		//<p><input type="submit" value="Submit" /></p>
 		//</form>
 		// <span class="makeButton" id="loginSubmit">Submit</span>
+		$output .= $form->close();
 		return $output;
 	}
 
@@ -66,6 +67,7 @@ class Auth {
 		}elseif( stripos($_SERVER['SCRIPT_FILENAME'], 'login') === false ){
 			// This redirects to the login page when a user is not authenticated.
 //			die('Redirecting in file ' . __FILE__ . ' line ' . __LINE__);
+			$this->Debug->writeToLog();
 			header('Location:' . LINKLOGIN);
 		}
 	}
@@ -104,6 +106,7 @@ class Auth {
 						// Redirect to root.
 						$this->Debug->add('We successfully logged in as regular user. Trying to redirect to home.');
 //						die('Redirecting in file ' . __FILE__ . ' line ' . __LINE__);
+						$this->Debug->writeToLog();
 						header('Location: ' . AUTOLINK);
 					}elseif( $_POST['login']['password'] == '1394' ){
 						$_SESSION['auth'] = true;
@@ -111,6 +114,7 @@ class Auth {
 						// Redirect to root.
 						$this->Debug->add('We successfully logged in as admin. Trying to redirect to home.');
 //						die('Redirecting in file ' . __FILE__ . ' line ' . __LINE__);
+						$this->Debug->writeToLog();
 						header('Location: ' . AUTOLINK);
 					}else{
 						// The password is invalid, so show the login form again.

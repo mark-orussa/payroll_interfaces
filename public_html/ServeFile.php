@@ -5,7 +5,7 @@
  * Date: 6/3/2016
  * Time: 4:23 PM
  */
-require_once('config.php');
+require_once('../config.php');
 $Page->setTitleAndFilename('Serve File', 'ServeFile.php');
 $loadPayrollInterface = new Embassy\PayrollInterface($Ajax, $Dbc, $Debug, $Message);
 if( !empty($Message) ){
