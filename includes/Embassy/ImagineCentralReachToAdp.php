@@ -132,7 +132,7 @@ Class ImagineCentralReachToAdp extends PayrollInterface {
 			}
 			$this->_travelHoursOutgoingFilePath = $this->outgoingFilePath;
 		}catch( CustomException $e ){
-			$this->Debug->error(__LINE__, '', $e);
+			$this->Debug->error(__LINE__, '', $e, false);
 			return false;
 		}catch( ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);

@@ -1031,7 +1031,7 @@ WHERE
 			foreach( $row as $value ){
 				str_replace('"', '', $value);
 			}
-			$reportObject = new SunLifeReportValidateRows(); // I'm using a class here to make it easier to deal with all of these variables. They have to be modified and then exported in a specific order to work with the related mysql query. If I was to use an array it would be too easy for them to get out of order, miss a value, or be  incorrectly indexed. The class handles all of the data easily in one organized file and can be easily modified to make changes or add fields.
+			$reportObject = new SunLifeReportValidateRows($this->Debug, $this->Message); // I'm using a class here to make it easier to deal with all of these variables. They have to be modified and then exported in a specific order to work with the related mysql query. If I was to use an array it would be too easy for them to get out of order, miss a value, or be  incorrectly indexed. The class handles all of the data easily in one organized file and can be easily modified to make changes or add fields.
 
 			// Look for missing employee_id.
 			$errors = array();

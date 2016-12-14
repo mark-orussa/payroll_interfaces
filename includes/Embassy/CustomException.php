@@ -21,14 +21,14 @@ class CustomException extends Exception {
 
 		//Add the messages.
 		$trace = parent::getTrace();
-		$temp = '<div style="border: 2px dashed darkolivegreen;">
-	<div style="style="font-weight: bold"></span> Custom Exception</div>
+		$forDebug = '<div style="border: 2px dashed darkolivegreen;">
+	<div style="font-weight: bold"></span> Custom Exception</div>
 ';
 		$traceArgs = '';
 		if( is_array($trace) ){
 			foreach( $trace as $traceKey => $traceValue ){
 				$traceValue['class'] = empty($traceValue['class']) ? '' : $traceValue['class'];
-				$temp .= '	<span style="font-weight: bold">File:</span>' . $traceValue['file'] . ' line ' . $traceValue['line'] . '
+				$forDebug .= '	<span style="font-weight: bold">File:</span>' . $traceValue['file'] . ' line ' . $traceValue['line'] . '
 	<div><span style="font-weight: bold">Function Called:</span>' . $traceValue['class'] . '->' . $traceValue['function'] . '(';
 				if( isset($traceValue['args']) ){
 					foreach( $traceValue['args'] as $key => $value ){
@@ -49,15 +49,15 @@ class CustomException extends Exception {
 						}
 					}
 				}
-				$temp .= ')</div>';
+				$forDebug .= ')</div>';
 			}
 		}
-		$temp .= $traceArgs . '<br>
+		$forDebug .= $traceArgs . '<br>
 	<span style="font-weight: bold">Class File:</span>' . parent::getFile() . ' on line ' . parent::getLine() . '<br>
 	<span style="font-weight: bold">Public Message:</span>' . $Message . '
 	<span style="font-weight: bold">Private Message:</span>' . $debugMessage . '</span>
 </div>';
-		$Debug->error(__LINE__, $publicMessage, $temp);
+		$Debug->error(__LINE__, $publicMessage, $forDebug);
 		$code = (int)$code;
 		parent::__construct($publicMessage, $code, $previous);
 		return ($publicMessage);

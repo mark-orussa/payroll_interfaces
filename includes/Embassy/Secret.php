@@ -34,7 +34,7 @@ class Secret {
 		 * @param $secretsFileLocation    string    The full system path to the secrets file, starting with a slash (i.e. /var/www).
 		 */
 		$this->Debug = $Debug;
-		$this->Message = &$Message;
+		$this->Message = $Message;
 		$this->Debug->newFile('includes/Embassy/Secrets.php');
 		try{
 			// Read the key file.

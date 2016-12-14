@@ -68,14 +68,8 @@ class Debug {
 		 */
 		$temp = self::printArrayOutput($_SESSION, '$_SESSION');
 		$temp .= self::printArrayOutput($_REQUEST, '$_REQUEST');
-		if( empty($publicMessage) ){
-			if( strstr($this->Message, 'encountered a technical problem') === false ){
-				$this->Message->add('We\'ve encountered a technical problem that is preventing information from being shown. Please try again in a few moments.<br>
-If the problem persists please contact the IT Department.<br>');
-			}
-		}else{
-			$this->Message->add($publicMessage);
-		}
+		$this->Message->add($publicMessage);
+
 		self::add($debugMessage);
 		return $this->Message;
 	}

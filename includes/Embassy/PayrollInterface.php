@@ -38,6 +38,7 @@ class PayrollInterface {
 		$this->Message = $Message;
 
 		if( MODE == 'serveFile' ){
+			// We don't need to do anything else when serving a file.
 			self::serveFile();
 		}else{
 			$this->databaseTable = '';
@@ -446,14 +447,14 @@ SET
 			if( self::saveToDatabasePayroll() === false ){
 				throw new CustomException('Could not save the data to the database.');
 			};
-		}catch( CustomException $e ){
-			$this->Debug->error(__LINE__, '', $e);
+		}catch( CustomException $exception ){
+			$this->Debug->error(__LINE__, '', $exception, false);
 			return false;
-		}catch( ErrorException $e ){
-			$this->Debug->error(__LINE__, '', $e);
+		}catch( ErrorException $exception ){
+			$this->Debug->error(__LINE__, '', $exception);
 			return false;
-		}catch( Exception $e ){
-			$this->Debug->error(__LINE__, '', $e);
+		}catch( Exception $exception ){
+			$this->Debug->error(__LINE__, '', $exception);
 			return false;
 		}
 		return true;
@@ -662,7 +663,7 @@ SET
 					$field_count = count($row);
 
 					if( $field_count != 13 ){
-						throw new CustomException('The number of fields in the CSV file has changed since this interface was last edited. Please contact the IT Department.', 'There are ' . $field_count . ' fields in the CSV file instead of 13.');
+						throw new CustomException('The number of fields in the CSV file has changed since this interface was last edited. Are you sure you are uploading the correct document? There should be 13 fields.', 'There are ' . $field_count . ' fields in the CSV file instead of 13.');
 					}
 					// Ignore the header row.
 					if( $row[0] !== "EmpXRef" ){
@@ -724,7 +725,7 @@ SET
 				throw new CustomException('', '$_POST[\'fileName\'] is empty.');
 			}
 			$this->Ajax->SetSuccess(true);
-			$this->Message .= 'Sending file';
+			$this->Message->add('Sending file');
 			$this->Debug->add('$_REQUEST[\'filePath\']: ' . $_REQUEST['filePath'] . '$_REQUEST[\'fileName\']: ' . $_REQUEST['fileName']);
 // hide notices
 			//@ini_set('error_reporting', E_ALL & ~E_NOTICE);
@@ -847,11 +848,11 @@ SET
 
 		}catch( CustomException $e ){
 			return false;
-		}catch( ErrorException $e ){
-			$this->Debug->error(__LINE__, '', $e);
+		}catch( ErrorException $exception ){
+			$this->Debug->error(__LINE__, '', $exception);
 			return false;
-		}catch( Exception $e ){
-			$this->Debug->error(__LINE__, '', $e);
+		}catch( Exception $exception ){
+			$this->Debug->error(__LINE__, '', $exception);
 			return false;
 		}
 	}

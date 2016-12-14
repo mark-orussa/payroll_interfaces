@@ -34,9 +34,8 @@ class SunLifeReportValidateRows {
 	public $_spouse_tobacco_status;
 	public $_date_of_report;
 
-	public function __construct() {
-		global $Debug, $Message;
-		$this->Debug =$Debug;
+	public function __construct($Debug, $Message) {
+		$this->Debug = $Debug;
 		$this->Message = $Message;
 	}
 

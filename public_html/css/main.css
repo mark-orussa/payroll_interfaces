@@ -2395,6 +2395,8 @@ html, body, #cover {
   font-family: 'Courier New', Courier, monospace;
   clear: both;
   position: relative; }
+  .debug div {
+    margin: .5em 0; }
 
 .debugTitle {
   border: 1px dotted;
