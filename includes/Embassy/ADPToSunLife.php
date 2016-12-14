@@ -722,7 +722,7 @@ SET
 					$field_count = count($row);
 
 					if( $field_count != 20 ){
-						throw new CustomException('The number of fields in the CSV file has changed since this application was last edited. Please contact the IT Department.', 'There are ' . $field_count . ' fields in the CSV file instead of 17.');
+						throw new CustomException('Are you sure you uploaded a CSV file? The number of fields in the CSV file has changed since this application was last edited. There is supposed to be 20 fields.', 'There are ' . $field_count . ' fields in the CSV file instead of 20.');
 					}
 					// Ignore the header row.
 					if( strpos($row[1], 'First Name') === false ){

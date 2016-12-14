@@ -663,7 +663,7 @@ SET
 					$field_count = count($row);
 
 					if( $field_count != 13 ){
-						throw new CustomException('The number of fields in the CSV file has changed since this interface was last edited. Are you sure you are uploading the correct document? There should be 13 fields.', 'There are ' . $field_count . ' fields in the CSV file instead of 13.');
+						throw new CustomException('The number of fields in the CSV file has changed since this interface was last edited. There should be 13 fields. Are you sure you are uploading the correct document?', 'There are ' . $field_count . ' fields in the CSV file instead of 13.');
 					}
 					// Ignore the header row.
 					if( $row[0] !== "EmpXRef" ){
