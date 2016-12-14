@@ -57,6 +57,12 @@ class Auth {
 
 	public function buildLogout() {
 		if( $this->isAuth() ){
+			return '<div id="logoutContainer"><a class="makeButtonInline" href="' . LINKLOGOUT . '"><i class="fa fa-sign-out"></i>Logout</a></div>';
+		}
+	}
+
+	public function buildLogoutAjax() {
+		if( $this->isAuth() ){
 			return '<div id="logoutContainer"><span id="logout" class="makeButtonInline"><i class="fa fa-sign-out"></i>Logout</span></div>';
 		}
 	}
@@ -150,6 +156,11 @@ class Auth {
 	}
 
 	public function logout() {
+		destroySession();
+		header('Location:' . LINKLOGIN);
+	}
+
+	public function logoutAjax() {
 		try{
 			destroySession();
 			$this->Ajax->SetSuccess(true);

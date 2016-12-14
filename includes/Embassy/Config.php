@@ -221,6 +221,7 @@ class Config {
 			define('LINKJS', AUTOLINK . '/js', 1);
 			define('LINKDOCUMENTS', AUTOLINK . '/documents', 1);
 			define('LINKLOGIN', AUTOLINK . '/login', 1);
+			define('LINKLOGOUT', AUTOLINK . '/login/logout.php', 1);
 		}catch( ParseException $exception ){
 			printf("Unable to parse the YAML string: %s", $exception->getMessage() . ' on line ' . __LINE__ . ' in file ' . __FILE__);
 			die($exception);

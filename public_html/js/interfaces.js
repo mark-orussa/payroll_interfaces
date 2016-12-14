@@ -71,11 +71,15 @@ $(document).ready(function () {
         }
     });
 
+    /*
+    // Not currently in use.
     Page.on("click", "#logout", function () {
         var mode = '';
         logout();
-    });
+    });*/
 
+    /*
+    Not currently in use.
     Page.on("click", "#loginSubmit", function () {
         var passwordField = $("input[name='password']");
         if ($("input[name='password']").val() != '') {
@@ -85,7 +89,7 @@ $(document).ready(function () {
             $("#loginError").html('Please enter the password.');
             passwordField.focus();
         }
-    });
+    });*/
 
     Page.on("keypress", "input[name='password']", function (e) {
         if (e.which == 13) {
@@ -520,7 +524,8 @@ $(document).ready(function () {
             beforeSend: function () {
                 spinnerShow('working…');
             },
-            error: function () {
+            error: function (e) {
+                console.log(e);
                 spinnerShow('error logout');
             },
             success: function (result) {
