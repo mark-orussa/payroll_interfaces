@@ -2530,25 +2530,9 @@ form {
   margin: 0; }
 
 #message {
-  border: 0.5rem solid #d1f2a5;
-  border-radius: 0.4rem;
-  -moz-border-radius: 0.4rem;
-  -webkit-border-radius: 0.4rem;
-  -webkit-box-shadow: 0px 4px 5px 0px #999999;
-  -moz-box-shadow: 0px 4px 5px 0px #999999;
-  box-shadow: 0px 4px 3px 0px #999999;
-  position: fixed;
-  background-color: white;
-  font-size: 1.2em;
-  padding: 1em 0;
-  margin: 0;
-  top: 0;
-  width: 100%;
   color: red;
   text-align: center;
   z-index: 2; }
-  #message p {
-    margin: 0 0 1em; }
 
 .newPage {
   font-weight: bold;

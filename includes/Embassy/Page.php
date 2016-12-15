@@ -205,7 +205,11 @@ class Page {
 		</div>
 		<div id="closeButtonRepository" style="display:none"><div class="generalCancel"><i class="fa fa-close"></i> Close</div></div>
 		<div id="floater" class="floater"></div>
-		' . $this->Message . $this->Auth->buildLogout() . $this->body . '
+		';
+		if(1 == 0){
+			$output .= $this->Message;
+		}
+		$output	.= $this->Auth->buildLogout() . $this->body . '
 	</body >
 </html > ';
 		return $output;

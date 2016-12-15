@@ -217,7 +217,7 @@ form {
 }
 
 #message {
-  @include floaterContent;
+  //@include floaterContent;
   color: red;
   text-align: center;
   z-index: 2;
