@@ -116,11 +116,11 @@ $Page->addBody('<div class="toggleButton">
 			Manage Salaried Employees
 		</div>
 		<div class="toggleMe">
-			<p>The Central interfaces exclude salaried employees. This section is used to manage the salaried employees that will be ignored.</p>
+			<p>The Central Reach interfaces exclude salaried employees. This section is used to manage the salaried employees who will be ignored.</p>
 			<label for="newEmpXRef">Enter the EmpXRef code (Employee number) for salaried employees, one at a time: </label><input name="newEmpXRef" id="newEmpXRef"> <input type="button" id="addNewEmpXRef" class="makeButton" value="Add EmpXRef to List"> <span id="EmpXRef
 			" class="error"></span>
 			<p>The numbers below are current salaried EmpXRef numbers. These employees are not included in the Central Reach interfaces.<br>
-			Click on the red X to remove the number from the list.</p>
+			Click on the red <i class="fa fa-close red" style="margin:0 .25em"></i></i> to remove the number from the list.</p>
 			<div class="XRefContainer" id="EmpXRefContainer">' . $Interface->listEmpXRef() . '</div>
 		</div>');
 

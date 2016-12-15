@@ -188,8 +188,8 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 			if( $rowsFound === false ){
 				throw  new CustomException('No hours were found.');
 			}
-			self::modifyHours($row);// We need to run this one last time to complete the last record.
-			$this->Debug->add($selectQuery->rowCount() . ' rows returned in on line ' . __LINE__ . ' in file ' . __FILE__ . '.');
+			self::modifyHours($row, true);// We need to run this one last time to complete the last record.
+			$this->Debug->add($selectQuery->rowCount() . ' rows returned on line ' . __LINE__ . ' in file ' . __FILE__ . '.');
 		}catch( CustomPDOException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			return false;
@@ -208,7 +208,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 		return true;
 	}
 
-	private function modifyHours($row) {
+	private function modifyHours($row, $finalRow = false) {
 		/**
 		 * Modify the hours data.
 		 *
@@ -234,15 +234,20 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 					$row['JobXRef'] = 'HICHILDPRO';
 				}
 			}
-			// Look for unrecognized job codes.
-			if( empty($this->jobXRefArray[$row['JobXRef']]) ){
-				$this->unrecognizedJobCodesArray[] = $row;
-			}else{
-				$row['Job Code'] = $this->jobXRefArray[$row['JobXRef']];
-			}
 
-			$row['inDatetime'] = Time::convertToDateTime($row['timeworkedfrom']);
-			$row['outDatetime'] = Time::convertToDateTime($row['timeworkedto']);
+			if( !$finalRow ){
+				//If we are only forcing the processing of the final row we will skip this to avoid false errors.
+				// Look for unrecognized job codes.
+				if( empty($this->jobXRefArray[$row['JobXRef']]) ){
+					$this->unrecognizedJobCodesArray[] = $row;
+					$this->Debug->printArray($row,'This row has an unrecognized JobXRef code.');
+				}else{
+					$row['Job Code'] = $this->jobXRefArray[$row['JobXRef']];
+				}
+
+				$row['inDatetime'] = Time::convertToDateTime($row['timeworkedfrom']);
+				$row['outDatetime'] = Time::convertToDateTime($row['timeworkedto']);
+			}
 
 			if( empty($this->hoursGroup) ){
 				// Add new information to hoursGroup.
@@ -262,18 +267,21 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 				$this->regularHoursGroup = array();
 			}
 
-			// Set the nonbill status.
-			if( strstr($row['JobXRef'], 'NONBILL') !== false || strstr($row['ProcedureCodeString'], 'Non-Bill') !== false ){
-				// NONBILL exists in the JobXRef or ProcedureCodeString. Add them to our NONBILL hours group array.
-				$this->nonbillHoursGroup[] = $row;
-				$row['NONBILL'] = true;
-			}else{
-				// These are regular hours. Add them to our regular hours group array.
-				if( in_array($row['EmpXRef'], $this->specialCases) ){
-					$row['JobXRef'] = 'HICHILDPRO';
+			if( !$finalRow ){
+				//If we are only forcing the processing of the final row we will skip this to avoid false errors.
+				// Set the nonbill status.
+				if( strstr($row['JobXRef'], 'NONBILL') !== false || strstr($row['ProcedureCodeString'], 'Non-Bill') !== false ){
+					// NONBILL exists in the JobXRef or ProcedureCodeString. Add them to our NONBILL hours group array.
+					$this->nonbillHoursGroup[] = $row;
+					$row['NONBILL'] = true;
+				}else{
+					// These are regular hours. Add them to our regular hours group array.
+					if( in_array($row['EmpXRef'], $this->specialCases) ){
+						$row['JobXRef'] = 'HICHILDPRO';
+					}
+					$this->regularHoursGroup[] = $row;
+					$row['NONBILL'] = false;
 				}
-				$this->regularHoursGroup[] = $row;
-				$row['NONBILL'] = false;
 			}
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
