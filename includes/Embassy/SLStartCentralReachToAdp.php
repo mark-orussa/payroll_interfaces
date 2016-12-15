@@ -257,7 +257,6 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 				}
 				// Reset arrays.
 				$this->hoursGroup = array($row);// This row is either a new employee or a new day.
-				$this->Debug->printArray($row,'$row in modifyHours on line ' . __LINE__);
 
 				$this->nonbillHoursGroup = array();
 				$this->regularHoursGroup = array();
