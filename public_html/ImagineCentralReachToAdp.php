@@ -1,7 +1,6 @@
 <?php
 require_once('../config.php');
 $Page->setTitleAndFilename('Imagine CentralReach to ADP Interface Output', 'ImagineCentralReachToAdp.php');
-$Page->addJs('interfaces.js');
 $Debug->add('Starting the interface.');
 $ImagineCentralReachToAdp = new Embassy\ImagineCentralReachToAdp($Ajax, $Dbc, $Debug, $Message,'imagine_file', './uploads', './downloads', 'centralreach_payroll_interface');
 $fileInfo = $ImagineCentralReachToAdp->getFileInfo();

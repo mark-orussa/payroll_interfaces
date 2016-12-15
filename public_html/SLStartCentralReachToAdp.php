@@ -1,6 +1,5 @@
 <?php require_once('../config.php');
 $Page->setTitleAndFilename('SL Start CentralReach to ADP Interface Output', 'SLStartCentralReachToAdp.php');
-$Page->addJs('interfaces.js');
 $SlstartCentralReachToAdp = new Embassy\SLStartCentralReachToAdp($Ajax, $Dbc, $Debug, $Message,'slstart_file', './uploads', './downloads', 'centralreach_payroll_interface');
 $fileInfo = $SlstartCentralReachToAdp->getFileInfo();
 $Page->addBody('

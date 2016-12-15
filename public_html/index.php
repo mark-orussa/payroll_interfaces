@@ -7,7 +7,6 @@
  */
 require_once('../config.php');
 $Page->setTitleAndFilename('Payroll Interfaces', 'public_html/index.php');
-$Page->addJs('interfaces.js');
 
 $Interface = new Embassy\PayrollManagement($Ajax, $Dbc, $Debug, $Message);
 $OtherTable = new Embassy\OtherTable($Ajax, $Dbc, $Debug, $Message);

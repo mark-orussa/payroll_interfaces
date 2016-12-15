@@ -1,8 +1,6 @@
 <?php
 namespace Embassy;
 
-use PDO, ErrorException, Exception;
-
 /**
  * Created by PhpStorm.
  * User: morussa
@@ -52,10 +50,10 @@ LIMIT 1");
 			$this->Message->add('Deleted the EmpXRef.');
 		}catch( CustomException $e ){
 			$this->Ajax->ReturnData();
-		}catch( ErrorException $e ){
+		}catch( \ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();
-		}catch( Exception $e ){
+		}catch( \Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();
 		}
@@ -79,10 +77,10 @@ LIMIT 1");
 			$this->Message->add( 'Deleted the JobXRef.');
 		}catch( CustomException $e ){
 			$this->Ajax->ReturnData();;
-		}catch( ErrorException $e ){
+		}catch( \ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
-		}catch( Exception $e ){
+		}catch( \Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
 		}
@@ -106,10 +104,10 @@ LIMIT 1;");
 			$this->Message->add('Deleted the Master Level EmpXRef.');
 		}catch( CustomException $e ){
 			$this->Ajax->ReturnData();;
-		}catch( ErrorException $e ){
+		}catch( \ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
-		}catch( Exception $e ){
+		}catch( \Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
 		}
@@ -125,7 +123,7 @@ ORDER BY EmpXRef");
 			$listEmpXRefStmt->execute();
 			$output .= '<ul>';
 			$foundRows = false;
-			while( $row = $listEmpXRefStmt->fetch(PDO::FETCH_ASSOC) ){
+			while( $row = $listEmpXRefStmt->fetch(\PDO::FETCH_ASSOC) ){
 				$output .= '<li><i class="fa fa-close deleteEmpXRef red" data-empxref="' . $row['EmpXRef'] . '"></i> ' . $row['EmpXRef'] . '</li>';
 				$foundRows = true;
 			}
@@ -137,13 +135,13 @@ ORDER BY EmpXRef");
 			$this->Ajax->AddValue(array('list' => $output));
 		}catch( CustomException $e ){
 			$this->Ajax->ReturnData();;
-		}catch( ErrorException $e ){
+		}catch( \ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
-		}catch( Exception $e ){
+		}catch( \Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
-		}catch( Error $e ){
+		}catch( \Error $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
 		}
@@ -164,7 +162,7 @@ ORDER BY EmpXRef");
 			$foundRows = false;
 			$x = 1;
 			$output .= '<tr><td></td><td style="text-align:left;padding-left:3em;font-weight:bold">JobXRef</td><td style="text-align:left;font-weight:bold">Job Code</td></tr>';
-			while( $row = $listJobXRefStmt->fetch(PDO::FETCH_ASSOC) ){
+			while( $row = $listJobXRefStmt->fetch(\PDO::FETCH_ASSOC) ){
 				if( $x % 2 == 0 ){
 					$bg = 'white';
 				}else{
@@ -182,10 +180,10 @@ ORDER BY EmpXRef");
 			$this->Ajax->AddValue(array('list' => $output));
 		}catch( CustomException $e ){
 			$this->Ajax->ReturnData();;
-		}catch( ErrorException $e ){
+		}catch( \ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
-		}catch( Exception $e ){
+		}catch( \Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
 		}
@@ -207,7 +205,7 @@ ORDER BY level, EmpXRef;");
 			$foundRows = false;
 			$x = 1;
 			$output .= '<tr><td></td><td style="text-align:left;padding-left:3em;font-weight:bold">EmpXRef</td><td style="text-align:left;font-weight:bold">Level</td></tr>';
-			while( $row = $listMasterLevelEmpXRefStmt->fetch(PDO::FETCH_ASSOC) ){
+			while( $row = $listMasterLevelEmpXRefStmt->fetch(\PDO::FETCH_ASSOC) ){
 				if( $x % 2 == 0 ){
 					$bg = 'white';
 				}else{
@@ -225,10 +223,10 @@ ORDER BY level, EmpXRef;");
 			$this->Ajax->AddValue(array('list' => $output));
 		}catch( CustomException $e ){
 			$this->Ajax->ReturnData();;
-		}catch( ErrorException $e ){
+		}catch( \ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
-		}catch( Exception $e ){
+		}catch( \Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
 		}
@@ -264,10 +262,10 @@ SET
 			$this->Ajax->AddValue(array('list' => self::listEmpXRef()));
 		}catch( CustomException $e ){
 			$this->Ajax->ReturnData();;
-		}catch( ErrorException $e ){
+		}catch( \ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
-		}catch( Exception $e ){
+		}catch( \Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
 		}
@@ -296,7 +294,7 @@ WHERE
 	JobXRef LIKE('%" . $_POST['JobXRef'] . "%')");
 			$output .= '<ul>';
 			$foundRows = false;
-			while( $row = $checkStmt->fetch(PDO::FETCH_ASSOC) ){
+			while( $row = $checkStmt->fetch(\PDO::FETCH_ASSOC) ){
 				$output .= '<li>' . $row['JobXRef'] . ': ' . $row['JobCode'] . '</li>';
 				$foundRows = true;
 			}
@@ -319,10 +317,10 @@ SET
 			}
 		}catch( CustomException $e ){
 			$this->Ajax->ReturnData();;
-		}catch( ErrorException $e ){
+		}catch( \ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
-		}catch( Exception $e ){
+		}catch( \Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
 		}
@@ -365,10 +363,10 @@ SET
 			$this->Ajax->AddValue(array('list' => self::listMasterLevelEmpXRef()));
 		}catch( CustomException $e ){
 			$this->Ajax->ReturnData();;
-		}catch( ErrorException $e ){
+		}catch( \ErrorException $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
-		}catch( Exception $e ){
+		}catch( \Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			$this->Ajax->ReturnData();;
 		}

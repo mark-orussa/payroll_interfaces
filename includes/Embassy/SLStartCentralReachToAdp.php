@@ -239,8 +239,9 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 				//If we are only forcing the processing of the final row we will skip this to avoid false errors.
 				// Look for unrecognized job codes.
 				if( empty($this->jobXRefArray[$row['JobXRef']]) ){
+					// Skip this entry
 					$this->unrecognizedJobCodesArray[] = $row;
-					$this->Debug->printArray($row,'This row has an unrecognized JobXRef code.');
+					throw new CustomException('','Skipping an unrecognized JobXRef code.');
 				}else{
 					$row['Job Code'] = $this->jobXRefArray[$row['JobXRef']];
 				}
@@ -283,6 +284,8 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 					$row['NONBILL'] = false;
 				}
 			}
+		}catch( CustomException $exception ){
+			return false;
 		}catch( Exception $e ){
 			$this->Debug->error(__LINE__, '', $e);
 			return false;
