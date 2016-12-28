@@ -48,18 +48,20 @@ class SLStartCentralReachToAdp extends PayrollInterface {
 
 	// Properties
 	/**
-	 * @hoursGroup           array This holds all of the dates of service for an employee. When the employee has no more dates of service it is reset.
-	 * @regularHoursGroup    array    This holds all of the regular hours
+	 * @param           $hoursGroup    array This holds all of the dates of service for an employee. When the employee has no more dates of service it is reset.
+	 * @param    $regularHoursGroup    array This holds all of the regular hours.
+	 * @param    $nonbillHoursGroup    array This holds all of the NONBILL hours.
+	 *
 	 */
 
 	private $_output;
 
-	private $outgoingHoursFileName;
 	private $hours;
 	private $specialCases;
 	private $latestDateDatetime;
 	private $timeFormat;
 	private $dateFormat;
+	private $outgoingHoursFileName;
 	private $hoursGroup;
 	private $regularHoursGroup;
 	private $nonbillHoursGroup;
@@ -241,7 +243,7 @@ ORDER BY EmpXRef ASC,timeworkedfrom ASC");
 				if( empty($this->jobXRefArray[$row['JobXRef']]) ){
 					// Skip this entry
 					$this->unrecognizedJobCodesArray[] = $row;
-					throw new CustomException('','Skipping an unrecognized JobXRef code.');
+					throw new CustomException('', 'Skipping an unrecognized JobXRef code.');
 				}else{
 					$row['Job Code'] = $this->jobXRefArray[$row['JobXRef']];
 				}

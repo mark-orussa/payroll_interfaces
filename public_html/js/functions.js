@@ -15,7 +15,7 @@ if (document.location.href.indexOf('dev') != -1 || document.location.href.match(
     var local = true;
     var autolink = parts[0] + 'pi.embassyllc.dev';
     var cookiedomain = '.pi.embassyllc.dev';
-    var cookiepath = '/pi.embassyllc.dev';
+    var cookiepath = '/';
     console.log('local');
 } else {
     //Remote
