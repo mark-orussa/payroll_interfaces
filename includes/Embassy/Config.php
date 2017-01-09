@@ -40,6 +40,7 @@ class Config {
 	private $databaseCredentials;
 	private $emailCredentials;
 	private $googleCaptchaSecret;
+	private $googleCaptchaSiteKey;
 
 
 	public function __construct($configPath) {
@@ -63,6 +64,7 @@ class Config {
 		$this->databaseCredentials = array();
 		$this->emailCredentials = array();
 		$this->googleCaptchaSecret = '';
+		$this->googleCaptchaSiteKey = '';
 
 		//Define the current local time.
 		date_default_timezone_set('UTC');
@@ -143,9 +145,16 @@ class Config {
 				define('LOG_PATH', $config['LOG_PATH']);
 			}
 			if( !isset($config['GOOGLE_CAPTCHA_SECRET']) ){
+				die('Could not get GOOGLE_CAPTCHA_SECRET');
 				throw new CustomException('', 'GOOGLE_CAPTCHA_SECRET value not found in config file.');
 			}else{
 				$this->googleCaptchaSecret = $config['GOOGLE_CAPTCHA_SECRET'];
+			}
+			if( !isset($config['GOOGLE_CAPTCHA_SITE_KEY']) ){
+				die('Could not get GOOGLE_CAPTCHA_SITE_KEY');
+				throw new CustomException('', 'GOOGLE_CAPTCHA_SITE_KEY value not found in config file.');
+			}else{
+				$this->googleCaptchaSiteKey = $config['GOOGLE_CAPTCHA_SITE_KEY'];
 			}
 			if( !isset($config['SESSION_NAME']) ){
 				die('Could not get SESSION_NAME');
@@ -214,7 +223,16 @@ class Config {
 			}else{
 				$this->emailCredentials['EMAIL_PORT'] = $config['EMAIL_PORT'];
 			}
-
+			if( !isset($config['PASSWORD']) ){
+				throw new CustomException('', 'PASSWORD value not found in config file.');
+			}else{
+				define('PASSWORD', $config['PASSWORD']);
+			}
+			if( !isset($config['PASSWORD_ADMIN']) ){
+				throw new CustomException('', 'PASSWORD_ADMIN value not found in config file.');
+			}else{
+				define('PASSWORD_ADMIN', $config['PASSWORD_ADMIN']);
+			}
 			define('AUTOLINK', PROTOCOL . DOMAIN, true);
 			define('LINKCSS', AUTOLINK . '/css', 1);
 			define('LINKIMAGES', AUTOLINK . '/images', 1);
@@ -255,5 +273,11 @@ class Config {
 		 * @return string
 		 */
 		return $this->googleCaptchaSecret;
+	}
+	public function getGoogleCaptchaSiteKey() {
+		/**
+		 * @return string
+		 */
+		return $this->googleCaptchaSiteKey;
 	}
 }

@@ -98,7 +98,7 @@ class Form {
 		$output .= $this->Ajax ? ' data-Ajax="1">' : '>';
 
 		// Generate a cross site request forgery (CSRF) prevention token.
-		$_SESSION['CSRF'] = $_SESSION['CSRF'] == '' ? md5(time()) : $_SESSION['CSRF'];
+		$_SESSION['CSRF'] = isset($_SESSION['CSRF']) ? $_SESSION['CSRF'] : md5(time());
 		if($_SESSION['CSRF'] == ''){
 			die('Could not set $_SESSION[\'CSRF\'].');
 		}

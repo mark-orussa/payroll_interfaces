@@ -25,7 +25,7 @@ class Auth {
 		$this->Debug = $Debug;
 		$this->Message = $Message;
 		$this->Debug->newFile('includes/Embassy/Auth');
-		$this->siteKey = '6LcCPgwUAAAAAIFRz9cJwRYtk7clMYiMODfCdGF2';
+		$this->siteKey = $this->Config->getGoogleCaptchaSiteKey();
 //		$this->secret = $Secret->decrypt($Config->getGoogleCaptchaSecret());/ No longer using Defuse.
 
 		if( MODE == 'login' ){
@@ -107,14 +107,14 @@ class Auth {
 						$this->Debug->add('$_POST[\'login\'][\'password\'] is not set.');
 						throw new CustomException('', '$_POST[\'login\'][\'password\'] is not set.');
 					}
-					if( $_POST['login']['password'] == '1234' ){
+					if( $_POST['login']['password'] == PASSWORD ){
 						$_SESSION['auth'] = true;
 						// Redirect to root.
 						$this->Debug->add('We successfully logged in as regular user. Trying to redirect to home.');
 //						die('Redirecting in file ' . __FILE__ . ' line ' . __LINE__);
 						$this->Debug->writeToLog();
 						header('Location: ' . AUTOLINK);
-					}elseif( $_POST['login']['password'] == '1394' ){
+					}elseif( $_POST['login']['password'] == PASSWORD_ADMIN ){
 						$_SESSION['auth'] = true;
 						$_SESSION['admin'] = true;
 						// Redirect to root.
