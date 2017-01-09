@@ -124,6 +124,7 @@ class ADPToSunLife extends PayrollInterface {
 		try{
 			$this->_outputTable = "<table><tr><td>Benefit</td><td>Option</td><td>Age</td><td>Lives</td><td>Rate</td><td>Calculate</td><td>Volume</td><td>Premium</td></tr>";
 			$premiumTotal = 0;
+			$premiumTotalArray = array();
 
 			// Short-Term Disability
 			/*
@@ -565,9 +566,10 @@ WHERE
 						$this->_outputCSV .= round($value) . ',';
 						$lifeAndCriticalIllnessOutput .= '<td>' . self::formatNumberWithCommas($value, 0) . '</td>';
 					}elseif( strpos($key, 'Premium') !== false ){
-						$this->_outputCSV .= round($value, 2) . "\n";
+						$tempPremium = round($value, 2);
+						$this->_outputCSV .= $tempPremium . "\n";
 						$lifeAndCriticalIllnessOutput .= '<td>$' . self::formatNumberWithCommas($value) . '</td>';
-						$premiumTotal += $value;
+						$premiumTotal += $tempPremium;
 					}else{
 						$this->_outputCSV .= $outputCSV1 . ',' . $value . ',' . $outputCSV2;
 						$lifeAndCriticalIllnessOutput .= $infoStuff1 . '<td>' . $value . '</td>' . $infoStuff2;
